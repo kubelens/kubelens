@@ -54,6 +54,16 @@ jobs:
             echo 'export WEB_CHANGED=true' >> $BASH_ENV
             source $BASH_ENV
       - run:
+          name: Get Dependencies
+          command: | 
+            cd ./web
+            npm install
+      - run:
+          name: Application Build
+          command: |
+            cd ./web
+            npm run build
+      - run:
           name: Run Test & Coverage
           command: |
             if ${WEB_CHANGED}; then
@@ -62,7 +72,7 @@ jobs:
               # npm run test
             fi
       - run:
-          name: Build & Push Docker image
+          name: Docker Build Push
           command: |
             if ${WEB_CHANGED}; then
               cd ./web
