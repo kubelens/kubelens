@@ -11,6 +11,9 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
+      - run:
+          name: Skip this job for Pull Requests
+          command: '[[ -v CIRCLE_PR_NUMBER ]] && circleci step halt || true'
       - run: 
           name: Check API Changes
           command: |
@@ -46,6 +49,9 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
+      - run:
+          name: Skip this job for Pull Requests
+          command: '[[ -v CIRCLE_PR_NUMBER ]] && circleci step halt || true'
       - run: 
           name: Check Web Changes
           command: |
