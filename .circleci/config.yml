@@ -39,7 +39,7 @@ jobs:
               DOCKER_USER=${DOCKER_USER} \
               make docker-build-push
             fi
-  
+
   web_build:
     docker: 
       - image: circleci/node:latest
@@ -82,6 +82,12 @@ workflows:
   test_build_deploy:
     jobs:
       - api_build:
+          filters:
+            branches:
+              only: 
+                - staging
+                - master
+      - web_build:
           filters:
             branches:
               only: 
