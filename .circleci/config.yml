@@ -42,6 +42,7 @@ jobs:
 
   web_build:
     docker: 
+      - image: circleci/golang:latest
       - image: circleci/node:latest
     environment:
       VERSION: "1.0"
