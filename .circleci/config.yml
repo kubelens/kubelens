@@ -37,7 +37,7 @@ jobs:
               DOCKER_ID=${DOCKER_ID} \
               DOCKER_USER=${DOCKER_USER} \
               DOCKER_PASS=${DOCKER_PASS} \
-              make -s docker-build-push
+              make docker-build-push
             fi
     
 workflows:
