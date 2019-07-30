@@ -11,9 +11,6 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - run:
-          name: Skip this job for Pull Requests
-          command: '[[ -v CIRCLE_PR_NUMBER ]] && circleci step halt || true'
       - run: 
           name: Check API Changes
           command: |
@@ -28,6 +25,9 @@ jobs:
               cd ./api 
               make test
             fi
+      - run:
+          name: Halt If Pull Request
+          command: '[[ -v CIRCLE_PR_NUMBER ]] && circleci step halt || true'
       - run:
           name: Build & Push Docker image
           command: |
@@ -49,9 +49,6 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - run:
-          name: Skip this job for Pull Requests
-          command: '[[ -v CIRCLE_PR_NUMBER ]] && circleci step halt || true'
       - run: 
           name: Check Web Changes
           command: |
@@ -67,13 +64,6 @@ jobs:
               npm install
             fi
       - run:
-          name: Application Build
-          command: |
-            if ${WEB_CHANGED}; then
-              cd ./web
-              npm run build
-            fi
-      - run:
           name: Run Test & Coverage
           command: |
             if ${WEB_CHANGED}; then
@@ -81,6 +71,16 @@ jobs:
               echo "TODO run tests"
               # npm run test
             fi
+      - run:
+          name: Application Build
+          command: |
+            if ${WEB_CHANGED}; then
+              cd ./web
+              npm run build
+            fi
+      - run:
+          name: Halt If Pull Request
+          command: '[[ -v CIRCLE_PR_NUMBER ]] && circleci step halt || true'
       - run:
           name: Docker Build Push
           command: |
