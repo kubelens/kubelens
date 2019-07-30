@@ -9,7 +9,7 @@ test:
 
 .PHONY: docker-build-push
 docker-build-push:
-	sh ../_scripts/docker-build-push.sh --app kubelens-api --branch ${GIT_BRANCH} --tag ${TAG} --id ${DOCKER_ID} --user ${DOCKER_USER} --pass ${DOCKER_PASS}
+	sh ../_scripts/docker-build-push.sh --app kubelens-api --branch ${GIT_BRANCH} --tag ${TAG} --id ${DOCKER_ID} --user ${DOCKER_USER}
 
 set-config: 
 	sh ../_scripts/set-api-config.sh --file ./_helm/kubelens-api/files/config.json
