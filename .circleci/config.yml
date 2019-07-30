@@ -1,6 +1,3 @@
-kubelens_root: &kubelens_root
-  working_directory: /go/src/github.com/kubelens/kubelens
-
 version: 2
 jobs:
   api_build:
@@ -9,7 +6,7 @@ jobs:
     environment:
       VERSION: "1.0"
       GOBIN: /go/bin
-    <<: *kubelens_root
+    working_directory: /go/src/github.com/kubelens/kubelens
     steps:
       - checkout
       - setup_remote_docker:
@@ -45,7 +42,6 @@ jobs:
       - image: circleci/node:latest
     environment:
       VERSION: "1.0"
-    <<: *kubelens_root
     steps:
       - checkout
       - setup_remote_docker:
