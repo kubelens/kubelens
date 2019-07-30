@@ -36,7 +36,6 @@ jobs:
               TAG="${VERSION}.${CIRCLE_BUILD_NUM}" \
               DOCKER_ID=${DOCKER_ID} \
               DOCKER_USER=${DOCKER_USER} \
-              DOCKER_PASS=${DOCKER_PASS} \
               make docker-build-push
             fi
     
