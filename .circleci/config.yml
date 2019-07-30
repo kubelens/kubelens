@@ -56,13 +56,17 @@ jobs:
       - run:
           name: Get Dependencies
           command: | 
-            cd ./web
-            npm install
+            if ${WEB_CHANGED}; then
+              cd ./web
+              npm install
+            fi
       - run:
           name: Application Build
           command: |
-            cd ./web
-            npm run build
+            if ${WEB_CHANGED}; then
+              cd ./web
+              npm run build
+            fi
       - run:
           name: Run Test & Coverage
           command: |
