@@ -1,0 +1,18 @@
+{
+  "oAuthJwtIssuer": "sso.company.com",
+  "oAuthAudience": "kubelens",
+  "oAuthClientId": "jkWS793gEUKpx0ybe2HXfLQeMNLLBOdf",
+  "oAuthRedirectUri": "http://localhost:3000",
+  "oAuthResponseType": "id_token token",
+  "oAuthRequestType": "Bearer",
+  "oAuthScope": "openid profile email kubelens:access",
+  "oAuthProvider": "auth0",
+  "oAuthConnection": "adfs",
+  "oAuthEnabled": false,
+  "availableClusters": [
+    {
+      "minikube": "http://api.kubelens.minikube-local"
+    }
+  ],
+  "deployerLinkName": ""
+}

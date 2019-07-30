@@ -1,0 +1,44 @@
+{
+  "serverPort": 39000,
+  "allowedOrigins": [
+    "http://localhost:3000",
+    "http://kubelens.local"
+  ],
+  "allowedMethods": [
+    "GET",
+    "OPTIONS"
+  ],
+  "allowedHeaders": [
+    "Accept",
+    "Content-Type",
+    "Authorization",
+    "Pragma",
+    "Cache-Control",
+    "X-Requested-With"
+  ],
+  "allowedHosts": [
+    "api.kubelens.local"
+  ],
+  "oAuthJwk": "",
+  "oAuthJwtIssuer": "",
+  "oAuthAudience": "",
+  "enableAuth": false,
+  "enableRBAC": false,
+  "rbacClaim": "",
+  "serviceNameRegex": "^.+(-dev|-int|-trn|-prod)",
+  "projectSlugRegex": "",
+  "deployerLink": "",
+  "healthRoute": "/healthcheck",
+  "defaultSearchLabels": [
+    "app",
+    "k8s-app",
+    "component",
+    "run"
+  ],
+  "contentSecurityPolicy": "",
+  "enableTLS": false,
+  "tlsCert": "",
+  "tlsKey": "",
+  "enableCertPinning": false,
+  "publicKeyHPKP": ""
+}

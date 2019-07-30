@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ .Release.Name }}-cm"
+  labels:
+    app: {{ .Release.Name }}
+  {{- range .Values.metaLabels }}
+    {{ .name }}: {{ .value | quote }}
+  {{- end }}
+data:
+  config.json: |-
+{{ .Files.Get "files/config.json" | indent 4 }}
+  server.json: |-
+{{ .Files.Get "files/server.json" | indent 4 }}

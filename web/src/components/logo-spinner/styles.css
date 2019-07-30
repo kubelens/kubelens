@@ -1,0 +1,25 @@
+
+.loading-container {
+  margin-top: 50vh;
+  margin-left: 40vw;
+}
+
+.spinner {
+  margin-left: 1px;
+  margin-top: 1px;
+  -webkit-transition: 500ms;
+  -moz-transition: 500ms;
+  -o-transition: 500ms;
+  transition: 500ms;
+}
+.spinner-rotate-right {
+  transform: rotate(90deg);
+}
+
+.spinner-rotate-left {
+  transform: rotate(-90deg);
+}
+
+.spinner-rotate-init {
+  transform: rotate(-22.5deg);
+}

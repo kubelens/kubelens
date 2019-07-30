@@ -1,0 +1,43 @@
+{
+  "serverPort": 8080,
+  "allowedOrigins": [
+    "http://localhost:3000"
+  ],
+  "allowedMethods": [
+    "GET",
+    "OPTIONS"
+  ],
+  "allowedHeaders": [
+    "Accept",
+    "Content-Type",
+    "Authorization",
+    "Pragma",
+    "Cache-Control",
+    "X-Requested-With"
+  ],
+  "allowedHosts": [
+    "localhost"
+  ],
+  "oAuthJwk": "",
+  "oAuthJwtIssuer": "",
+  "oAuthAudience": "",
+  "enableAuth": true,
+  "enableRBAC": true,
+  "rbacClaim": "",
+  "serviceNameRegex": "^.+(-dev|-int|-trn|-prod|-passive)",
+  "projectSlugRegex": "projects-[0-9]+",
+  "deployerLink": "",
+  "healthRoute": "/healthcheck",
+  "defaultSearchLabels": [
+    "app",
+    "k8s-app",
+    "component",
+    "run"
+  ],
+  "contentSecurityPolicy": "",
+  "enableTLS": false,
+  "tlsCert": "",
+  "tlsKey": "",
+  "enableCertPinning": false,
+  "publicKeyHPKP": ""
+}

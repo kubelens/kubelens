@@ -1,0 +1,72 @@
+body {
+  margin-top: 100px;
+  /* margin: 10; */
+  padding: 10;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+a:link >{
+  text-decoration: none!important;
+}
+
+/* @media (min-width: 1600px) { */
+  .container {
+      max-width: 95%;
+  }
+/* } */
+
+
+::-webkit-scrollbar {
+    width: 5px;  /* remove scrollbar space */
+}
+/* optional: show position indicator*/
+::-webkit-scrollbar-thumb {
+    background: white;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* 
+.btn-info {
+    color: #fff;
+    background-color: rgb(35, 118, 184);
+    border-color: rgb(35, 118, 184);
+}
+
+.btn-primary,
+.btn-primary:active,
+.btn-primary:focus,
+.btn-primary::after {
+    color: #fff;
+    background-color: #5495C8;
+    border-color: #5495C8;
+}
+
+.btn-outline-primary,
+.btn-outline-primary:active,
+.btn-outline-primary:focus,
+.btn-outline-primary::after {
+  color: #5495C8;
+  border-color: #5495C8;
+}
+
+.btn-outline-primary:hover {
+  background-color: #2376B8;
+  color: #fff;
+  border-color: #2376B8;
+}
+
+.btn-primary:hover {
+  background-color: #2376B8;
+  border-color: #2376B8;
+} */

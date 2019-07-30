@@ -1,0 +1,8 @@
+.json-view-container {
+  max-height: 70vh;
+  overflow: scroll;
+}
+
+.json-view-padding {
+  padding: 20px;
+}

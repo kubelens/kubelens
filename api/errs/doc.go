@@ -1,0 +1,3 @@
+/*Package errs .
+ */
+package errs

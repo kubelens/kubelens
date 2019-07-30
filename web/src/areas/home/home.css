@@ -1,0 +1,103 @@
+.stuck {
+  position: fixed;
+  /* top: 70px; */
+  left: 0px;
+  bottom: 0px;
+  padding: 10px;
+  width: 22%;
+  height: 99%;
+  background-color: #4B4F52;
+  /* overflow-y: scroll; */
+}
+
+.not-stuck {
+  margin-left: 22%;
+}
+
+.separator {
+  background-color: white;
+}
+
+/* .search-container {
+  background-color: rgb(214, 206, 201, 0.5);
+  padding: 10px;
+  border-radius: 5px;
+  height: 85vh;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  bottom: 10px;
+} */
+
+.search {
+  margin-top: 45px;
+}
+
+.search-title {
+  margin-top: 10px;
+  color: white;
+}
+
+.app-btn-right a {
+  float: right;
+}
+
+.app-list-card
+.app-list-card-selected  {
+  margin-bottom: '10px'
+}
+
+.app-list-card-selected {
+  margin-right: -25;
+}
+
+.has-search .form-control {
+  padding-left: 2.375rem;
+}
+
+.has-search .form-control-feedback {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  width: 2.375rem;
+  height: 2.375rem;
+  line-height: 2.375rem;
+  text-align: center;
+  pointer-events: none;
+  color: #aaa;
+}
+
+.title-icon {
+  opacity: 0.4; 
+  left: 0; 
+  margin-left: 15px; 
+  position: absolute;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted #253365;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #253365;
+  color: #ffffff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+.action-right-container {
+  position: relative;
+}
