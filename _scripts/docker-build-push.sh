@@ -27,14 +27,14 @@ done
 
 docker version
 
+echo ${DOCKER_PASS} | docker login --username ${user} --password-stdin
+
 docker build -t ${id}/${app}:${tag} .
 
 if [ -z "${DOCKER_PASS}" ]; then
   echo "please provide docker password"
   read -s DOCKER_PASS
 fi
-
-echo ${DOCKER_PASS} | docker login --username ${user} --password-stdin
 
 docker push ${id}/${app}:${tag}
 
