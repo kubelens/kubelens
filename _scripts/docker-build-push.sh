@@ -7,8 +7,7 @@ usage="\n$(basename "$0") build & push a docker image
   -b, --branch    git working branch
   -t, --tag       tag to use
   -i, --id        docker id
-  -u, --user      docker username
-  -p, --pass      docker user password\n\n"
+  -u, --user      docker username\n\n"
 
 while [[ $# -gt 0 ]]; do
   opt="$1"
@@ -20,7 +19,6 @@ while [[ $# -gt 0 ]]; do
     "-t"|"--tag"        ) tag=$1; shift;;
     "-i"|"--id"         ) id=$1; shift;;
     "-u"|"--user"       ) user=$1; shift;;
-    "-p"|"--pass"       ) pass=$1; shift;;
     "-h"|"--help"       ) printf "$usage"; exit 0;;
     ":"                 ) printf "missing argument for -%s\n" "$2" >&2 printf "$usage" >&2 exit 1;;
     *                   ) echo "ERROR: Invalid option: \""$opt"\"" >&2 printf "$usage" >&2 exit 1;;
@@ -31,18 +29,18 @@ docker version
 
 docker build -t ${id}/${app}:${tag} .
 
-if [ -z "${pass}" ]; then
+if [ -z "${DOCKER_PASS}" ]; then
   echo "please provide docker password"
-  read -s pass
+  read -s DOCKER_PASS
 fi
 
-echo ${pass} | docker login --username ${user} --password-stdin
+echo ${DOCKER_PASS} | docker login --username ${user} --password-stdin
 
-# docker push ${id}/${app}:${tag}
+docker push ${id}/${app}:${tag}
 
 # tag latest and push on master branch
 if [[ ${branch} -eq "master" ]]; then
   docker tag ${id}/${app}:${tag} ${id}/${app}:latest
 
-  # docker push ${id}/${app}:latest
+  docker push ${id}/${app}:latest
 fi

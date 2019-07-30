@@ -1,20 +1,5 @@
  #!/bin/bash
 
-usage="\n$(basename "$0") run go tests
-  Usage $0
-  -h, --help      show this help text\n\n"
-
-while [[ $# -gt 0 ]]; do
-  opt="$1"
-  shift;
-  current_arg="$1"
-  case "$opt" in
-    "-h"|"--help"       ) printf "$usage"; exit 0;;
-    ":"                 ) printf "missing argument for -%s\n" "$2" >&2 printf "$usage" >&2 exit 1;;
-    *                   ) echo "ERROR: Invalid option: \""$opt"\"" >&2 printf "$usage" >&2 exit 1;;
-  esac
-done
-
 go version
         
 curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
