@@ -1,5 +1,55 @@
+# https://circleci.com/docs/2.0/workflows-overview/
+workflows:
+  version: 2
+  test_build_deploy:
+    jobs:
+      - api_build:
+          filters:
+            branches:
+              only: 
+                - staging
+                - master
+      - web_build:
+          filters:
+            branches:
+              only: 
+                - staging
+                - master
+                
+  test_build_new_branch:
+    jobs:
+      - api_new_branch:
+          filters:
+            branches:
+              ignore:
+                - staging
+                - master
+      - web_new_branch:
+          filters:
+            branches:
+              ignore: 
+                - staging
+                - master
+
+# https://circleci.com/docs/2.0/getting-started/#section=getting-started
 version: 2
 jobs:
+  api_new_branch:
+    docker: 
+      - image: circleci/golang:latest
+    environment:
+      GOBIN: /go/bin
+    working_directory: /go/src/github.com/kubelens/kubelens
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Test
+          command: |
+            cd ./api 
+            make test
+
   api_build:
     docker: 
       - image: circleci/golang:latest
@@ -39,6 +89,21 @@ jobs:
               DOCKER_USER=${DOCKER_USER} \
               make docker-build-push
             fi
+
+  web_new_branch:
+    docker: 
+      - image: circleci/node:latest
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Get Dependencies
+          command: | 
+            cd ./web
+            npm install
+            echo "TODO run tests"
+            # npm run test
 
   web_build:
     docker: 
@@ -92,20 +157,3 @@ jobs:
               DOCKER_USER=${DOCKER_USER} \
               npm run docker-build-push
             fi
-
-workflows:
-  version: 2
-  test_build_deploy:
-    jobs:
-      - api_build:
-          filters:
-            branches:
-              only: 
-                - staging
-                - master
-      - web_build:
-          filters:
-            branches:
-              only: 
-                - staging
-                - master
