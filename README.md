@@ -35,3 +35,4 @@ After that, you should be set to deploy to the Minikube instance.
 [kubelens/web](https://github.com/kubelens/kubelens/tree/staging/web#build--deploy)
 
 [kubelens/api](https://github.com/kubelens/kubelens/tree/staging/api#build--deploy)
+
