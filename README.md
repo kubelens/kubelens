@@ -1,9 +1,18 @@
-# kubelens
-A lightweight lens for applications running in Kubernetes. 
+# Kubelens
 
-It's been just me working on this so any help/contributions/feedback is very welcome! This is fully functional as is, but it's still a work in progress :)
+There are many tools built around [Kubernetes](https://kubernetes.io/), with many of them being one-stop tools, I found it difficult to find something more lightweight. After getting tired of running the same sequence of kubectl commands and switching contexts, I started this as a side project to make life easier while learning more about Kubernetes. As it became more useful, I decided to create Kubelens for a specific purpose; to give engineers a quick view into deployed applications.
 
-## Minikube 
+Let's get to the quick details.
+
+- Fully functional and has been running in multiple K8s clusters in an enterprise production environment since mid-spring 2019.
+- Security focused. Authentication & Authorization flows can easily be configured at different levels if desired. More docs to come on this. 
+- Intended to be generic and highly configurable to fit any organizations needs. If you find something isn't flexible enough, let's fix it for everyone. 
+
+More docs and features to come. Any help/contributions/feedback is very much appreciated!
+
+[![CircleCI](https://circleci.com/gh/kubelens/kubelens/tree/master.svg?style=svg)](https://circleci.com/gh/kubelens/kubelens/tree/master)
+
+## Run Locally - Minikube 
 
 [Install Minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/)
 
@@ -21,7 +30,7 @@ Some service account is needed in order for the API to self authenticate with re
 
 After that, you should be set to deploy to the Minikube instance.
 
-# Build & Deploy
+## Build & Deploy
 
 [kubelens/web](https://github.com/kubelens/kubelens/tree/staging/web#build--deploy)
 
