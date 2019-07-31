@@ -22,7 +22,7 @@ This will build and and push the docker image.
 
 __`make set-config`__
 
-Run this scripThe script assumes the required environment variables are set for the script (and so there doesn't have to be upteen args passed). Example (shortened): SERVER_PORT=39000 ALLOWED_ORIGINS='"http://kubelens.local","http://localhost:3000"' make set-config
+Run this script to set the config before deploying. The script assumes the required environment variables are set for the script (and so there doesn't have to be upteen args passed). Example (shortened): SERVER_PORT=39000 ALLOWED_ORIGINS='"http://kubelens.local","http://localhost:3000"' make set-config
 
 __`INGRESS_HOST=api.kubelens.local make helm-upgrade`__
 
