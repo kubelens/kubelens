@@ -16,7 +16,7 @@ More docs and features to come. Any help/contributions/feedback is very much app
 
 [Install Minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/)
 
-`minikube start -p minikube-local`
+`minikube start`
 
 [Enable Ingress](https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/)
 
@@ -35,3 +35,4 @@ After that, you should be set to deploy to the Minikube instance.
 [kubelens/web](https://github.com/kubelens/kubelens/tree/staging/web#build--deploy)
 
 [kubelens/api](https://github.com/kubelens/kubelens/tree/staging/api#build--deploy)
+
