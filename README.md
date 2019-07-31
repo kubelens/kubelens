@@ -1,8 +1,14 @@
 # Kubelens
 
-There are many tools built around surfacing Kubernetes information, deploy, monitor, etc., with many of them being a one-stop tool. Kubelens was created for a specific purpose; to give developers a quick view into the applications they develop. 
+There are many tools built around [Kubernetes](https://kubernetes.io/), with many of them being one-stop tools, I found it difficult to find something more lightweight. After getting tired of running the same sequence of kubectl commands and switching contexts, I started this as a side project to make life easier while learning more about Kubernetes. As it became more useful, I decided to create Kubelens for a specific purpose; to give engineers a quick view into deployed applications.
 
-This started as a side project to help me learn more about Kubernetes, while making it easier for me to run the same sequence of kubectl commands to view the components/inner-workings of deployed applications. Any help/contributions/feedback is very much appreciated!
+Let's get to the quick details.
+
+- Fully functional and has been running in multiple K8s clusters in an enterprise production environment since mid-spring 2019.
+- Security focused. Authentication & Authorization flows can easily be configured at different levels if desired. More docs to come on this. 
+- Intended to be generic and highly configurable to fit any organizations needs. If you find something isn't flexible enough, let's fix it for everyone. 
+
+More docs and features to come. Any help/contributions/feedback is very much appreciated!
 
 [![CircleCI](https://circleci.com/gh/kubelens/kubelens/tree/master.svg?style=svg)](https://circleci.com/gh/kubelens/kubelens/tree/master)
 
