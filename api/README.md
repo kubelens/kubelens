@@ -16,14 +16,14 @@ If you don't want to use make, you can run the commands from the Makefile direct
 
 ## Build & Deploy
 
-### `DOCKER_ID=id DOCKER_USER=user GIT_BRANCH=master make docker-build-push`
+__`DOCKER_ID=id DOCKER_USER=user GIT_BRANCH=master make docker-build-push`__
 
 This will build and and push the docker image.
 
-### `make set-config`
+__`make set-config`__
 
 Run this scripThe script assumes the required environment variables are set for the script (and so there doesn't have to be upteen args passed). Example (shortened): SERVER_PORT=39000 ALLOWED_ORIGINS='"http://kubelens.local","http://localhost:3000"' make set-config
 
-### `INGRESS_HOST=api.kubelens.local make helm-upgrade`
+__`INGRESS_HOST=api.kubelens.local make helm-upgrade`__
 
 Deploy via [Helm](https://helm.sh/)
