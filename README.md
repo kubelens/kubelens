@@ -12,7 +12,7 @@ More docs and features to come. Any help/contributions/feedback is very much app
 
 [![CircleCI](https://circleci.com/gh/kubelens/kubelens/tree/master.svg?style=svg)](https://circleci.com/gh/kubelens/kubelens/tree/master)
 
-## Minikube 
+## Run Locally - Minikube 
 
 [Install Minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/)
 
@@ -30,7 +30,7 @@ Some service account is needed in order for the API to self authenticate with re
 
 After that, you should be set to deploy to the Minikube instance.
 
-# Build & Deploy
+## Build & Deploy
 
 [kubelens/web](https://github.com/kubelens/kubelens/tree/staging/web#build--deploy)
 
