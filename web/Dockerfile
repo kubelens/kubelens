@@ -1,4 +1,4 @@
-# build image
+# build image 
 FROM golang:latest AS build-env
 
 WORKDIR /go/src/github.com/kubelens/kubelens/web
