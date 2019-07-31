@@ -1,7 +1,10 @@
-# kubelens
-A lightweight lens for applications running in Kubernetes. 
+# Kubelens
 
-It's been just me working on this so any help/contributions/feedback is very welcome! This is fully functional as is, but it's still a work in progress :)
+There are many tools built around surfacing Kubernetes information, deploy, monitor, etc., with many of them being a one-stop tool. Kubelens was created for a specific purpose; to give developers a quick view into the applications they develop. 
+
+This started as a side project to help me learn more about Kubernetes, while making it easier for me to run the same sequence of kubectl commands to view the components/inner-workings of deployed applications. Any help/contributions/feedback is very much appreciated!
+
+[![CircleCI](https://circleci.com/gh/kubelens/kubelens/tree/master.svg?style=svg)](https://circleci.com/gh/kubelens/kubelens/tree/master)
 
 ## Minikube 
 
