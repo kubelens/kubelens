@@ -29,7 +29,7 @@ RUN mv -v /tmp/server-x86-x64 /srv/
 RUN mv -v /tmp/build/* /srv/site
 RUN rm -rf /tmp/*
 
-RUN chown -R dockeruser:dockeruser /srv/site
+RUN chown -R dockeruser:dockeruser /srv/site 
 
 USER dockeruser
 
