@@ -34,7 +34,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "helm-upgrade": "helm upgrade kubelens-web --install --recreate-pods --reset-values --force --set ingress.host=${INGRESS_HOST} ./_helm/kubelens-web",
-    "docker-build-push": "bash ../_scripts/docker-build-push.sh --app kubelens-web --branch ${GIT_BRANCH} --tag latest --id ${DOCKER_ID} --user ${DOCKER_USER}",
+    "docker-build-push": "bash ../_scripts/docker-build-push.sh --app kubelens-web --branch ${GIT_BRANCH} --tag ${TAG} --id ${DOCKER_ID} --user ${DOCKER_USER}",
     "set-config": "bash ../_scripts/set-config.sh --file ./_helm/kubelens-web/files/config.json --type web",
     "build-server": "CGO_ENABLED=0 go build -ldflags=\"-s -w\" -a -o ./public/server-x86-x64 ./public/server.go",
     "start-public": "./public/server-x86-x64 $(pwd)/_helm/kubelens-web/files $(pwd)/build",
