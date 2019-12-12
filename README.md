@@ -1,5 +1,3 @@
-# This is no longer maintained.
-
 # Kubelens
 
 There are many tools built around [Kubernetes](https://kubernetes.io/), with many of them being one-stop tools, I found it difficult to find something more lightweight. After getting tired of running the same sequence of kubectl commands and switching contexts, I started this as a side project to make life easier while learning more about Kubernetes. As it became more useful, I decided to create Kubelens for a specific purpose; to give engineers a quick view into deployed applications.
