@@ -157,6 +157,8 @@ type LogOptions struct {
 	Namespace string `json:"namespace"`
 	// The label key used for the application name, ex. app=some-app-name
 	PodName string `json:"podname"`
+	// The name of the container to get logs from.
+	ContainerName string `json:"containerName"`
 	// follow enables streaming
 	Follow bool `json:"follow"`
 	// tail logs from line. If a stream request, this is ignored.

@@ -31,7 +31,7 @@ import (
 
 	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
-	"github.com/kubelens/kubelens/api/k8v1"
+	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 
 	"github.com/creack/httpreq"
 	klog "github.com/kubelens/kubelens/api/log"
@@ -66,7 +66,7 @@ func (h request) PodDetail(w http.ResponseWriter, r *http.Request) {
 
 	// TODO this is wrong, but didn't want to introduce breaking changes
 	// AppName should be removed, swapped with podname querystring (and remove the query string option)
-	apps, apiErr := h.k8Client.PodDetail(k8v1.PodDetailOptions{
+	apps, apiErr := h.k8Client.PodDetail(k8sv1.PodDetailOptions{
 		UserRole:  ra,
 		Logger:    l,
 		Name:      podname,

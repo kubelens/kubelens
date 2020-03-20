@@ -10,7 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"github.com/kubelens/kubelens/api/config"
-	"github.com/kubelens/kubelens/api/k8v1/fakes"
+	"github.com/kubelens/kubelens/api/k8sv1/fakes"
 )
 
 func getSvc() *request {

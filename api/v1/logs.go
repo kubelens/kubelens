@@ -30,7 +30,7 @@ import (
 	"strings"
 
 	"github.com/kubelens/kubelens/api/errs"
-	"github.com/kubelens/kubelens/api/k8v1"
+	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 
 	"github.com/kubelens/kubelens/api/auth/rbac"
 
@@ -63,13 +63,14 @@ func (h request) Logs(w http.ResponseWriter, r *http.Request) {
 		tl = int64(data.Tail)
 	}
 
-	logs, apiErr := h.k8Client.Logs(k8v1.LogOptions{
-		UserRole:  ra,
-		Logger:    l,
-		Namespace: data.Namespace,
-		PodName:   podname,
-		Tail:      tl,
-		Follow:    false,
+	logs, apiErr := h.k8Client.Logs(k8sv1.LogOptions{
+		UserRole:      ra,
+		Logger:        l,
+		Namespace:     data.Namespace,
+		PodName:       podname,
+		ContainerName: data.Appname,
+		Tail:          tl,
+		Follow:        false,
 	})
 
 	if apiErr != nil {

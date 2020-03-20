@@ -7,7 +7,7 @@ import (
 
 	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
 	iofakes "github.com/kubelens/kubelens/api/io/fakes"
-	k8fakes "github.com/kubelens/kubelens/api/k8v1/fakes"
+	k8fakes "github.com/kubelens/kubelens/api/k8sv1/fakes"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
 
 	"github.com/stretchr/testify/assert"
