@@ -57,6 +57,9 @@ type config struct {
 	TLSKey                string   `json:"tlsKey"`
 	ContentSecurityPolicy string   `json:"contentSecurityPolicy"`
 	PublicKeyHPKP         string   `json:"publicKeyHPKP"`
+	ViewerLabelInclusions []string `json:"viewerLabelInclusions"`
+	ViewerLabelExclusions []string `json:"viewerLabelExclusions"`
+	AdminEmails           []string `json:"adminEmails"`
 }
 
 // Set deserializes a config.json file into the config struct to allow access to

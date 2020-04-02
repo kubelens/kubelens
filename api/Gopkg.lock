@@ -160,6 +160,22 @@
   version = "v1.0.1"
 
 [[projects]]
+  digest = "1:58c65fb556e2b2409594e146dca27e206ba48642edca769e7c58847a243a23a2"
+  name = "github.com/lestrrat-go/jwx"
+  packages = [
+    "internal/base64",
+    "internal/option",
+    "jwa",
+    "jwk",
+    "jws",
+    "jws/sign",
+    "jws/verify",
+  ]
+  pruneopts = "UT"
+  revision = "041c40732a8843e7d4a0b7cd2cffbe2f339f92ca"
+  version = "v0.9.1"
+
+[[projects]]
   digest = "1:33422d238f147d247752996a26574ac48dcf472976eda7f5134015f06bf16563"
   name = "github.com/modern-go/concurrent"
   packages = ["."]
@@ -176,6 +192,21 @@
   version = "v1.0.1"
 
 [[projects]]
+  digest = "1:63d6ab3651c83caf758fbf0d62575bee355b0300b01cd21ab82f3464dc3744b8"
+  name = "github.com/okta/okta-jwt-verifier-golang"
+  packages = [
+    ".",
+    "adaptors",
+    "adaptors/lestrratGoJwx",
+    "discovery",
+    "discovery/oidc",
+    "errors",
+  ]
+  pruneopts = "UT"
+  revision = "04702def3e1b9b1c6b419c9c3aae1ec184a5d4b2"
+  version = "v0.1.0"
+
+[[projects]]
   branch = "master"
   digest = "1:3bf17a6e6eaa6ad24152148a631d18662f7212e21637c2699bff3369b7f00fa2"
   name = "github.com/petar/GoLLRB"
@@ -190,6 +221,14 @@
   pruneopts = "UT"
   revision = "5f041e8faa004a95c88a202771f4cc3e991971e6"
   version = "v2.0.1"
+
+[[projects]]
+  digest = "1:9e1d37b58d17113ec3cb5608ac0382313c5b59470b94ed97d0976e69c7022314"
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "614d223910a179a466c1767a985424175c39b465"
+  version = "v0.9.1"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -624,6 +663,7 @@
     "github.com/gorilla/handlers",
     "github.com/gorilla/mux",
     "github.com/gorilla/websocket",
+    "github.com/okta/okta-jwt-verifier-golang",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/unrolled/secure",

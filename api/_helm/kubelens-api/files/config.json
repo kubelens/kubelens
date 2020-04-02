@@ -35,6 +35,15 @@
     "component",
     "run"
   ],
+  "viewerLabelInclusions": [
+    "app"
+  ],
+  "viewerLabelExclusions": [
+    "k8s-app",
+    "component",
+    "run"
+  ],
+  "adminEmails": [],
   "contentSecurityPolicy": "",
   "enableTLS": false,
   "tlsCert": "",

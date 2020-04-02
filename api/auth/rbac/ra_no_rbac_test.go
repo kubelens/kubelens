@@ -3,19 +3,17 @@ package rbac
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/kubelens/kubelens/api/config"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHasApplicationAccess_RBACDisabled(t *testing.T) {
 	config.C.EnableRBAC = false
 	r := Role{
-		Operators:      false,
-		Viewers:        false,
-		MatchPrefix:    "",
-		MatchSplitChar: "",
-		MatchLabels:    []string{""},
-		Exclusions:     []string{""},
+		Operators:   false,
+		Viewers:     false,
+		MatchLabels: []string{""},
+		Exclusions:  []string{""},
 	}
 	ra := RoleAssignment{r}
 
@@ -27,12 +25,10 @@ func TestHasApplicationAccess_RBACDisabled(t *testing.T) {
 func TestHasNamespaceAccess_RBACDisabled(t *testing.T) {
 	config.C.EnableRBAC = false
 	r := Role{
-		Operators:      false,
-		Viewers:        false,
-		MatchPrefix:    "",
-		MatchSplitChar: "",
-		MatchLabels:    []string{""},
-		Exclusions:     []string{""},
+		Operators:   false,
+		Viewers:     false,
+		MatchLabels: []string{""},
+		Exclusions:  []string{""},
 	}
 	ra := RoleAssignment{r}
 
@@ -44,12 +40,10 @@ func TestHasNamespaceAccess_RBACDisabled(t *testing.T) {
 func TestHasEnvVarsAccess_RBACDisabled(t *testing.T) {
 	config.C.EnableRBAC = false
 	r := Role{
-		Operators:      false,
-		Viewers:        false,
-		MatchPrefix:    "",
-		MatchSplitChar: "",
-		MatchLabels:    []string{""},
-		Exclusions:     []string{""},
+		Operators:   false,
+		Viewers:     false,
+		MatchLabels: []string{""},
+		Exclusions:  []string{""},
 	}
 	ra := RoleAssignment{r}
 
@@ -61,12 +55,10 @@ func TestHasEnvVarsAccess_RBACDisabled(t *testing.T) {
 func TestHasPodAccess_RBACDisabled(t *testing.T) {
 	config.C.EnableRBAC = false
 	r := Role{
-		Operators:      false,
-		Viewers:        false,
-		MatchPrefix:    "",
-		MatchSplitChar: "",
-		MatchLabels:    []string{""},
-		Exclusions:     []string{""},
+		Operators:   false,
+		Viewers:     false,
+		MatchLabels: []string{""},
+		Exclusions:  []string{""},
 	}
 	ra := RoleAssignment{r}
 
@@ -78,12 +70,10 @@ func TestHasPodAccess_RBACDisabled(t *testing.T) {
 func TestHasLogAccess_RBACDisabled(t *testing.T) {
 	config.C.EnableRBAC = false
 	r := Role{
-		Operators:      false,
-		Viewers:        false,
-		MatchPrefix:    "",
-		MatchSplitChar: "",
-		MatchLabels:    []string{""},
-		Exclusions:     []string{""},
+		Operators:   false,
+		Viewers:     false,
+		MatchLabels: []string{""},
+		Exclusions:  []string{""},
 	}
 	ra := RoleAssignment{r}
 
@@ -95,12 +85,10 @@ func TestHasLogAccess_RBACDisabled(t *testing.T) {
 func TestHasDeploymentAccess_RBACDisabled(t *testing.T) {
 	config.C.EnableRBAC = false
 	r := Role{
-		Operators:      false,
-		Viewers:        false,
-		MatchPrefix:    "",
-		MatchSplitChar: "",
-		MatchLabels:    []string{""},
-		Exclusions:     []string{""},
+		Operators:   false,
+		Viewers:     false,
+		MatchLabels: []string{""},
+		Exclusions:  []string{""},
 	}
 	ra := RoleAssignment{r}
 
@@ -112,12 +100,10 @@ func TestHasDeploymentAccess_RBACDisabled(t *testing.T) {
 func TestHasServiceAccess_RBACDisabled(t *testing.T) {
 	config.C.EnableRBAC = false
 	r := Role{
-		Operators:      false,
-		Viewers:        false,
-		MatchPrefix:    "",
-		MatchSplitChar: "",
-		MatchLabels:    []string{""},
-		Exclusions:     []string{""},
+		Operators:   false,
+		Viewers:     false,
+		MatchLabels: []string{""},
+		Exclusions:  []string{""},
 	}
 	ra := RoleAssignment{r}
 
