@@ -22,43 +22,73 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 import React from 'react';
-import { Row, Col, Button } from 'reactstrap';
-import ReactTooltip from 'react-tooltip';
+import { Row, Col, Card, CardBody, Button } from 'reactstrap';
+import CardText from '../../components/text';
+import JsonViewModal from '../../components/json-view-modal';
 import { Service } from '../../types';
 import _ from 'lodash';
 
 export type ServiceOverviewProps = {
-  serviceOverviews: Service[]
+  serviceOverviews: Service[],
+  toggleModalType: (type: string) => void,
+  specModalOpen: boolean,
+  statusModalOpen: boolean
 };
 
 const ServiceOverview = ({
-  serviceOverviews
+  serviceOverviews,
+  toggleModalType,
+  specModalOpen,
+  statusModalOpen
 }: ServiceOverviewProps) => {
+  const overview:any = !_.isEmpty(serviceOverviews) ? serviceOverviews[0] : {};
+
   return (
     <div>
-      {serviceOverviews && !_.isEmpty(serviceOverviews) &&
-        <div>
-          <h4>Services</h4>
+      {!_.isEmpty(overview)
+      ? <div>
+          <h4>Service Name: {overview.name}</h4>
           <hr />
-          <Row>
-            {serviceOverviews.map(svc => {
-              return (
-                <Col sm={6} key={svc.name} style={{ marginBottom: '10px' }}>
-
-                  <div key={`${svc.name}-btn`} style={{ padding: 0 }} data-tip data-for={`${svc.name}-btn`}>
-                    <Button id={`${svc.name}-btn`} disabled={true} block key={svc.name} color="info">{svc.name}</Button>
-                    <ReactTooltip id={`${svc.name}-btn`} type='info'>
-                      Coming Soon.
-                    </ReactTooltip>
-                  </div>
-                </Col>
-              )
-            })
-            }
-          </Row>
-          <br />
+          <Card className="kind-detail-container mb-4">
+            <CardBody>
+              <small>
+                <Row>
+                  <Col sm={3}>
+                    <CardText label="Namespace" value={overview.namespace} />
+                  </Col>
+                  <Col sm={3}>
+                    <CardText label="Cluster IP" value={overview.clusterIP} />
+                  </Col>
+                  <Col sm={3}>
+                    <CardText label="Type" value={overview.type} />
+                  </Col>
+                  <Col sm={3}>
+                    <Button outline color="info" onClick={() => toggleModalType('spec')} block>Service Spec</Button>
+                    <Button outline color="info" onClick={() => toggleModalType('status')} block>Service Status</Button>
+                  </Col>
+                </Row>
+              </small>
+            </CardBody>
+          </Card>
         </div>
-      }
+      : null}
+
+    <JsonViewModal
+      title="Service Spec"
+      show={specModalOpen}
+      body={overview.spec}
+      handleClose={() => {
+        toggleModalType('spec');
+      }} />
+
+    <JsonViewModal
+      title="Service Status"
+      show={statusModalOpen}
+      body={overview.status}
+      handleClose={() => {
+        toggleModalType('status');
+      }} />
+
     </div>
   );
 };

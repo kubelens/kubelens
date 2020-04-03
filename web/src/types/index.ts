@@ -76,7 +76,8 @@ export type PodDetail = {
     containers: [{
       env: object
     }]
-  }
+  },
+  containerNames: string[]
 };
 
 export type PodOverview = {
