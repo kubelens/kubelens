@@ -48,8 +48,8 @@ export type PodPageProps = {
   hasLogAccess: boolean,
   toggleContainerNameSelect: () => void,
   containerNameSelectOpen: boolean,
-  setSelectedContainerName: (name: string, getLogs: boolean) => void,
-  selectedContainerName: string
+  setSelectedContainerName: (name: string) => void,
+  selectedContainerName?: string
 };
 
 const PodPage = ({
@@ -104,7 +104,7 @@ const PodPage = ({
                       className="toglge-container-name-menu">
                       {
                         podDetail.containerNames.map(c => {
-                          return <DropdownItem key={c} onClick={() => setSelectedContainerName(c, true)}>{c}</DropdownItem>
+                          return <DropdownItem key={c} onClick={() => setSelectedContainerName(c)}>{c}</DropdownItem>
                         })
                       }
                     </DropdownMenu>

@@ -29,14 +29,16 @@ export interface IPodState {
   readonly podRequested: boolean,
   readonly pod?: PodDetail,
   readonly podError?: Error,
-  readonly selectedPodName?: string
+  readonly selectedPodName?: string,
+  readonly selectedContainerName?: string
 }
 
 const INITIAL_STATE: IPodState = {
   podRequested: false,
   podError: undefined,
   pod: undefined,
-  selectedPodName: undefined
+  selectedPodName: undefined,
+  selectedContainerName: undefined
 };
 
 export const podsReducer: Reducer<IPodState, PodActions> = (
@@ -53,10 +55,24 @@ export const podsReducer: Reducer<IPodState, PodActions> = (
       }
     }
 
+    case PodActionTypes.CLEAR_POD: {
+      return {
+        ...state,
+        pod: action.pod
+      }
+    }
+
     case PodActionTypes.SET_SELECTED_POD_NAME: {
       return {
         ...state,
         selectedPodName: action.selectedPodName
+      }
+    }
+
+    case PodActionTypes.SET_SELECTED_CONTAINER_NAME: {
+      return {
+        ...state,
+        selectedContainerName: action.selectedContainerName
       }
     }
 

@@ -31,20 +31,22 @@ import adapter from './adapter';
 Combine the action types with a union (we assume there are more)
 example: export type CharacterActions = IGetAllAction | IGetOneAction ... 
 */
-export type PodActions = IGetPod | ISetSelectedPodName | IClearPodsErrors;
+export type PodActions = IGetPod | ISetSelectedPodName | ISetSelectedContainerName | IClearPodsErrors | IClearPod;
 
 // Create Action Constants
 export enum PodActionTypes {
   GET_POD = 'GET_POD',
+  CLEAR_POD = 'CLEAR_POD',
   CLEAR_ERRORS = 'CLEAR_ERRORS',
-  SET_SELECTED_POD_NAME = 'SET_SELECTED_POD_NAME'
+  SET_SELECTED_POD_NAME = 'SET_SELECTED_POD_NAME',
+  SET_SELECTED_CONTAINER_NAME = 'SET_SELECTED_CONTAINER_NAME'
 }
 
 export interface IGetPod {
   type: PodActionTypes.GET_POD,
   pod?: PodDetail,
   podRequested: boolean,
-  podError?: Error
+  podError?: Error,
 }
 
 /* Clear errors
@@ -112,6 +114,42 @@ export const setSelectedPodNameRequest: ActionCreator<
     dispatch({
       type: PodActionTypes.SET_SELECTED_POD_NAME,
       selectedPodName: selectedPodName
+    });
+  };
+};
+
+export interface ISetSelectedContainerName {
+  type: PodActionTypes.SET_SELECTED_CONTAINER_NAME,
+  selectedContainerName: string
+}
+
+/* Set container name
+<Promise<Return Type>, State Interface, Type of Param, Type of Action> */
+export const setSelectedContainerName: ActionCreator<
+  ThunkAction<Promise<any>, IPodState, null, ISetSelectedContainerName>
+> = (selectedContainerName: string) => {
+  return async (dispatch: Dispatch) => {
+    dispatch({
+      type: PodActionTypes.SET_SELECTED_CONTAINER_NAME,
+      selectedContainerName: selectedContainerName
+    });
+  };
+};
+
+export interface IClearPod {
+  type: PodActionTypes.CLEAR_POD,
+  pod?: PodDetail
+}
+
+/* Set container name
+<Promise<Return Type>, State Interface, Type of Param, Type of Action> */
+export const clearPod: ActionCreator<
+  ThunkAction<Promise<any>, IPodState, null, IClearPod>
+> = () => {
+  return async (dispatch: Dispatch) => {
+    dispatch({
+      type: PodActionTypes.CLEAR_POD,
+      pod: null
     });
   };
 };
