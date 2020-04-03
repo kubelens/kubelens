@@ -80,6 +80,7 @@ func (k *Client) ReadLogs(options LogOptions) (rc io.ReadCloser, apiErr *errs.AP
 	}
 	// start stream at last line
 	req := list.GetLogs(options.PodName, &v1.PodLogOptions{
+		Container: options.ContainerName,
 		TailLines: &tail,
 		Follow:    options.Follow,
 	})

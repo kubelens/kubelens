@@ -32,12 +32,17 @@ import (
 
 // Role represents RBAC groups
 type Role struct {
-	Viewers        bool     `json:"viewers"`
-	Operators      bool     `json:"operators"`
-	MatchPrefix    string   `json:"matchPrefix"`
-	MatchSplitChar string   `json:"matchSplitChar"`
-	MatchLabels    []string `json:"matchLabels"`
-	Exclusions     []string `json:"exclusions"`
+	Viewers   bool `json:"viewers"`
+	Operators bool `json:"operators"`
+	// List of labels to restrict on. Examples:
+	// Given "app=team-unique-app", only that app will be returned.
+	// Given "app=team*", all apps with "team" prefixed will be returned.
+	// An empty list will return all apps regardless of the label.
+	MatchLabels []string `json:"matchLabels"`
+	// List of label to exclude on. Examples:
+	// Given "k8s-app", any label key with "k8s-app" will be excluded regardless of the label value
+	// An empty list will not exclude any label
+	Exclusions []string `json:"exclusions"`
 }
 
 // Matches returns a boolean given matching rules for labels and appname
@@ -95,17 +100,18 @@ func (r Role) CompareLabels(labels map[string]string, exact bool) bool {
 			canAccess := false
 			// check labels against user allowed list
 			for _, mlbl := range r.MatchLabels {
-				// without a splitter each char will be an array element.
-				if len(r.MatchSplitChar) == 0 {
-					return false
-				}
 				// ex. app=appgroup
-				lblParts := strings.Split(mlbl, r.MatchSplitChar)
+				lblParts := strings.Split(mlbl, "=")
 				// find a matching label and return found to grant access
 				if value, ok := labels[lblParts[0]]; ok && !r.InExclusions(value) {
-					// if exact, must match the label value as well (application name typically)
+					// if exact, must match the label value as well (application name typically).
 					if exact {
 						if strings.EqualFold(value, lblParts[1]) {
+							canAccess = true
+						}
+						// this also supports "like" application name, e.g. given 2 applications "team-unique-app1", "team-unique-app2",
+						// a MatchLabel of "app=team*" will return a match or just "app=team-unique-app1" will only return that app.
+						if strings.HasSuffix(lblParts[1], "*") && strings.Contains(value, lblParts[1]) {
 							canAccess = true
 						}
 					} else {

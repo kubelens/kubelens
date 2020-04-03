@@ -2,13 +2,9 @@
 
 go version
         
-curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+# curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
-if [ -z "${GOBIN}" ]; then
-  $GOBIN="$(go env GOPATH)/bin"
-fi
-
-$GOBIN/dep init || $GOBIN/dep ensure
+dep init || dep ensure
 
 # make -s test
 echo "mode: count" > coverage-all.out

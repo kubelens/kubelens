@@ -30,7 +30,7 @@ import (
 	"strings"
 
 	"github.com/kubelens/kubelens/api/errs"
-	"github.com/kubelens/kubelens/api/k8v1"
+	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 
 	"github.com/kubelens/kubelens/api/auth/rbac"
 
@@ -51,6 +51,7 @@ func (h request) Logs(w http.ResponseWriter, r *http.Request) {
 	if err := httpreq.NewParsingMapPre(3).
 		ToString("namespace", &data.Namespace).
 		ToInt("tail", &data.Tail).
+		ToString("containerName", &data.ContainerName).
 		Parse(r.URL.Query()); err != nil {
 		l.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -63,13 +64,14 @@ func (h request) Logs(w http.ResponseWriter, r *http.Request) {
 		tl = int64(data.Tail)
 	}
 
-	logs, apiErr := h.k8Client.Logs(k8v1.LogOptions{
-		UserRole:  ra,
-		Logger:    l,
-		Namespace: data.Namespace,
-		PodName:   podname,
-		Tail:      tl,
-		Follow:    false,
+	logs, apiErr := h.k8Client.Logs(k8sv1.LogOptions{
+		UserRole:      ra,
+		Logger:        l,
+		Namespace:     data.Namespace,
+		PodName:       podname,
+		ContainerName: data.ContainerName,
+		Tail:          tl,
+		Follow:        false,
 	})
 
 	if apiErr != nil {

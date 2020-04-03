@@ -12,7 +12,7 @@ import (
 	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
 	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/config"
-	k8fakes "github.com/kubelens/kubelens/api/k8v1/fakes"
+	k8fakes "github.com/kubelens/kubelens/api/k8sv1/fakes"
 	klog "github.com/kubelens/kubelens/api/log"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
 )

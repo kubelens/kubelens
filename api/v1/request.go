@@ -30,7 +30,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/kubelens/kubelens/api/config"
-	"github.com/kubelens/kubelens/api/k8v1"
+	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 )
 
 // Requestor interfaces request http handler functions
@@ -45,11 +45,11 @@ type Requestor interface {
 
 // request registers route handlers and dependencies.
 type request struct {
-	k8Client k8v1.Clienter
+	k8Client k8sv1.Clienter
 }
 
 // New creates a new request instance
-func New(k8Client k8v1.Clienter) Requestor {
+func New(k8Client k8sv1.Clienter) Requestor {
 	return &request{
 		k8Client,
 	}

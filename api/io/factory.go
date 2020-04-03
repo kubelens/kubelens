@@ -8,8 +8,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/creack/httpreq"
 	"github.com/kubelens/kubelens/api/auth/rbac"
-	"github.com/kubelens/kubelens/api/k8v1"
+	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 	klog "github.com/kubelens/kubelens/api/log"
 )
 
@@ -68,7 +69,7 @@ func (f *Factory) Run() {
 }
 
 // Register handles websocket requests from the peer.
-func (f *Factory) Register(k8Client k8v1.Clienter, w http.ResponseWriter, r *http.Request) {
+func (f *Factory) Register(k8Client k8sv1.Clienter, w http.ResponseWriter, r *http.Request) {
 	l := klog.MustFromContext(r.Context())
 	ra := rbac.MustFromContext(r.Context())
 
@@ -95,6 +96,12 @@ func (f *Factory) Register(k8Client k8v1.Clienter, w http.ResponseWriter, r *htt
 	}
 	pod := p[2]
 
+	// support multiple containers in a pod.
+	var containerName string
+	httpreq.NewParsingMapPre(1).
+		ToString("container", &containerName).
+		Parse(r.URL.Query())
+
 	c := &client{
 		factory: f,
 		conn:    conn,
@@ -109,12 +116,13 @@ func (f *Factory) Register(k8Client k8v1.Clienter, w http.ResponseWriter, r *htt
 	go c.writePump()
 
 	// get stream
-	stream, apiErr := k8Client.ReadLogs(k8v1.LogOptions{
-		UserRole:  ra,
-		PodName:   pod,
-		Namespace: ns,
-		Tail:      1,
-		Follow:    true,
+	stream, apiErr := k8Client.ReadLogs(k8sv1.LogOptions{
+		UserRole:      ra,
+		PodName:       pod,
+		ContainerName: containerName,
+		Namespace:     ns,
+		Tail:          1,
+		Follow:        true,
 	})
 
 	if apiErr != nil {

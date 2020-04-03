@@ -26,27 +26,12 @@ func TestCompareLabelsMatchLabelsNoLabel(t *testing.T) {
 	assert.False(t, result)
 }
 
-func TestCompareLabelsMatchLabelsMissingSplitter(t *testing.T) {
-	lbl := make(map[string]string, 0)
-	lbl["app"] = "test"
-
-	r := Role{}
-	r.MatchLabels = []string{"app=test"}
-	r.MatchPrefix = "app"
-
-	result := r.CompareLabels(lbl, false)
-
-	assert.False(t, result)
-}
-
 func TestCompareLabelsMatchLabelsNoMatch(t *testing.T) {
 	lbl := make(map[string]string, 0)
 	lbl["component"] = "test"
 
 	r := Role{}
 	r.MatchLabels = []string{"app=test"}
-	r.MatchPrefix = "app"
-	r.MatchSplitChar = "="
 
 	result := r.CompareLabels(lbl, false)
 
@@ -59,8 +44,6 @@ func TestCompareLabelsMatchLabelsSuccess(t *testing.T) {
 
 	r := Role{}
 	r.MatchLabels = []string{"app=test"}
-	r.MatchPrefix = "app"
-	r.MatchSplitChar = "="
 
 	result := r.CompareLabels(lbl, false)
 

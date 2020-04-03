@@ -34,7 +34,7 @@ import (
 	kauth "github.com/kubelens/kubelens/api/auth"
 	"github.com/kubelens/kubelens/api/config"
 	"github.com/kubelens/kubelens/api/io"
-	"github.com/kubelens/kubelens/api/k8v1"
+	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 	klog "github.com/kubelens/kubelens/api/log"
 	"github.com/unrolled/secure"
 )
@@ -44,7 +44,7 @@ import (
 // Hightest = 9 (slowest, most compression)
 const compression int = 1
 
-func setMiddleware(wsFactory io.SocketFactory, k8Client k8v1.Clienter, next http.Handler) http.Handler {
+func setMiddleware(wsFactory io.SocketFactory, k8Client k8sv1.Clienter, next http.Handler) http.Handler {
 	logger := klog.NewMiddleware(logrus.New(), "kubelens-api")
 
 	// any route handler registered after this point will have auth
@@ -76,7 +76,7 @@ func setMiddleware(wsFactory io.SocketFactory, k8Client k8v1.Clienter, next http
 	return handlers.CompressHandlerLevel(securemw.Handler(logger.Set(amw)), compression)
 }
 
-func websocketHandler(wsFactory io.SocketFactory, k8Client k8v1.Clienter, next http.Handler) http.Handler {
+func websocketHandler(wsFactory io.SocketFactory, k8Client k8sv1.Clienter, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/io/") {
 			if r.Method != "GET" {

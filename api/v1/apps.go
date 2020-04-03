@@ -31,7 +31,7 @@ import (
 
 	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
-	"github.com/kubelens/kubelens/api/k8v1"
+	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 
 	"github.com/creack/httpreq"
 	klog "github.com/kubelens/kubelens/api/log"
@@ -61,7 +61,7 @@ func (h request) Apps(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	apps, apiErr := h.k8Client.AppOverview(k8v1.AppOverviewOptions{
+	apps, apiErr := h.k8Client.AppOverview(k8sv1.AppOverviewOptions{
 		UserRole:  ra,
 		Logger:    l,
 		AppName:   appname,
