@@ -51,6 +51,7 @@ func (h request) Logs(w http.ResponseWriter, r *http.Request) {
 	if err := httpreq.NewParsingMapPre(3).
 		ToString("namespace", &data.Namespace).
 		ToInt("tail", &data.Tail).
+		ToString("containerName", &data.ContainerName).
 		Parse(r.URL.Query()); err != nil {
 		l.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -68,7 +69,7 @@ func (h request) Logs(w http.ResponseWriter, r *http.Request) {
 		Logger:        l,
 		Namespace:     data.Namespace,
 		PodName:       podname,
-		ContainerName: data.Appname,
+		ContainerName: data.ContainerName,
 		Tail:          tl,
 		Follow:        false,
 	})

@@ -58,19 +58,19 @@ func (h request) PodDetail(w http.ResponseWriter, r *http.Request) {
 	if err := httpreq.NewParsingMapPre(1).
 		ToString("namespace", &data.Namespace).
 		ToString("labelKey", &data.LabelKey).
+		ToString("containerName", &data.ContainerName).
 		Parse(r.URL.Query()); err != nil {
 		l.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// TODO this is wrong, but didn't want to introduce breaking changes
-	// AppName should be removed, swapped with podname querystring (and remove the query string option)
-	apps, apiErr := h.k8Client.PodDetail(k8sv1.PodDetailOptions{
-		UserRole:  ra,
-		Logger:    l,
-		Name:      podname,
-		Namespace: data.Namespace,
+	pod, apiErr := h.k8Client.PodDetail(k8sv1.PodDetailOptions{
+		UserRole:      ra,
+		Logger:        l,
+		Name:          podname,
+		Namespace:     data.Namespace,
+		ContainerName: data.ContainerName,
 	})
 
 	if apiErr != nil {
@@ -79,7 +79,7 @@ func (h request) PodDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := json.Marshal(apps)
+	res, err := json.Marshal(pod)
 
 	if err != nil {
 		e := errs.SerializationError(err.Error())

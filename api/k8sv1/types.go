@@ -7,6 +7,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
+// AppOverviewOptions .
 type AppOverviewOptions struct {
 	// name of the  application
 	AppName string `json:"appname"`
@@ -22,9 +23,10 @@ type AppOverviewOptions struct {
 	Logger klog.Logger
 }
 
+// AppOverview .
 type AppOverview struct {
 	PodOverviews     PodOverview       `json:"podOverviews,omitempty"`
-	ServiceOverviews []ServiceOverview `json;"serviceOverviews,omitempty"`
+	ServiceOverviews []ServiceOverview `json:"serviceOverviews,omitempty"`
 }
 
 // Name holds fiedls for a name. This can be used to match the label key with the value(name) of the
@@ -94,9 +96,13 @@ type PodOverview struct {
 	PodDetails []*PodDetail `json:"podDetails,omitempty"`
 }
 
+// PodDetailOptions .
 type PodDetailOptions struct {
 	// the name of the pod
 	Name string `json:"name"`
+	// the name of the container in the pod. Defaults to the application name for
+	// backwards compatibility (original functionality)
+	ContainerName string `json:"containerName"`
 	// the namespace of the pod
 	Namespace string `json:"namespace"`
 	//users role assignemnt
@@ -105,6 +111,7 @@ type PodDetailOptions struct {
 	Logger klog.Logger
 }
 
+// Valid .
 func (p *PodDetailOptions) Valid() bool {
 	return len(p.Name) > 0
 }
@@ -141,6 +148,8 @@ type PodDetail struct {
 	Spec v1.PodSpec `json:"spec,omitempty"`
 	// the pod's log output
 	Log *Log `json:"log,omitempty"`
+	// individual container names, there will always be at least 1.
+	ContainerNames []string `json:"containerNames"`
 }
 
 // Log holds fields related to log output
