@@ -3,19 +3,17 @@ package rbac
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/kubelens/kubelens/api/config"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHasEnvVarsAccess_Operators_HasAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      true,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   true,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -30,12 +28,10 @@ func TestHasEnvVarsAccess_Operators_HasAccess(t *testing.T) {
 func TestHasEnvVarsAccess_Operators_Denied(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      true,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{"test2"},
+		Operators:   true,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{"test2"},
 	}
 	ra := RoleAssignment{r}
 
@@ -50,12 +46,10 @@ func TestHasEnvVarsAccess_Operators_Denied(t *testing.T) {
 func TestHasConfigMapAccess_Operators_HasAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      true,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   true,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -70,12 +64,10 @@ func TestHasConfigMapAccess_Operators_HasAccess(t *testing.T) {
 func TestHasConfigMapAccess_Operators_Denied(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      true,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{"test2"},
+		Operators:   true,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{"test2"},
 	}
 	ra := RoleAssignment{r}
 
@@ -90,12 +82,10 @@ func TestHasConfigMapAccess_Operators_Denied(t *testing.T) {
 func TestHasPodAccess_Operators_HasAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      true,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   true,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -110,12 +100,10 @@ func TestHasPodAccess_Operators_HasAccess(t *testing.T) {
 func TestHasPodAccess_Operators_Denied(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      true,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{"test2"},
+		Operators:   true,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{"test2"},
 	}
 	ra := RoleAssignment{r}
 
@@ -130,12 +118,10 @@ func TestHasPodAccess_Operators_Denied(t *testing.T) {
 func TestHasLogAccess_Operators_HasAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      true,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   true,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -150,12 +136,10 @@ func TestHasLogAccess_Operators_HasAccess(t *testing.T) {
 func TestHasLogAccess_Operators_Denied(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      true,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{"test2"},
+		Operators:   true,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{"test2"},
 	}
 	ra := RoleAssignment{r}
 
@@ -170,12 +154,10 @@ func TestHasLogAccess_Operators_Denied(t *testing.T) {
 func TestHasServiceAccess_Operators_HasAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      true,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   true,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -190,12 +172,10 @@ func TestHasServiceAccess_Operators_HasAccess(t *testing.T) {
 func TestHasServiceAccess_Operators_Denied(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      true,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{"test2"},
+		Operators:   true,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{"test2"},
 	}
 	ra := RoleAssignment{r}
 
@@ -210,12 +190,10 @@ func TestHasServiceAccess_Operators_Denied(t *testing.T) {
 func TestHasDeploymentAccess_Operators_HasAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      true,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   true,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -230,12 +208,10 @@ func TestHasDeploymentAccess_Operators_HasAccess(t *testing.T) {
 func TestHasDeploymentAccess_Operators_Denied(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      true,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{"test2"},
+		Operators:   true,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{"test2"},
 	}
 	ra := RoleAssignment{r}
 

@@ -40,7 +40,10 @@ func (k *Client) PodDetail(options PodDetailOptions) (po *PodDetail, apiErr *err
 	// that might use env vars for secrets. This could be added back
 	// auth roles and such is figured out better.
 	spec := &pod.Spec
-	for i := range spec.Containers {
+	for i, v := range spec.Containers {
+		// Add all container names for easier searching
+		po.ContainerNames = append(po.ContainerNames, v.Name)
+
 		if !options.UserRole.HasEnvVarsAccess(pod.GetLabels()) {
 			spec.Containers[i].Env = nil
 		}
@@ -127,7 +130,11 @@ func (k *Client) PodOverview(options PodOverviewOptions) (po *PodOverview, apiEr
 				// that might use env vars for secrets. This could be added back
 				// auth roles and such is figured out better.
 				spec := &pod.Spec
-				for i := range spec.Containers {
+				containerNames := []string{}
+				for i, v := range spec.Containers {
+					// Add all container names for easier searching
+					containerNames = append(containerNames, v.Name)
+
 					if !options.UserRole.HasEnvVarsAccess(pod.GetLabels()) {
 						spec.Containers[i].Env = nil
 					}
@@ -145,6 +152,7 @@ func (k *Client) PodOverview(options PodOverviewOptions) (po *PodOverview, apiEr
 					ContainerStatus: pod.Status.ContainerStatuses,
 					Status:          pod.Status,
 					Spec:            *spec,
+					ContainerNames:  containerNames,
 				})
 			}
 		}(i, pod)

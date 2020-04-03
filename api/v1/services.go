@@ -33,7 +33,7 @@ import (
 	"github.com/creack/httpreq"
 	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
-	"github.com/kubelens/kubelens/api/k8v1"
+	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 	klog "github.com/kubelens/kubelens/api/log"
 )
 
@@ -61,7 +61,7 @@ func (h request) Services(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	so := k8v1.ServiceOptions{
+	so := k8sv1.ServiceOptions{
 		UserRole:  ra,
 		Logger:    l,
 		Namespace: data.Namespace,

@@ -39,3 +39,25 @@
   margin-left: 5px; 
   position: absolute;
 }
+
+.toggle-container-name-dropdown {
+  float: right;
+}
+
+.toggle-container-name {
+  background-color: #3498DB;
+  color: white;
+  margin-right: 15px;
+  margin-top: 15px;
+  padding: 8px;
+  border-radius: 5px;
+}
+
+.toglge-container-name-menu {
+  text-align: left;
+  background-color: white;
+  color: #4B4F52;
+  border-color: #4B4F52;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}

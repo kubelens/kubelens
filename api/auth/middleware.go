@@ -26,20 +26,18 @@ package auth
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	jwtverifier "github.com/okta/okta-jwt-verifier-golang"
+
 	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/config"
 	klog "github.com/kubelens/kubelens/api/log"
 )
-
-type claims struct {
-	Roles rbac.Role `json:"roles"`
-	*jwt.StandardClaims
-}
 
 type jwkKey struct {
 	Alg string   `json:"alg"`
@@ -101,34 +99,111 @@ func authMiddleware(next http.Handler) http.Handler {
 
 		// need to skip claims if OPTIONS
 		if !strings.EqualFold(r.Method, http.MethodOptions) {
-			// Authorization: Bearer ... so it's 7 characters to start of jwt
-			token, err := jwt.ParseWithClaims(
-				r.Header.Get("Authorization")[7:],
-				&claims{},
-				keyLookup,
-			)
+			var roleAssignment *rbac.RoleAssignment
 
-			if err != nil {
-				l.Errorf("ERROR: %s : %s - %+v", err.Error(), r.URL.RequestURI(), r.Header)
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
-				return
+			// Authorization: Bearer ... so it's 7 characters to start of jwt
+			requestJWT := r.Header.Get("Authorization")[7:]
+
+			// check for Okta specific provider
+			if strings.Contains(strings.ToLower(config.C.OAuthJWTIssuer), "okta") {
+				oktaRoleAssignment, err := oktaAuthorization(l, requestJWT)
+
+				if err != nil {
+					l.Errorf("ERROR: %s : %s - %+v", err.Error(), r.URL.RequestURI(), r.Header)
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
+					return
+				}
+
+				roleAssignment = oktaRoleAssignment
+
+			} else {
+				// support for generic jwt verification.
+				genericRoleAssignmet, err := genericAuthorization(l, requestJWT)
+
+				if err != nil {
+					l.Errorf("ERROR: %s : %s - %+v", err.Error(), r.URL.RequestURI(), r.Header)
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
+					return
+				}
+
+				roleAssignment = genericRoleAssignmet
 			}
 
-			// map claims to custom
-			cc := token.Claims.(*claims)
 			// log user request
-			go l.Infof("%s - %s - %+v", r.URL.RequestURI(), cc.Subject, cc.Roles)
+			go l.Infof("%s - %s", r.URL.RequestURI(), requestJWT)
 
-			// get roles from claim
-			ra := rbac.RoleAssignment{Role: cc.Roles}
 			// add to context
-			ctx := rbac.NewContext(r.Context(), &ra)
+			ctx := rbac.NewContext(r.Context(), roleAssignment)
+
+			// set request with new context
 			r = r.WithContext(ctx)
 		}
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func oktaAuthorization(l klog.Logger, requestJWT string) (*rbac.RoleAssignment, error) {
+	toValidate := map[string]string{}
+	// toValidate["nonce"] = "{NONCE}"
+	// CLIENT_ID
+	toValidate["aud"] = config.C.OAuthAudience
+
+	jwtVerifierSetup := jwtverifier.JwtVerifier{
+		Issuer:           config.C.OAuthJWTIssuer,
+		ClaimsToValidate: toValidate,
+	}
+
+	verifier := jwtVerifierSetup.New()
+
+	token, err := verifier.VerifyIdToken(requestJWT)
+
+	if err != nil {
+		return nil, err
+	}
+
+	ra := &rbac.RoleAssignment{}
+
+	claimRoles := token.Claims["roles"]
+
+	if claimRoles != nil {
+		ra.Role = claimRoles.(rbac.Role)
+	} else {
+		sub := token.Claims["sub"]
+		if sub == nil {
+			return nil, errors.New("missing 'sub' from claims")
+		}
+		ra.Role = *getOktaRoles(sub.(string))
+	}
+
+	return ra, err
+}
+
+func genericAuthorization(l klog.Logger, requestJWT string) (*rbac.RoleAssignment, error) {
+	// Authorization: Bearer ... so it's 7 characters to start of jwt
+	token, err := jwt.ParseWithClaims(
+		requestJWT,
+		&jwt.StandardClaims{},
+		keyLookup,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// The original way used Auth0 with a custom rule to generate the Roles within the claim.
+	ra := &rbac.RoleAssignment{}
+
+	claimRoles := token.Claims.(*struct {
+		Roles rbac.Role `json:"roles"`
+		*jwt.StandardClaims
+	})
+
+	ra.Role = claimRoles.Roles
+
+	return ra, nil
 }
 
 func keyLookup(token *jwt.Token) (interface{}, error) {
@@ -175,4 +250,47 @@ func getPemCert(kid string) (cert []byte, err error) {
 	}
 
 	return cert, nil
+}
+
+func getOktaRoles(email string) *rbac.Role {
+	roles := &rbac.Role{}
+
+	// The original way used Auth0 with a custom rule to generate the Roles within the claim.
+	// For now, start with viewers and admins based on some config values and a call to Okta
+	// TODO make call to Okta to get user profile based on email, which is the 'sub' of the original claim
+	/*
+		{
+		“id”: “value for sub”,
+		“status”: “ACTIVE”,
+		“created”: “2019-06-07T07:42:41.000Z”,
+		“activated”: “2019-06-07T07:42:42.000Z”,
+		“statusChanged”: “2019-06-07T07:42:42.000Z”,
+		“lastLogin”: “2019-06-07T07:42:42.000Z”,
+		“lastUpdated”: “2019-06-07T08:46:13.000Z”,
+		“passwordChanged”: null,
+		“profile”: {
+		“firstName”: “User”,
+		“lastName”: “Test”,
+		“mobilePhone”: null,
+		“secondEmail”: null,
+		“login”: "user@test.com",
+		“email”: "user@test.com"
+		},
+	*/
+
+	// TODO check based on Okta user profile
+	roles.Viewers = true
+
+	for _, ae := range config.C.AdminEmails {
+		if strings.EqualFold(email, ae) {
+			roles.Operators = true
+		}
+	}
+
+	if !roles.Operators {
+		roles.Exclusions = config.C.ViewerLabelExclusions
+		roles.MatchLabels = config.C.ViewerLabelInclusions
+	}
+
+	return roles
 }

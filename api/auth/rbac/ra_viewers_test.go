@@ -3,19 +3,17 @@ package rbac
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/kubelens/kubelens/api/config"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHasApplicationAccess_Viewers_NoAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        false,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{"kube-system"},
+		Operators:   false,
+		Viewers:     false,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{"kube-system"},
 	}
 	ra := RoleAssignment{r}
 
@@ -27,12 +25,10 @@ func TestHasApplicationAccess_Viewers_NoAccess(t *testing.T) {
 func TestHasNamespaceAccess_Viewers_NoNamespace(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{"kube-system"},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{"kube-system"},
 	}
 	ra := RoleAssignment{r}
 
@@ -44,12 +40,10 @@ func TestHasNamespaceAccess_Viewers_NoNamespace(t *testing.T) {
 func TestHasNamespaceAccess_Viewers_NoAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{"kube-system"},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{"kube-system"},
 	}
 	ra := RoleAssignment{r}
 
@@ -61,12 +55,10 @@ func TestHasNamespaceAccess_Viewers_NoAccess(t *testing.T) {
 func TestHasNamespaceAccess_Viewers_NotInExclusionsHasAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{"kube-system"},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{"kube-system"},
 	}
 	ra := RoleAssignment{r}
 
@@ -78,12 +70,10 @@ func TestHasNamespaceAccess_Viewers_NotInExclusionsHasAccess(t *testing.T) {
 func TestHasEnvVarsAccess_Viewers_MissingMatchLabels(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "",
-		MatchSplitChar: "",
-		MatchLabels:    []string{},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -98,12 +88,10 @@ func TestHasEnvVarsAccess_Viewers_MissingMatchLabels(t *testing.T) {
 func TestHasEnvVarsAccess_Viewers_UnMatchedLabelNoAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -118,12 +106,10 @@ func TestHasEnvVarsAccess_Viewers_UnMatchedLabelNoAccess(t *testing.T) {
 func TestHasEnvVarsAccess_Viewers_MatchedLabelHasAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -138,12 +124,10 @@ func TestHasEnvVarsAccess_Viewers_MatchedLabelHasAccess(t *testing.T) {
 func TestHasConfigMapAccess_Viewers_MissingMatchLabels(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "",
-		MatchSplitChar: "",
-		MatchLabels:    []string{},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -158,12 +142,10 @@ func TestHasConfigMapAccess_Viewers_MissingMatchLabels(t *testing.T) {
 func TestHasConfigMapAccess_Viewers_UnMatchedLabelNoAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -178,12 +160,10 @@ func TestHasConfigMapAccess_Viewers_UnMatchedLabelNoAccess(t *testing.T) {
 func TestHasConfigMapAccess_Viewers_MatchedLabelHasAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -198,12 +178,10 @@ func TestHasConfigMapAccess_Viewers_MatchedLabelHasAccess(t *testing.T) {
 func TestHasPodAccess_Viewers_MissingMatchLabelsNotValid(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "",
-		MatchSplitChar: "",
-		MatchLabels:    []string{},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -218,12 +196,10 @@ func TestHasPodAccess_Viewers_MissingMatchLabelsNotValid(t *testing.T) {
 func TestHasPodAccessAccess_Viewers_UnMatchedLabelViewAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -238,12 +214,10 @@ func TestHasPodAccessAccess_Viewers_UnMatchedLabelViewAccess(t *testing.T) {
 func TestHasPodAccess_Viewers_MatchedLabelHasAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -258,12 +232,10 @@ func TestHasPodAccess_Viewers_MatchedLabelHasAccess(t *testing.T) {
 func TestHasLogAccess_Viewers_UnMatchedLabelNoAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -278,12 +250,10 @@ func TestHasLogAccess_Viewers_UnMatchedLabelNoAccess(t *testing.T) {
 func TestHasLogAccess_Viewers_MatchedLabelHasAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -298,12 +268,10 @@ func TestHasLogAccess_Viewers_MatchedLabelHasAccess(t *testing.T) {
 func TestHasLogAccess_Viewers_MissingMatchLabeNoAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "",
-		MatchSplitChar: "",
-		MatchLabels:    []string{},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -318,12 +286,10 @@ func TestHasLogAccess_Viewers_MissingMatchLabeNoAccess(t *testing.T) {
 func TestHasDeploymentAccess_Viewers_UnMatchedLabelNoAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -338,12 +304,10 @@ func TestHasDeploymentAccess_Viewers_UnMatchedLabelNoAccess(t *testing.T) {
 func TestHasDeploymentAccess_Viewers_MatchedLabelHasAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -358,12 +322,10 @@ func TestHasDeploymentAccess_Viewers_MatchedLabelHasAccess(t *testing.T) {
 func TestHasServiceAccess_Viewers_MissingMatchLabels(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "",
-		MatchSplitChar: "",
-		MatchLabels:    []string{},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -378,12 +340,10 @@ func TestHasServiceAccess_Viewers_MissingMatchLabels(t *testing.T) {
 func TestHasServiceAccess_Viewers_UnMatchedLabel(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 
@@ -398,12 +358,10 @@ func TestHasServiceAccess_Viewers_UnMatchedLabel(t *testing.T) {
 func TestHasServiceAccess_Viewers_MatchedLabelHasAccess(t *testing.T) {
 	config.C.EnableRBAC = true
 	r := Role{
-		Operators:      false,
-		Viewers:        true,
-		MatchPrefix:    "app",
-		MatchSplitChar: "=",
-		MatchLabels:    []string{"app=test"},
-		Exclusions:     []string{},
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
 	}
 	ra := RoleAssignment{r}
 

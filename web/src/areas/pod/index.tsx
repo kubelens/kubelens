@@ -41,7 +41,9 @@ type initialState = {
   statusModalOpen: boolean,
   socket?: ILogSocket,
   logStream?: string,
-  streamEnabled: boolean
+  streamEnabled: boolean,
+  containerNameSelectOpen: boolean
+  selectedContainerName?: string
 };
 
 export type PodProps = {
@@ -77,7 +79,9 @@ class Pod extends Component<any, initialState> {
     statusModalOpen: false,
     socket: undefined,
     logStream: undefined,
-    streamEnabled: false
+    streamEnabled: false,
+    containerNameSelectOpen: false,
+    selectedContainerName: undefined
   }
 
   async componentDidMount() {
@@ -85,17 +89,22 @@ class Pod extends Component<any, initialState> {
     const { match: { params } } = this.props;
     const podname = params.podName.substring(0, params.podName.indexOf("?"));
     const search = params.podName.substring(params.podName.indexOf("?"))
+    const char = _.isEmpty(search) ? "" : "&"
+    const defaultContainerNameSearch = `${search}${char}containerName=${this.props.selectedAppName}`;
 
     if (_.isEmpty(this.props.selectedAppName)) {
       this.props.setSelectedAppName(params.appName);
+      // There should always be a container with the same name as the app name.
+      // If there are sidecars, they will be shown in the dropdown after details are loaded.
+      this.setSelectedContainerName(this.props.selectedAppName, false);
     }
 
     if (_.isEmpty(this.props.pod)) {
-      this.props.getPod(podname, search, this.props.cluster, this.props.identityToken);
+      this.props.getPod(podname, defaultContainerNameSearch, this.props.cluster, this.props.identityToken);
     }
 
     if (_.isEmpty(this.props.logs)) {
-      this.props.getLogs(podname, search, this.props.cluster, this.props.identityToken);
+      this.props.getLogs(podname, defaultContainerNameSearch, this.props.cluster, this.props.identityToken);
     }
   }
 
@@ -122,6 +131,7 @@ class Pod extends Component<any, initialState> {
     const socket = new LogSocket({
       cluster: this.props.cluster,
       podname: this.props.pod.name,
+      containerName: this.state.selectedContainerName || this.props.selectedAppName,
       namespace: this.props.pod.namespace,
       handler: this.logStreamHandler,
       wsBase: endpoint,
@@ -180,6 +190,23 @@ class Pod extends Component<any, initialState> {
     }
   }
 
+  toggleContainerNameSelect = () => {
+    this.setState({ containerNameSelectOpen: !this.state.containerNameSelectOpen });
+  }
+
+  setSelectedContainerName = (name, getLogs) => {
+    this.setState({ selectedContainerName: name }, () => {
+      if (getLogs) {
+        const { match: { params } } = this.props;
+        const search = params.podName.substring(params.podName.indexOf("?"))
+        const char = _.isEmpty(search) ? "" : "&"
+        const defaultContainerNameSearch = `${search}${char}containerName=${this.props.selectedAppName}`;
+        
+        this.props.getLogs(this.props.pod.name, defaultContainerNameSearch, this.props.cluster, this.props.identityToken);
+      }
+    });
+  }
+
   render() {
     return (
       <div>
@@ -195,7 +222,11 @@ class Pod extends Component<any, initialState> {
           closeLogStream={this.closeLogStream}
           logStream={this.state.logStream}
           streamEnabled={this.state.streamEnabled}
-          hasLogAccess={this.props.hasLogAccess} />
+          hasLogAccess={this.props.hasLogAccess}
+          toggleContainerNameSelect={this.toggleContainerNameSelect}
+          containerNameSelectOpen={this.state.containerNameSelectOpen}
+          setSelectedContainerName={this.setSelectedContainerName}
+          selectedContainerName={this.state.selectedContainerName || this.props.selectedAppName} />
 
         <ErrorModal
           show={this.props.isError}

@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
 	"github.com/kubelens/kubelens/api/auth/rbac"
-	"github.com/kubelens/kubelens/api/k8v1"
+	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 	klog "github.com/kubelens/kubelens/api/log"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
 )
@@ -33,7 +33,7 @@ func TestGetServicesDefault(t *testing.T) {
 
 	resBody, _ := ioutil.ReadAll(resp.Body)
 
-	var b []k8v1.ServiceOverview
+	var b []k8sv1.ServiceOverview
 	err := json.Unmarshal(resBody, &b)
 
 	if err != nil {

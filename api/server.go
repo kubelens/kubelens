@@ -34,7 +34,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/kubelens/kubelens/api/config"
 	"github.com/kubelens/kubelens/api/io"
-	"github.com/kubelens/kubelens/api/k8v1"
+	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 	v1 "github.com/kubelens/kubelens/api/v1"
 )
 
@@ -57,7 +57,7 @@ func createServer(wsFactory io.SocketFactory) *http.Server {
 	rc := mux.NewRouter()
 
 	// v1 handlers
-	k8Client := k8v1.New(k8v1.NewWrapper())
+	k8Client := k8sv1.New(k8sv1.NewWrapper())
 	creq := v1.New(k8Client)
 	creq.Register(rc)
 
