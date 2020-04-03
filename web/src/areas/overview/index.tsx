@@ -32,7 +32,10 @@ import _ from 'lodash';
 import { IGlobalState } from '../../store';
 import { getAppOverview, setSelectedAppName, clearAppsErrors } from '../../actions/apps';
 
-type initialState = {};
+type initialState = {
+  specModalOpen: boolean,
+  statusModalOpen: boolean
+};
 
 export type OverviewProps = {
   identityToken?: string,
@@ -50,6 +53,11 @@ export type OverviewProps = {
 }>;
 
 class Overview extends Component<OverviewProps, initialState> {
+  state: initialState = {
+    specModalOpen: false,
+    statusModalOpen: false
+  }
+
   async componentDidMount() {
     const { match: { params }, location: { search } } = this.props;
     const query = new URLSearchParams(search);
@@ -87,10 +95,28 @@ class Overview extends Component<OverviewProps, initialState> {
       this.props.clearAppsErrors();
   }
 
+  toggleModalType = (type) => {
+    switch (type) {
+      case 'spec':
+        this.setState({ specModalOpen: !this.state.specModalOpen });
+        break;
+      case 'status':
+        this.setState({ statusModalOpen: !this.state.statusModalOpen });
+        break;
+
+      default:
+        break;
+    }
+  }
+
   render() {
     return (
       <div className="overview-container">
-        <ServiceOverviewPage serviceOverviews={this.props.serviceOverviews} />
+        <ServiceOverviewPage 
+          serviceOverviews={this.props.serviceOverviews} 
+          toggleModalType={this.toggleModalType}
+          specModalOpen={this.state.specModalOpen}
+          statusModalOpen={this.state.statusModalOpen} />
         <PodOverviewPage podOverview={this.props.podOverview} />
         <ErrorModal
           show={this.props.isError}

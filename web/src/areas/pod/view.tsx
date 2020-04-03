@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 import React from 'react';
-import { Card, CardHeader, CardBody, CardFooter, Row, Col } from 'reactstrap';
+import { Card, CardHeader, CardBody, CardFooter, Row, Col, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import JsonViewModal from '../../components/json-view-modal';
 import CopyClipboard from '../../components/copy-clipboard';
 import CardText from '../../components/text';
@@ -45,7 +45,11 @@ export type PodPageProps = {
   logStream?: string,
   streamEnabled: boolean,
   envBody: {},
-  hasLogAccess: boolean
+  hasLogAccess: boolean,
+  toggleContainerNameSelect: () => void,
+  containerNameSelectOpen: boolean,
+  setSelectedContainerName: (name: string, getLogs: boolean) => void,
+  selectedContainerName: string
 };
 
 const PodPage = ({
@@ -60,7 +64,11 @@ const PodPage = ({
   logStream,
   streamEnabled,
   envBody,
-  hasLogAccess
+  hasLogAccess,
+  toggleContainerNameSelect,
+  containerNameSelectOpen,
+  setSelectedContainerName,
+  selectedContainerName
 }: PodPageProps) => {
   // is this right? not sure if there would ever be more than 1 container status
   let ready: boolean = false;
@@ -81,6 +89,27 @@ const PodPage = ({
           <Card className="kind-detail-container mb-4">
             <CardHeader className="kind-detail-title text-center">
               {podDetail.name}
+              {!_.isEmpty(podDetail.containerNames)
+                ? <span style={{float:'right'}}>Select Container:<Dropdown size="sm" isOpen={containerNameSelectOpen} toggle={toggleContainerNameSelect} className="toggle-container-name-dropdown">
+                    <DropdownToggle
+                      caret
+                      tag="span"
+                      onClick={toggleContainerNameSelect}
+                      data-toggle="dropdown"
+                      aria-expanded={containerNameSelectOpen}
+                      className="toggle-container-name" >
+                      {selectedContainerName}
+                    </DropdownToggle>
+                    <DropdownMenu right
+                      className="toglge-container-name-menu">
+                      {
+                        podDetail.containerNames.map(c => {
+                          return <DropdownItem key={c} onClick={() => setSelectedContainerName(c, true)}>{c}</DropdownItem>
+                        })
+                      }
+                    </DropdownMenu>
+                  </Dropdown></span>
+                : null}
             </CardHeader>
 
             {/* body */}
@@ -133,7 +162,7 @@ const PodPage = ({
                 <br />
                 {hasLogAccess
                   ? <div>
-                    <h4><CopyClipboard labelText={`Log Stdout ${logStream ? 'Stream' : ''}`} value={logStream ? logStream : (logs ? logs.output : '')} size={22} /></h4>
+                    <h4><CopyClipboard labelText={`Log Stdout ${logStream ? 'Stream' : ''}`} value={logStream ? logStream : (logs ? logs.output : '')} size={22} /></h4> 
                     <hr />
                     {logStream || logs
                       ? <div style={{ backgroundColor: 'rgb(39, 40, 34)', padding: '10px', overflow: 'auto', maxHeight: '300px' }}>
