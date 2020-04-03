@@ -24,7 +24,7 @@ SOFTWARE.
 export type LogSocketProps = {
   cluster: string,
   podname: string,
-  containerName: string,
+  containerName?: string,
   namespace: string,
   handler(ev: MessageEvent),
   wsBase: string,
@@ -43,9 +43,10 @@ export default class LogSocket {
 
     if ("WebSocket" in window) {
       const keyQuery = props.accessToken ? `&key=${props.accessToken}` : "";
+      const containerNameQuery = props.containerName ? `&containerName=${props.containerName}` : "";
       this.socket = props.socket
         ? props.socket
-        : new WebSocket(`${props.wsBase}/${props.podname}/logs?namespace=${props.namespace}&containerName=${props.containerName}${keyQuery}`);
+        : new WebSocket(`${props.wsBase}/${props.podname}/logs?namespace=${props.namespace}${containerNameQuery}${keyQuery}`);
 
       this.socket.onclose = () => {
         console.log('socket closed');
