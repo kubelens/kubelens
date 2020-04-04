@@ -6,7 +6,7 @@
   "oAuthResponseType": "id_token token",
   "oAuthRequestType": "Bearer",
   "oAuthScope": "openid profile email",
-  "oAuthConnection": "chradfs",
+  "oAuthConnection": "adfs",
   "oAuthEnabled": true,
   "availableClusters": [
     {
