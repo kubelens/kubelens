@@ -32,8 +32,8 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import { setSelectedAppName } from '../../actions/apps';
 import { getPod, setSelectedContainerName, clearPodsErrors, clearPod } from '../../actions/pods';
 import { getLogs, toggleLogStream, clearLogsErrors } from '../../actions/logs';
-import { AuthImplicitClient } from '../../auth';
 import config from '../../config';
+import { AuthClient } from 'auth/authClient';
 
 type initialState = {
   envModalOpen: boolean,
@@ -56,7 +56,7 @@ export type PodProps = {
   envBody: {},
   selectedAppName: string,
   hasLogAccess: boolean,
-  authClient(): AuthImplicitClient,
+  authClient(): AuthClient,
   setSelectedAppName(value: string): void,
   getPod(podName: string, queryString: string): void,
   getLogs(podName: string, queryString: string): void,

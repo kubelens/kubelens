@@ -28,7 +28,8 @@ import { Provider } from 'react-redux';
 import { Store } from 'redux';
 import configureStore, { IGlobalState, history } from './store';
 import App from './app';
-import { AuthImplicitClient } from 'auth';
+import { createClient } from 'auth';
+import { AuthClient } from 'auth/authClient';
 import config from 'config';
 
 import './index.css';
@@ -39,10 +40,10 @@ interface IProps {
 
 export const bootstrap = (async () => {
   const cfg = await config();
-  let authClient: AuthImplicitClient;
+  let authClient: AuthClient;
 
   if (cfg.oAuthEnabled) {
-    authClient = AuthImplicitClient.createDefault(cfg, { history });
+    authClient = createClient(cfg, { history })
   }
 
   /* 

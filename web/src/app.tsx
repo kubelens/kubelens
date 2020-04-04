@@ -26,11 +26,11 @@ import { Router } from 'react-router-dom';
 import { ConnectedRouter } from 'connected-react-router';
 import AsyncLoadingContainer from './components/async-container';
 import AuthenticationWrapper from './components/authentication-wrapper';
-import { AuthImplicitClient } from 'auth';
 import ClusterIndex from './areas';
+import { AuthClient } from 'auth/authClient';
 
 export interface IAppProps {
-  authClient: AuthImplicitClient
+  authClient: AuthClient
   history: any
 }
 
