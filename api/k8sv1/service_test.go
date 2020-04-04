@@ -3,9 +3,9 @@ package k8v1
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetServiceOverviewsDefaultSuccess(t *testing.T) {
@@ -73,4 +73,6 @@ func TestGetServiceOverviewsDetailed(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, r[0].Spec)
+	assert.NotNil(t, r[0].ConfigMaps)
+	assert.Len(t, *r[0].ConfigMaps, 1)
 }

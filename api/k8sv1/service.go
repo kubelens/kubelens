@@ -1,6 +1,7 @@
 package k8v1
 
 import (
+	"strings"
 	"sync"
 
 	"github.com/kubelens/kubelens/api/errs"
@@ -28,6 +29,14 @@ func (k *Client) ServiceOverviews(options ServiceOptions) (svco []ServiceOvervie
 	}
 
 	list, err := clientset.CoreV1().Services(options.Namespace).List(lo)
+
+	if err != nil {
+		klog.Trace()
+		return nil, errs.InternalServerError(err.Error())
+	}
+
+	// get this list of config maps here
+	cmList, err := clientset.CoreV1().ConfigMaps(options.Namespace).List(lo)
 
 	if err != nil {
 		klog.Trace()
@@ -64,6 +73,27 @@ func (k *Client) ServiceOverviews(options ServiceOptions) (svco []ServiceOvervie
 
 				if options.Detailed {
 					svc.AddDetail(&service.Spec, &service.Status)
+				}
+
+				if cmList != nil && options.UserRole.HasConfigMapAccess(item.GetLabels()) {
+					serviceConfigMaps := []v1.ConfigMap{}
+
+					for _, cm := range cmList.Items {
+						for cmLblKey, cmLblValue := range cm.GetLabels() {
+							// Only look for a match on the selector lables. Not sure of a better way
+							// to ensure that the found config map is the one tied to the service.
+							if strings.EqualFold(item.Spec.Selector[cmLblKey], cmLblValue) {
+								serviceConfigMaps = append(serviceConfigMaps, cm)
+								// break out if found since there could be multiple
+								// selector labels to match on. one find should be unique enough?
+								break
+							}
+						}
+					}
+
+					if options.Detailed && len(serviceConfigMaps) > 0 {
+						svc.AddConfigMaps(&serviceConfigMaps)
+					}
 				}
 
 				svco[index] = svc
