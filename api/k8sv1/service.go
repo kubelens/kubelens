@@ -35,14 +35,6 @@ func (k *Client) ServiceOverviews(options ServiceOptions) (svco []ServiceOvervie
 		return nil, errs.InternalServerError(err.Error())
 	}
 
-	// get this list of config maps here
-	cmList, err := clientset.CoreV1().ConfigMaps(options.Namespace).List(lo)
-
-	if err != nil {
-		klog.Trace()
-		return nil, errs.InternalServerError(err.Error())
-	}
-
 	svco = make([]ServiceOverview, len(list.Items))
 	wg := sync.WaitGroup{}
 
@@ -73,6 +65,14 @@ func (k *Client) ServiceOverviews(options ServiceOptions) (svco []ServiceOvervie
 
 				if options.Detailed {
 					svc.AddDetail(&service.Spec, &service.Status)
+				}
+
+				// get this list of config maps here to ensure correct namespace. This should perform
+				// just fine, but if not, this list could be generated outsid of this routine.
+				cmList, err := clientset.CoreV1().ConfigMaps(item.GetNamespace()).List(lo)
+				// just trace the error and move on, shouldn't be critical.
+				if err != nil {
+					klog.Trace()
 				}
 
 				if cmList != nil && options.UserRole.HasConfigMapAccess(item.GetLabels()) {
