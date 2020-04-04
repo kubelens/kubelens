@@ -98,7 +98,9 @@ export type Service = {
   externalIPs?: string[],
   ports?: [{}],
   spec?: {},
-  deployerLink?: string
+  status?: {},
+  deployerLink?: string,
+  configMaps?: [{}]
 };
 
 export type AppOverview = {

@@ -32,16 +32,19 @@ export type ServiceOverviewProps = {
   serviceOverviews: Service[],
   toggleModalType: (type: string) => void,
   specModalOpen: boolean,
-  statusModalOpen: boolean
+  statusModalOpen: boolean,
+  configMapModalOpen: boolean
 };
 
 const ServiceOverview = ({
   serviceOverviews,
   toggleModalType,
   specModalOpen,
-  statusModalOpen
+  statusModalOpen,
+  configMapModalOpen
 }: ServiceOverviewProps) => {
-  const overview:any = !_.isEmpty(serviceOverviews) ? serviceOverviews[0] : {};
+  // There should only ever be 1 overview for a service, kept as an array for ease.
+  const overview:Service = !_.isEmpty(serviceOverviews) ? serviceOverviews[0] : {} as Service;
 
   return (
     <div>
@@ -53,18 +56,31 @@ const ServiceOverview = ({
             <CardBody>
               <small>
                 <Row>
-                  <Col sm={3}>
-                    <CardText label="Namespace" value={overview.namespace} />
+                  <Col sm={7}>
+                    <Row>
+                      <Col sm={4}>
+                        <CardText label="Namespace" value={overview.namespace} />
+                      </Col>
+                      <Col sm={4}>
+                        <CardText label="Cluster IP" value={overview.clusterIP} />
+                      </Col>
+                      <Col sm={4}>
+                        <CardText label="Type" value={overview.type} />
+                      </Col>
+                    </Row>
                   </Col>
-                  <Col sm={3}>
-                    <CardText label="Cluster IP" value={overview.clusterIP} />
-                  </Col>
-                  <Col sm={3}>
-                    <CardText label="Type" value={overview.type} />
-                  </Col>
-                  <Col sm={3}>
-                    <Button outline color="info" onClick={() => toggleModalType('spec')} block>Service Spec</Button>
-                    <Button outline color="info" onClick={() => toggleModalType('status')} block>Service Status</Button>
+                  <Col sm={5}>
+                    <Row>
+                      {!_.isEmpty(overview.configMaps)
+                      ? <Col sm={6}>
+                          <Button outline color="info" onClick={() => toggleModalType('configMap')} block>Service ConfigMaps</Button>
+                        </Col>
+                      : null}
+                      <Col sm={!_.isEmpty(overview.configMaps) ? 6 : 12}>
+                        <Button outline color="info" onClick={() => toggleModalType('spec')} block>Service Spec</Button>
+                        <Button outline color="info" onClick={() => toggleModalType('status')} block>Service Status</Button>
+                      </Col>
+                    </Row>
                   </Col>
                 </Row>
               </small>
@@ -87,6 +103,14 @@ const ServiceOverview = ({
       body={overview.status}
       handleClose={() => {
         toggleModalType('status');
+      }} />
+
+    <JsonViewModal
+      title="Service ConfigMaps"
+      show={configMapModalOpen}
+      body={overview.configMaps}
+      handleClose={() => {
+        toggleModalType('configMap');
       }} />
 
     </div>
