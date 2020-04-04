@@ -1,7 +1,7 @@
 {
-  "oAuthJwtIssuer": "https://chrobinson.oktapreview.com/oauth2/ausm432959XUSGBbK0h7",
-  "oAuthAudience": "auth://chrobinson.com",
-  "oAuthClientId": "0oaqqeowjdUZg3sdi0h7",
+  "oAuthJwtIssuer": "https://YOUR_DOMAIN.oktapreview.com/oauth2/YOUR_TENANT",
+  "oAuthAudience": "auth://YOUR_DOMAIN.com",
+  "oAuthClientId": "CLIENT_ID",
   "oAuthRedirectUri": "http://localhost:3000",
   "oAuthResponseType": "id_token token",
   "oAuthRequestType": "Bearer",
@@ -10,7 +10,7 @@
   "oAuthEnabled": true,
   "availableClusters": [
     {
-      "minikube": "http://127.0.0.1:59740"
+      "minikube": "http://api.kubelens.local"
     }
   ],
   "deployerLinkName": "Octopus Link"
