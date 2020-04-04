@@ -241,6 +241,7 @@ type ServiceOverview struct {
 	Ports          []v1.ServicePort  `json:"ports,omitempty"`
 	Spec           *v1.ServiceSpec   `json:"spec,omitempty"`
 	Status         *v1.ServiceStatus `json:"status,omitempty"`
+	ConfigMaps     *[]v1.ConfigMap   `json:"configMaps,omitempty"`
 }
 
 // AddDetail sets additional fields for more detailed overview
@@ -252,6 +253,12 @@ func (s *ServiceOverview) AddDetail(spec *v1.ServiceSpec, status *v1.ServiceStat
 	s.Selector = spec.Selector
 	s.Spec = spec
 	s.Status = status
+}
+
+// AddConfigMaps sets the ConfigMaps value. Normally wouldn't have a pointer for a slice,
+// but this allows to easily return empty for the client.
+func (s *ServiceOverview) AddConfigMaps(cms *[]v1.ConfigMap) {
+	s.ConfigMaps = cms
 }
 
 // ServiceOptions contains fields used for filtering when retrieving services
