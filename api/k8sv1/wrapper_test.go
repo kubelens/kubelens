@@ -187,6 +187,12 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 	case ns := <-namepsaces:
 		fmt.Printf("Got namespace from channel: %s\n", ns.Name)
 		return client, nil
+	case cmm := <-configMapMatch:
+		fmt.Printf("Got matcher config maps from channel: %s/%s\n", cmm.Namespace, cmm.Name)
+		return client, nil
+	case cmnm := <-configMapMatch:
+		fmt.Printf("Got non-matcher config maps from channel: %s/%s\n", cmnm.Namespace, cmnm.Name)
+		return client, nil
 	default:
 		fmt.Println("informer did not get the added pod")
 		return client, nil
