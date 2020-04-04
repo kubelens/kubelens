@@ -202,7 +202,7 @@ export default function createClient<T>(commonConfig: Config, overrides?: Partia
             }
             //We're missing a token!
             else {
-              return await refreshTokensWithSession(oktaAuthClient, config, state, session);
+              return await refreshTokensWithSession(oktaAuthClient, config, session, "missing");
             }
           }
           catch (err) {
@@ -253,7 +253,7 @@ async function parseFromUrl(oktaAuthClient: any, state: string) {
   };
 }
 
-async function refreshTokensWithSession(oktaAuthClient: any, config: any, state: string, session: any) {
+async function refreshTokensWithSession(oktaAuthClient: any, config: any, session: any, state?: string) {
   const tokens = await oktaAuthClient.token.getWithoutPrompt({
     scopes: config.scope.split(' '),
     responseType: ['token', 'id_token'],
