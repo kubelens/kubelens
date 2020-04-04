@@ -1,18 +1,17 @@
 {
-  "oAuthJwtIssuer": "sso.company.com",
-  "oAuthAudience": "kubelens",
-  "oAuthClientId": "jkWS793gEUKpx0ybe2HXfLQeMNLLBOdf",
+  "oAuthJwtIssuer": "https://chrobinson.oktapreview.com/oauth2/ausm432959XUSGBbK0h7",
+  "oAuthAudience": "auth://chrobinson.com",
+  "oAuthClientId": "0oaqqeowjdUZg3sdi0h7",
   "oAuthRedirectUri": "http://localhost:3000",
   "oAuthResponseType": "id_token token",
   "oAuthRequestType": "Bearer",
-  "oAuthScope": "openid profile email kubelens:access",
-  "oAuthProvider": "auth0",
-  "oAuthConnection": "adfs",
-  "oAuthEnabled": false,
+  "oAuthScope": "openid profile email",
+  "oAuthConnection": "chradfs",
+  "oAuthEnabled": true,
   "availableClusters": [
     {
-      "minikube": "http://api.kubelens.minikube-local"
+      "minikube": "http://127.0.0.1:59740"
     }
   ],
-  "deployerLinkName": ""
+  "deployerLinkName": "Octopus Link"
 }

@@ -22,6 +22,7 @@
   "oAuthJwk": "",
   "oAuthJwtIssuer": "",
   "oAuthAudience": "",
+  "oAuthClientID": "",
   "enableAuth": false,
   "enableRBAC": false,
   "rbacClaim": "",

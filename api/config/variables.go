@@ -44,6 +44,7 @@ type config struct {
 	OAuthJWK              string   `json:"oAuthJwk"`
 	OAuthAudience         string   `json:"oAuthAudience"`
 	OAuthJWTIssuer        string   `json:"oAuthJwtIssuer"`
+	OAuthClientID         string   `json:"oAuthClientID"`
 	EnableAuth            bool     `json:"enableAuth"`
 	EnableRBAC            bool     `json:"enableRBAC"`
 	RBACClaim             string   `json:"rbacClaim"`
