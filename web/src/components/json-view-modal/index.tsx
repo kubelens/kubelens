@@ -29,7 +29,7 @@ import './styles.css';
 export type JsonViewModalProps = {
   handleClose(e: any),
   show: boolean,
-  body: object,
+  body?: object,
   title: string,
   className?: string
 };
