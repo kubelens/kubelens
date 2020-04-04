@@ -131,7 +131,10 @@ export const getApps: ActionCreator<
           i++;
         })
         overview.namespaces = _.uniq(overview.namespaces);
-        apps.push(overview);
+
+        if (!_.isEmpty(overview.name)) {
+          apps.push(overview);
+        }
       });
 
       dispatch({
