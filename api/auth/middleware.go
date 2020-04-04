@@ -147,9 +147,9 @@ func authMiddleware(next http.Handler) http.Handler {
 
 func oktaAuthorization(l klog.Logger, requestJWT string) (*rbac.RoleAssignment, error) {
 	toValidate := map[string]string{}
-	// toValidate["nonce"] = "{NONCE}"
-	// CLIENT_ID
+
 	toValidate["aud"] = config.C.OAuthAudience
+	toValidate["cid"] = config.C.OAuthClientID
 
 	jwtVerifierSetup := jwtverifier.JwtVerifier{
 		Issuer:           config.C.OAuthJWTIssuer,
@@ -158,7 +158,7 @@ func oktaAuthorization(l klog.Logger, requestJWT string) (*rbac.RoleAssignment, 
 
 	verifier := jwtVerifierSetup.New()
 
-	token, err := verifier.VerifyIdToken(requestJWT)
+	token, err := verifier.VerifyAccessToken(requestJWT)
 
 	if err != nil {
 		return nil, err
@@ -260,22 +260,21 @@ func getOktaRoles(email string) *rbac.Role {
 	// TODO make call to Okta to get user profile based on email, which is the 'sub' of the original claim
 	/*
 		{
-		“id”: “value for sub”,
-		“status”: “ACTIVE”,
-		“created”: “2019-06-07T07:42:41.000Z”,
-		“activated”: “2019-06-07T07:42:42.000Z”,
-		“statusChanged”: “2019-06-07T07:42:42.000Z”,
-		“lastLogin”: “2019-06-07T07:42:42.000Z”,
-		“lastUpdated”: “2019-06-07T08:46:13.000Z”,
-		“passwordChanged”: null,
-		“profile”: {
-		“firstName”: “User”,
-		“lastName”: “Test”,
-		“mobilePhone”: null,
-		“secondEmail”: null,
-		“login”: "user@test.com",
-		“email”: "user@test.com"
-		},
+			"ver": 1,
+			"jti": "",
+			"iss": "oAuthJwtIssuer",
+			"aud": "oAuthAudience",
+			"iat": 1585959201,
+			"exp": 1585962801,
+			"cid": "oAuthClientID",
+			"uid": "oAuthClientID",
+			"scp": [
+				"email",
+				"profile",
+				"openid"
+			],
+			"sub": "user@domain.com"
+		}
 	*/
 
 	// TODO check based on Okta user profile

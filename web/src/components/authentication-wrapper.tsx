@@ -24,13 +24,13 @@ SOFTWARE.
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
-import { AuthImplicitClient } from '../auth/clients/auth-implicit-client';
 import { setIdentityToken } from '../actions/auth';
 import { IGlobalState } from 'store';
 import config from '../config';
+import { AuthClient } from 'auth/authClient';
 
 export interface AuthProps {
-  authClient?: AuthImplicitClient,
+  authClient?: AuthClient,
   identityToken?: string,
   setIdentityToken(identityToken?: string): void
 }
@@ -48,9 +48,10 @@ class AuthenticationWrapper extends Component<AuthProps, any> {
       if (this.props.authClient) {
         try {
           let token = await this.props.authClient.ensureAuthed();
-          this.props.setIdentityToken(token.identityToken);
+          // using the accessToken since all we need is the email of the user for authorization.
+          this.props.setIdentityToken(token.accessToken);
         } catch (e) {
-          this.setState({ error: e });
+          this.setState({ error: e }); 
         }
       }
     } else {

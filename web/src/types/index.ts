@@ -29,7 +29,6 @@ export type Config = {
   oAuthResponseType: string,
   oAuthRequestType: string,
   oAuthScope: string,
-  oAuthProvider: string,
   oAuthConnection: string,
   oAuthEnabled: boolean,
   availableClusters: {}[],
