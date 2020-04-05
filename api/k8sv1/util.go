@@ -32,19 +32,15 @@ import (
 	"github.com/kubelens/kubelens/api/config"
 )
 
-func svcNameFromPod(pod string) string {
-	// Example pod name: some-name-to-match-6fd8676889-xsksc
-	// the "some-name-to-match" piece is the name of the service
-	regex := regexp.MustCompile(config.C.ServiceNameRegex)
-	return regex.FindString(pod)
-}
-
 func getProjectSlug(pod string) string {
-	// Example pod name: some-pod-name-slug-1234-6fd8676889-xsksc
-	// the "slug-1234" piece is the slug mapping to the the id of the deploy template.
-	// Using this could allow building of a link to the deployment.
-	regex := regexp.MustCompile(config.C.ProjectSlugRegex)
-	return regex.FindString(pod)
+	if len(config.C.ProjectSlugRegex) > 0 {
+		// Example pod name: some-pod-name-slug-1234-6fd8676889-xsksc
+		// the "slug-1234" piece is the slug mapping to the the id of the deploy template.
+		// Using this could allow building of a link to the deployment.
+		regex := regexp.MustCompile(config.C.ProjectSlugRegex)
+		return regex.FindString(pod)
+	}
+	return ""
 }
 
 func getAppName(labels map[string]string, appnameLabelKey, defaultLabelKey, defaultName string) (name string, labelKey string) {
@@ -89,11 +85,14 @@ func getDefaultSearchLabel(selector map[string]string) string {
 
 // getDeployerLink tries to build a link to the tool that deploys the application. See doc.go for more info.
 func getDeployerLink(value string) string {
-	var deployerLink string
-
 	slug := getProjectSlug(value)
 	if len(slug) > 0 {
-		deployerLink = fmt.Sprintf("%s%s", config.C.DeployerLink, slug)
+		return fmt.Sprintf("%s%s", config.C.DeployerLink, slug)
 	}
-	return deployerLink
+
+	if len(config.C.DeployerLink) > 0 {
+		return config.C.DeployerLink
+	}
+
+	return ""
 }

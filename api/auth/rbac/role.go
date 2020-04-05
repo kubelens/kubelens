@@ -81,13 +81,6 @@ func (r Role) Matches(labels map[string]string, appname *string) bool {
 func (r Role) CompareLabels(labels map[string]string, exact bool) bool {
 	if config.C.EnableRBAC {
 		if r.Operators {
-			if labels != nil {
-				for _, label := range labels {
-					if r.InExclusions(label) {
-						return false
-					}
-				}
-			}
 			return true
 		}
 

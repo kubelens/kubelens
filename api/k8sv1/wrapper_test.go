@@ -137,8 +137,8 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		// This is not required in tests, but it serves as a proof-of-concept by
 		// ensuring that the informer goroutine have warmed up and called List before
 		// we send any events to it.
-		for !podInformer.HasSynced() || !nsInformer.HasSynced() || !svcInformer.HasSynced() {
-			time.Sleep(1 * time.Millisecond)
+		for !podInformer.HasSynced() || !nsInformer.HasSynced() || !svcInformer.HasSynced() || !cmInformer.HasSynced() {
+			time.Sleep(1 * time.Second)
 		}
 
 		a := &v1.Service{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace}}

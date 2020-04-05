@@ -1,8 +1,7 @@
 {
-  "serverPort": 39000,
+  "serverPort": 8080,
   "allowedOrigins": [
-    "http://localhost:3000",
-    "http://kubelens.minikube-local"
+    "http://localhost:3000"
   ],
   "allowedMethods": [
     "GET",
@@ -17,18 +16,16 @@
     "X-Requested-With"
   ],
   "allowedHosts": [
-    "api.kubelens.minikube-local"
+    "localhost"
   ],
   "oAuthJwk": "",
   "oAuthJwtIssuer": "",
   "oAuthAudience": "",
-  "enableAuth": false,
-  "enableRBAC": false,
+  "enableAuth": true,
+  "enableRBAC": true,
   "rbacClaim": "",
-  "serviceNameRegex": "^.+(-dev|-int|-trn|-prod)",
   "projectSlugRegex": "",
-  "deployerLink": "",
-  "healthRoute": "/healthcheck",
+  "deployerLink": "https://test-deployer.com",
   "defaultSearchLabels": [
     "app",
     "k8s-app",
@@ -48,6 +45,5 @@
   "enableTLS": false,
   "tlsCert": "",
   "tlsKey": "",
-  "enableCertPinning": false,
   "publicKeyHPKP": ""
 }
