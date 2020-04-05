@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/kubelens/kubelens/tree/master.svg?style=svg)](https://circleci.com/gh/kubelens/kubelens/tree/master)
 
-Giving software engineers a quick view and logs for applications running in [Kubernetes](https://kubernetes.io/).
+Giving software engineers a quick view into applications running within [Kubernetes](https://kubernetes.io/).
 
 ![Selected Application](application-detail.png)
 
