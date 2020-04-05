@@ -29,7 +29,6 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/kubelens/kubelens/api/config"
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 )
 
@@ -71,7 +70,7 @@ func (rq request) Health(w http.ResponseWriter, r *http.Request) {
 
 // Register registers all routes with the v1 sub router.
 func (rq request) Register(router *mux.Router) {
-	router.HandleFunc(config.C.HealthRoute, rq.Health).Methods("GET")
+	router.HandleFunc("/healthcheck", rq.Health).Methods("GET")
 
 	rv1 := router.PathPrefix("/v1").Subrouter()
 	// /apps

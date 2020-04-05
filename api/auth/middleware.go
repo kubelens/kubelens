@@ -80,7 +80,7 @@ func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		l := klog.MustFromContext(r.Context())
 
-		if r.URL.Path == config.C.HealthRoute {
+		if r.URL.Path == "/healthcheck" {
 			next.ServeHTTP(w, r)
 			return
 		}

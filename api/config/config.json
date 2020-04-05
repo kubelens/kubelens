@@ -26,10 +26,8 @@
   "enableAuth": false,
   "enableRBAC": false,
   "rbacClaim": "",
-  "serviceNameRegex": "^.+(-dev|-int|-trn|-prod)",
   "projectSlugRegex": "",
   "deployerLink": "",
-  "healthRoute": "/healthcheck",
   "defaultSearchLabels": [
     "app",
     "k8s-app",
@@ -48,7 +46,5 @@
   "contentSecurityPolicy": "",
   "enableTLS": false,
   "tlsCert": "",
-  "tlsKey": "",
-  "enableCertPinning": false,
-  "publicKeyHPKP": ""
+  "tlsKey": ""
 }

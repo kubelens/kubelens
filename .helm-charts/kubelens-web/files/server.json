@@ -1,0 +1,6 @@
+{
+  "serverPort": 39000,
+  "enableTLS": false,
+  "tlsCert": "",
+  "tlsKey": ""
+}

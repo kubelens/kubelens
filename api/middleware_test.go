@@ -10,10 +10,10 @@ import (
 	k8fakes "github.com/kubelens/kubelens/api/k8sv1/fakes"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/config"
 	klog "github.com/kubelens/kubelens/api/log"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSetMiddleware(t *testing.T) {
