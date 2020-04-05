@@ -1,6 +1,10 @@
 # Kubelens
 
-There are many tools built around [Kubernetes](https://kubernetes.io/), with many of them being one-stop tools, I found it difficult to find something more lightweight. After getting tired of running the same sequence of kubectl commands and switching contexts, I started this as a side project to make life easier while learning more about Kubernetes. As it became more useful, I decided to create Kubelens for a specific purpose; to give engineers a quick view into deployed applications.
+Giving software engineers a quick view and logs for applications running in [Kubernetes](https://kubernetes.io/).
+
+![Selected Application](https://github.com/kubelens/kubelens/tree/staging/.github/application-detail.png)
+
+![Pod Detail & Logs](https://github.com/kubelens/kubelens/tree/staging/.github/pod-detail.png)
 
 Let's get to the quick details.
 
@@ -14,6 +18,8 @@ More docs and features to come. Any help/contributions/feedback is very much app
 
 ## Run Locally - Minikube 
 
+The nice thing is that when Kubelens is deployed, it will be available to view within its own UI!
+
 [Install Minikube](https://kubernetes.io/docs/setup/learning-environment/minikube/)
 
 `minikube start`
@@ -24,15 +30,14 @@ More docs and features to come. Any help/contributions/feedback is very much app
 
 [Install Helm](https://helm.sh/docs/using_helm/)
 
-Some service account is needed in order for the API to self authenticate with read rights. The example uses the default service account provided by Kubernetes
+From the root of the repository:
 
-`kubectl create clusterrolebinding default-view --clusterrole=view --serviceaccount=default:default`
+Deploy the API - `helm upgrade --install kubelens-api api/_helm/kubelens-api`
 
-After that, you should be set to deploy to the Minikube instance.
+Deploy the UI - `helm upgrade --install kubelens-web web/_helm/kubelens-web`
 
 ## Build & Deploy
 
 [kubelens/web](https://github.com/kubelens/kubelens/tree/staging/web#build--deploy)
 
 [kubelens/api](https://github.com/kubelens/kubelens/tree/staging/api#build--deploy)
-

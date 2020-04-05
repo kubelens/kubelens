@@ -1,37 +1,66 @@
-# build image
-FROM golang:latest AS build-env
+# Web build image
+FROM node:lts AS webbuilder
 
-WORKDIR /go/src/github.com/kubelens/kubelens/web
+WORKDIR /usr/src/stage
 
-COPY ./build ./build
+COPY package.json .
+COPY package-lock.json .
+COPY tsconfig.json .
+COPY tslint.json .
+
+RUN npm install --only=prod --quiet
+
+COPY src ./src
+COPY public ./public
+
+RUN npm run build
+
+# Server build image
+FROM golang:alpine AS gobuilder
+
+# Install ca-certificates
+# Git is required for fetching the dependencies.
+RUN apk update && apk add --no-cache ca-certificates && update-ca-certificates
+# Create appuser.
+ENV USER=appuser
+ENV UID=10001 
+# See https://stackoverflow.com/a/55757473/12429735RUN 
+RUN adduser \    
+    --disabled-password \    
+    --gecos "" \    
+    --home "/nonexistent" \    
+    --shell "/sbin/nologin" \    
+    --no-create-home \    
+    --uid "${UID}" \    
+    "${USER}"
+    
+WORKDIR $GOPATH/src/github.com/kubelens/kubelens/web
+
 COPY ./public/server.go .
+# Fetch dependencies.
+# Using go get.
+RUN go get -d -v
 
-RUN rm -rf ./build/config ./build/server*
+# Build the binary.
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o /go/bin/kubelens-web
 
-RUN CGO_ENABLED=0 go build -ldflags="-s -w" -a -o ./server-x86-x64 server.go
+# Run image
+FROM scratch
 
-# run image
-FROM alpine:latest
+# Import certs
+COPY --from=gobuilder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-RUN apk update
-RUN apk upgrade
-RUN apk add ca-certificates
-RUN update-ca-certificates
+# Import the user and group files from the builder.
+COPY --from=gobuilder /etc/passwd /etc/passwd
+COPY --from=gobuilder /etc/group /etc/group
 
-RUN addgroup -g 1000 -S dockeruser \
-  && adduser -u 1000 -S dockeruser -G dockeruser
+# Copy static executable.
+COPY --from=gobuilder /go/bin/kubelens-web /go/bin/kubelens-web
+# Copy static web files.
+COPY --from=webbuilder /usr/src/stage/build /usr/src/website
 
-RUN mkdir -p /srv/site
+# Use an unprivileged user.
+USER appuser:appuser
 
-COPY --from=build-env /go/src/github.com/kubelens/kubelens/web/ /tmp
-
-RUN mv -v /tmp/server-x86-x64 /srv/
-RUN mv -v /tmp/build/* /srv/site
-RUN rm -rf /tmp/*
-
-RUN chown -R dockeruser:dockeruser /srv/site 
-
-USER dockeruser
-
-# /mnt/config must equal the mount path of the config map
-ENTRYPOINT ["/srv/server-x86-x64", "-confpath=/mnt/config", "-sitepath=/srv/site"]
+# Run the binary.
+ENTRYPOINT ["/go/bin/kubelens-web", "-confpath=/mnt/config", "-sitepath=/usr/src/website"]
