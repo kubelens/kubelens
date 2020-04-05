@@ -1,10 +1,12 @@
 # Kubelens
 
+[![CircleCI](https://circleci.com/gh/kubelens/kubelens/tree/master.svg?style=svg)](https://circleci.com/gh/kubelens/kubelens/tree/master)
+
 Giving software engineers a quick view and logs for applications running in [Kubernetes](https://kubernetes.io/).
 
-![Selected Application](https://github.com/kubelens/kubelens/tree/staging/.github/application-detail.png)
+![Selected Application](application-detail.png)
 
-![Pod Detail & Logs](https://github.com/kubelens/kubelens/tree/staging/.github/pod-detail.png)
+![Pod Detail & Logs](pod-detail.png)
 
 Let's get to the quick details.
 
@@ -13,8 +15,6 @@ Let's get to the quick details.
 - Intended to be generic and highly configurable to fit any organizations needs. If you find something isn't flexible enough, let's fix it for everyone. 
 
 More docs and features to come. Any help/contributions/feedback is very much appreciated!
-
-[![CircleCI](https://circleci.com/gh/kubelens/kubelens/tree/master.svg?style=svg)](https://circleci.com/gh/kubelens/kubelens/tree/master)
 
 ## Run Locally - Minikube 
 
