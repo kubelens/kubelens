@@ -36,3 +36,8 @@ After that, you should be set to deploy to the Minikube instance.
 
 [kubelens/api](https://github.com/kubelens/kubelens/tree/staging/api#build--deploy)
 
+## Look and Feel
+
+![Selected Application](https://github.com/kubelens/kubelens/tree/staging/.github/application-detail.png)
+
+![Pod Detail & Logs](https://github.com/kubelens/kubelens/tree/staging/.github/pod-detail.png)

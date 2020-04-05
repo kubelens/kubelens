@@ -36,11 +36,14 @@ fi
 
 echo ${DOCKER_PASS} | docker login --username ${user} --password-stdin
 
-docker push ${id}/${app}:${tag}
+if [[ ${branch} -eq "staging" ]]; then
+  docker tag ${id}/${app}:${tag} ${id}/${app}:${tag}-staging
+  docker push ${id}/${app}:${tag}-staging
+fi
 
 # tag latest and push on master branch
 if [[ ${branch} -eq "master" ]]; then
   docker tag ${id}/${app}:${tag} ${id}/${app}:latest
-
+  docker push ${id}/${app}:${tag}
   docker push ${id}/${app}:latest
 fi

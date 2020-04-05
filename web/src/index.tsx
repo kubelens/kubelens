@@ -28,9 +28,9 @@ import { Provider } from 'react-redux';
 import { Store } from 'redux';
 import configureStore, { IGlobalState, history } from './store';
 import App from './app';
-import { createClient } from 'auth';
-import { AuthClient } from 'auth/authClient';
-import config from 'config';
+import { createClient } from './auth';
+import { AuthClient } from './auth/authClient';
+import config from './config';
 
 import './index.css';
 
