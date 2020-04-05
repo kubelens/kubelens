@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/assert"
 	"github.com/kubelens/kubelens/api/config"
 	"github.com/kubelens/kubelens/api/k8sv1/fakes"
+	"github.com/stretchr/testify/assert"
 )
 
 func getSvc() *request {
@@ -40,7 +40,7 @@ func TestHealthHandler(t *testing.T) {
 	defer ts.Close()
 
 	// GET /health
-	res, err := http.Get((ts.URL + config.C.HealthRoute))
+	res, err := http.Get((ts.URL + "/healthcheck"))
 	if err != nil {
 		assert.Fail(t, err.Error())
 	}

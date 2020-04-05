@@ -30,12 +30,12 @@ import (
 	"strings"
 
 	"github.com/gorilla/handlers"
-	"github.com/sirupsen/logrus"
 	kauth "github.com/kubelens/kubelens/api/auth"
 	"github.com/kubelens/kubelens/api/config"
 	"github.com/kubelens/kubelens/api/io"
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 	klog "github.com/kubelens/kubelens/api/log"
+	"github.com/sirupsen/logrus"
 	"github.com/unrolled/secure"
 )
 

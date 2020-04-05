@@ -1,0 +1,17 @@
+{
+  "availableClusters": [
+    {
+      "minikube": "http://api.kubelens.local"
+    }
+  ],
+  "oAuthJwtIssuer": "",
+  "oAuthAudience": "",
+  "oAuthClientId": "",
+  "oAuthRedirectUri": "",
+  "oAuthResponseType": "",
+  "oAuthRequestType": "",
+  "oAuthScope": "",
+  "oAuthConnection": "",
+  "oAuthEnabled": false,
+  "deployerLinkName": ""
+}

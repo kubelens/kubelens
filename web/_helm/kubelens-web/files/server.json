@@ -1,8 +1,0 @@
-{
-  "serverPort": 39000,
-  "enableTLS": false,
-  "tlsCert": "",
-  "tlsKey": "",
-  "enableCertPinning": false,
-  "publicKeyHPKP": ""
-}

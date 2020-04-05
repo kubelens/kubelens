@@ -1,7 +1,12 @@
 {
-  "serverPort": 8080,
+  "serverPort": 39000,
   "allowedOrigins": [
     "http://localhost:3000"
+  ],
+  "allowedHosts": [
+    "api.kubelens.local",
+    "127.0.0.1",
+    "localhost"
   ],
   "allowedMethods": [
     "GET",
@@ -15,35 +20,25 @@
     "Cache-Control",
     "X-Requested-With"
   ],
-  "allowedHosts": [
-    "localhost"
-  ],
   "oAuthJwk": "",
   "oAuthJwtIssuer": "",
   "oAuthAudience": "",
-  "enableAuth": true,
-  "enableRBAC": true,
+  "oAuthClientID": "",
+  "enableAuth": false,
+  "enableRBAC": false,
   "rbacClaim": "",
-  "projectSlugRegex": "projects-[0-9]+",
-  "deployerLink": "https://test-deployer.com/",
+  "projectSlugRegex": ".+",
+  "deployerLink": "",
   "defaultSearchLabels": [
     "app",
-    "k8s-app",
     "component",
     "run"
   ],
-  "viewerLabelInclusions": [
-    "app"
-  ],
-  "viewerLabelExclusions": [
-    "k8s-app",
-    "component",
-    "run"
-  ],
+  "viewerLabelInclusions": [],
+  "viewerLabelExclusions": [],
   "adminEmails": [],
   "contentSecurityPolicy": "",
   "enableTLS": false,
   "tlsCert": "",
-  "tlsKey": "",
-  "publicKeyHPKP": ""
+  "tlsKey": ""
 }

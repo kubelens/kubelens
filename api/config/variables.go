@@ -48,7 +48,6 @@ type config struct {
 	EnableAuth            bool     `json:"enableAuth"`
 	EnableRBAC            bool     `json:"enableRBAC"`
 	RBACClaim             string   `json:"rbacClaim"`
-	ServiceNameRegex      string   `json:"serviceNameRegex"`
 	ProjectSlugRegex      string   `json:"projectSlugRegex"`
 	DeployerLink          string   `json:"deployerLink"`
 	HealthRoute           string   `json:"healthRoute"`
