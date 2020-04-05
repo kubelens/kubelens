@@ -11,9 +11,6 @@ test:
 docker-build-push:
 	bash ../_scripts/docker-build-push.sh --app kubelens-api --branch ${GIT_BRANCH} --tag ${TAG} --id ${DOCKER_ID} --user ${DOCKER_USER}
 
-set-config: 
-	bash ../_scripts/set-config.sh --file ./_helm/kubelens-api/files/config.json --type api
-
 helm-upgrade:
-	helm upgrade kubelens-api --install --recreate-pods --reset-values --force --set ingress.host=${INGRESS_HOST} ./_helm/kubelens-api
+	helm upgrade kubelens-api --install --set ingress.host=${INGRESS_HOST} ./_helm/kubelens-api
 	

@@ -33,7 +33,7 @@ import { setSelectedAppName } from '../../actions/apps';
 import { getPod, setSelectedContainerName, clearPodsErrors, clearPod } from '../../actions/pods';
 import { getLogs, toggleLogStream, clearLogsErrors } from '../../actions/logs';
 import config from '../../config';
-import { AuthClient } from 'auth/authClient';
+import { AuthClient } from '../../auth/authClient';
 
 type initialState = {
   envModalOpen: boolean,

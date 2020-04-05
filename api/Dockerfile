@@ -1,24 +1,46 @@
-# build image
-FROM golang:latest AS build-env
-WORKDIR /go/src/github.com/kubelens/kubelens/api/ 
+# Build image
+FROM golang:alpine AS builder
+
+# Install ca-certificates
+# Git is required for fetching the dependencies.
+RUN apk update && apk add --no-cache ca-certificates && update-ca-certificates
+# Create appuser.
+ENV USER=appuser
+ENV UID=10001 
+# See https://stackoverflow.com/a/55757473/12429735RUN 
+RUN adduser \    
+    --disabled-password \    
+    --gecos "" \    
+    --home "/nonexistent" \    
+    --shell "/sbin/nologin" \    
+    --no-create-home \    
+    --uid "${UID}" \    
+    "${USER}"
+    
+WORKDIR $GOPATH/src/github.com/kubelens/kubelens/api
 COPY . .
-RUN CGO_ENABLED=0 go build -ldflags="-s -w" -a -o ./bin/server-x86-x64 *.go
+# Fetch dependencies.
+# Using go get.
+RUN go get -d -v
 
-# run image
-FROM alpine:latest
+# Build the binary.
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o /go/bin/kubelens-api
 
-RUN apk update
-RUN apk upgrade
-RUN apk add ca-certificates
-RUN update-ca-certificates
+# Run image
+FROM scratch
 
-RUN addgroup -g 1000 -S dockeruser \
-  && adduser -u 1000 -S dockeruser -G dockeruser
+# Import certs
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-RUN mkdir -p /srv
+# Import the user and group files from the builder.
+COPY --from=builder /etc/passwd /etc/passwd
+COPY --from=builder /etc/group /etc/group
 
-COPY --from=build-env /go/src/github.com/kubelens/kubelens/api/bin/ /srv
+# Copy our static executable.
+COPY --from=builder /go/bin/kubelens-api /go/bin/kubelens-api
 
-USER dockeruser
+# Use an unprivileged user.
+USER appuser:appuser
 
-ENTRYPOINT ["/srv/server-x86-x64"]
+# Run the binary.
+ENTRYPOINT ["/go/bin/kubelens-api"]
