@@ -102,3 +102,15 @@ func (m *K8V1) ServiceOverviews(options k8sv1.ServiceOptions) (svco []k8sv1.Serv
 		},
 	}, nil
 }
+
+func (m *K8V1) DeploymentOverviews(options k8sv1.DeploymentOptions) (deployments []k8sv1.DeploymentOverview, apiErr *errs.APIError) {
+	if options.Namespace == "bad" {
+		return nil, errs.InternalServerError("DeploymentOverviews Test Error")
+	}
+
+	return []k8sv1.DeploymentOverview{
+		k8sv1.DeploymentOverview{
+			Name: "service-name",
+		},
+	}, nil
+}

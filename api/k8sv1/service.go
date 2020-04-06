@@ -24,8 +24,8 @@ func (k *Client) ServiceOverviews(options ServiceOptions) (svco []ServiceOvervie
 		IncludeUninitialized: true,
 	}
 
-	if len(options.LabelSearch) > 0 {
-		lo.LabelSelector = options.LabelSearch
+	if len(options.LabelSelector) > 0 {
+		lo.LabelSelector = options.LabelSelector
 	}
 
 	list, err := clientset.CoreV1().Services(options.Namespace).List(lo)
@@ -65,6 +65,22 @@ func (k *Client) ServiceOverviews(options ServiceOptions) (svco []ServiceOvervie
 
 				if options.Detailed {
 					svc.AddDetail(&service.Spec, &service.Status)
+				}
+
+				// add deployments per service for ease of display by client since deployments are really
+				// specific to certian K8s kinds.
+				if options.Detailed && options.UserRole.HasDeploymentAccess(item.GetLabels()) {
+					deployments, err := k.DeploymentOverviews(DeploymentOptions{
+						LabelSelector: options.LabelSelector,
+						Namespace:     service.GetName(),
+						UserRole:      options.UserRole,
+						Logger:        options.Logger,
+					})
+					// just trace the error and move on, shouldn't be critical.
+					if err != nil {
+						klog.Trace()
+					}
+					svc.AddDeploymentOverviews(deployments)
 				}
 
 				// get this list of config maps here to ensure correct namespace. This should perform

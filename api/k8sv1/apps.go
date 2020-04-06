@@ -33,11 +33,11 @@ func (k *Client) AppOverview(options AppOverviewOptions) (ao *AppOverview, apiEr
 	go func() {
 		defer wg.Done()
 		sos, err2 = k.ServiceOverviews(ServiceOptions{
-			Namespace:   options.Namespace,
-			LabelSearch: fmt.Sprintf("%s=%s", options.LabelKey, options.AppName),
-			Detailed:    options.Detailed,
-			UserRole:    options.UserRole,
-			Logger:      options.Logger,
+			Namespace:     options.Namespace,
+			LabelSelector: fmt.Sprintf("%s=%s", options.LabelKey, options.AppName),
+			Detailed:      options.Detailed,
+			UserRole:      options.UserRole,
+			Logger:        options.Logger,
 		})
 	}()
 
