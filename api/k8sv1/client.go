@@ -49,6 +49,8 @@ type Clienter interface {
 	ReadLogs(options LogOptions) (rc io.ReadCloser, apiErr *errs.APIError)
 	// ServiceOverviews returns a list of services given filter options
 	ServiceOverviews(options ServiceOptions) (svco []ServiceOverview, apiErr *errs.APIError)
+	// DeploymentOverviews returns a list of deployments given filter options
+	DeploymentOverviews(options DeploymentOptions) (deployments []DeploymentOverview, apiErr *errs.APIError)
 }
 
 // Client is the wrapper for kubernetes go client commands

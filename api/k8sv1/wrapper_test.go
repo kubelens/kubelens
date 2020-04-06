@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/informers"
@@ -130,6 +131,21 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		},
 	})
 
+	deployment := make(chan *appsv1.Deployment, 1)
+	dplInformer := informers.Apps().V1().Deployments().Informer()
+	dplInformer.AddEventHandler(&cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			// add a config map that matches the service
+			d := obj.(*appsv1.Deployment)
+			d.SetName(name)
+			d.SetNamespace(namespace)
+			d.SetLabels(svcSelector)
+			fmt.Printf("deployment added: %s\n", d.Name)
+			deployment <- d
+			cancel()
+		},
+	})
+
 	// Make sure informers are running.
 	informers.Start(ctx.Done())
 
@@ -137,8 +153,12 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		// This is not required in tests, but it serves as a proof-of-concept by
 		// ensuring that the informer goroutine have warmed up and called List before
 		// we send any events to it.
-		for !podInformer.HasSynced() || !nsInformer.HasSynced() || !svcInformer.HasSynced() || !cmInformer.HasSynced() {
-			time.Sleep(1 * time.Second)
+		for !podInformer.HasSynced() ||
+			!nsInformer.HasSynced() ||
+			!svcInformer.HasSynced() ||
+			!cmInformer.HasSynced() ||
+			!dplInformer.HasSynced() {
+			time.Sleep(100 * time.Millisecond)
 		}
 
 		a := &v1.Service{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace}}
@@ -173,6 +193,13 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		if err != nil {
 			return nil, err
 		}
+
+		// Inject an event into the fake client.
+		d := &appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: svcSelector}}
+		_, err = client.AppsV1().Deployments(namespace).Create(d)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Wait and check result.
@@ -192,6 +219,9 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		return client, nil
 	case cmnm := <-configMapMatch:
 		fmt.Printf("Got non-matcher config maps from channel: %s/%s\n", cmnm.Namespace, cmnm.Name)
+		return client, nil
+	case dp := <-deployment:
+		fmt.Printf("Got deployments from channel: %s/%s\n", dp.Namespace, dp.Name)
 		return client, nil
 	default:
 		fmt.Println("informer did not get the added pod")

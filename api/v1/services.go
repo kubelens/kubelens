@@ -69,7 +69,7 @@ func (h request) Services(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(data.LabelKey) > 0 {
-		so.LabelSearch = fmt.Sprintf("%s=%s", data.LabelKey, appname)
+		so.LabelSelector = fmt.Sprintf("%s=%s", data.LabelKey, appname)
 	}
 
 	services, apiErr := h.k8Client.ServiceOverviews(so)

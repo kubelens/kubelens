@@ -4,6 +4,7 @@ import (
 	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 	klog "github.com/kubelens/kubelens/api/log"
+	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 )
 
@@ -229,19 +230,20 @@ func (a *LogOptions) UserCanAccess(labels map[string]string) bool {
 
 // ServiceOverview provides field relating to a service. Can return full values or slimmed down values.
 type ServiceOverview struct {
-	AppName        Name              `json:"appName"`
-	DeployerLink   string            `json:"deployerLink,omitempty"`
-	Name           string            `json:"name"`
-	Namespace      string            `json:"namespace"`
-	Type           v1.ServiceType    `json:"type"`
-	Selector       map[string]string `json:"selector,omitempty"`
-	ClusterIP      string            `json:"clusterIP,omitempty"`
-	LoadBalancerIP string            `json:"loadBalancerIP,omitempty"`
-	ExternalIPs    []string          `json:"externalIPs,omitempty"`
-	Ports          []v1.ServicePort  `json:"ports,omitempty"`
-	Spec           *v1.ServiceSpec   `json:"spec,omitempty"`
-	Status         *v1.ServiceStatus `json:"status,omitempty"`
-	ConfigMaps     *[]v1.ConfigMap   `json:"configMaps,omitempty"`
+	AppName             Name                 `json:"appName"`
+	DeployerLink        string               `json:"deployerLink,omitempty"`
+	Name                string               `json:"name"`
+	Namespace           string               `json:"namespace"`
+	Type                v1.ServiceType       `json:"type"`
+	Selector            map[string]string    `json:"selector,omitempty"`
+	ClusterIP           string               `json:"clusterIP,omitempty"`
+	LoadBalancerIP      string               `json:"loadBalancerIP,omitempty"`
+	ExternalIPs         []string             `json:"externalIPs,omitempty"`
+	Ports               []v1.ServicePort     `json:"ports,omitempty"`
+	Spec                *v1.ServiceSpec      `json:"spec,omitempty"`
+	Status              *v1.ServiceStatus    `json:"status,omitempty"`
+	ConfigMaps          *[]v1.ConfigMap      `json:"configMaps,omitempty"`
+	DeploymentOverviews []DeploymentOverview `json:"deploymentOverviews,omitempty"`
 }
 
 // AddDetail sets additional fields for more detailed overview
@@ -261,12 +263,18 @@ func (s *ServiceOverview) AddConfigMaps(cms *[]v1.ConfigMap) {
 	s.ConfigMaps = cms
 }
 
+// AddDeploymentOverviews sets the DeploymentOverviews value. Adding separately for ease of
+// checking access before hand.
+func (s *ServiceOverview) AddDeploymentOverviews(d []DeploymentOverview) {
+	s.DeploymentOverviews = d
+}
+
 // ServiceOptions contains fields used for filtering when retrieving services
 type ServiceOptions struct {
 	// namespace to filter on
 	Namespace string `json:"namespace"`
-	// the label search used for the application name, ex. app=some-app-name, component=some-component
-	LabelSearch string `json:"labelSearch"`
+	// the label selector used for the application name, ex. app=some-app-name, component=some-component
+	LabelSelector string `json:"labelSelector"`
 	// include full detail
 	Detailed bool `json:"detailed"`
 	//users role assignemnt
@@ -285,7 +293,7 @@ func (a *ServiceOptions) ValidNamespace() bool {
 
 // ValidLabelSearch validates the label search field
 func (a *ServiceOptions) ValidLabelSearch() bool {
-	if len(a.LabelSearch) > 0 {
+	if len(a.LabelSelector) > 0 {
 		return true
 	}
 	return false
@@ -297,4 +305,38 @@ func (a *ServiceOptions) UserCanAccess(labels map[string]string) bool {
 		return false
 	}
 	return true
+}
+
+// DeploymentOptions contains fields used for filtering when retrieving deployments
+type DeploymentOptions struct {
+	// the label selector to match on, e.g. "app=appname"
+	LabelSelector string `json:"labelSelector"`
+	// the namespace of the deployment
+	Namespace string `json:"namespace"`
+	// users role assignemnt
+	UserRole rbac.RoleAssignmenter
+	// logger instance
+	Logger klog.Logger
+}
+
+// DeploymentOverview contains aggregated fields for a deployment
+type DeploymentOverview struct {
+	// the name of the application
+	Name string `json:"name"`
+	// the namespace of the deployment
+	Namespace string `json:"namespace"`
+	// the resource version of
+	ResourceVersion string `json:"resourceVersion"`
+	// replicas is the number of desired pods
+	Replicas int `json:"replicas"`
+	// total number of non-terminated pods targeted by this deployment that have the desired template spec.
+	UpdatedReplicas int `json:"updatedReplicas"`
+	// number of ready replicas
+	ReadyReplicas int `json:"readyReplicas"`
+	// number of available replicas
+	AvailableReplicas int `json:"availableReplicas"`
+	// number of unavailable replicas
+	UnavailableReplicas int `json:"unavailableReplicas"`
+	// represents the latest available observations of a deployment's current state.
+	DeploymentConditions []appsv1.DeploymentCondition `json:"deploymentConditions"`
 }
