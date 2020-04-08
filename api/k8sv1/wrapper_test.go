@@ -51,11 +51,6 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 	lbl := make(map[string]string)
 	lbl["app"] = name
 	lbl[AppNameLabel] = FriendlyAppName
-	cmlbl := map[string]string{}
-	cmlbl["cmkey"] = "cmvalue"
-	for k, v := range lbl {
-		cmlbl[k] = v
-	}
 
 	// We will create an informer that writes added pods to a channel.
 	pods := make(chan *v1.Pod, 1)
@@ -188,7 +183,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		}
 
 		// Inject an event into the fake client.
-		d := &appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: lbl}}
+		d := &appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: cmlbl}}
 		_, err = client.AppsV1().Deployments(namespace).Create(d)
 		if err != nil {
 			return nil, err
