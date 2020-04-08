@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2019 The KubeLens Authors
+Copyright (c) 2020 The KubeLens Authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ import CopyClipboard from '../../components/copy-clipboard';
 import CardText from '../../components/text';
 import { Button } from 'reactstrap';
 import PodConditions from '../../components/pod-conditions';
-import { PodDetail, Log } from '../../types';
+import { PodDetail, Log, Image } from '../../types';
 import moment from 'moment';
 import _ from 'lodash';
 import './styles.css';
@@ -73,13 +73,18 @@ const PodPage = ({
   // is this right? not sure if there would ever be more than 1 container status
   let ready: boolean = false;
   let restartCount: number = 0;
-  let image: string = '';
+  let images: Image[] = [];
 
   if (!_.isEmpty(podDetail) && podDetail.status && !_.isEmpty(podDetail.status.containerStatuses)) {
     const podDetailStatus = podDetail.status.containerStatuses[0];
     ready = podDetailStatus.ready;
     restartCount = podDetailStatus.restartCount;
-    image = podDetailStatus.image;
+    _.forEach(podDetail.status.containerStatuses, cs => {
+      images.push({
+        name: cs.image,
+        containerName: cs.name
+      });
+    });
   }
 
   return (
@@ -145,8 +150,10 @@ const PodPage = ({
                       <br />
                     </Row>
                     <br />
-                    <CardText label="Image" />
-                    <CopyClipboard labelText={image} value={image} size={16} />
+                    <CardText label={images.length > 1 ? "Images" : "Image"} />
+                    {images.map(image => {
+                      return(<CopyClipboard key={image.containerName} labelText={`${image.containerName}: ${image.name}`} value={image.name} size={16} />)
+                    })}
                   </Col>
                   <Col xs={12} md={3}>
                     {streamEnabled

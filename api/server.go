@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2019 The KubeLens Authors
+Copyright (c) 2020 The KubeLens Authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@ import (
 	"github.com/kubelens/kubelens/api/config"
 	"github.com/kubelens/kubelens/api/io"
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
-	v1 "github.com/kubelens/kubelens/api/v1"
+	svc "github.com/kubelens/kubelens/api/svc"
 )
 
 func serve() {
@@ -58,7 +58,7 @@ func createServer(wsFactory io.SocketFactory) *http.Server {
 
 	// v1 handlers
 	k8Client := k8sv1.New(k8sv1.NewWrapper())
-	creq := v1.New(k8Client)
+	creq := svc.New(k8Client)
 	creq.Register(rc)
 
 	address := fmt.Sprintf(":%v", config.C.ServerPort)

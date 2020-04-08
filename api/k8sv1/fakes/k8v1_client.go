@@ -9,12 +9,40 @@ import (
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 )
 
-type K8V1 struct{}
-
-func (m *K8V1) SanityCheck() (success bool) {
-	return true
+// K8V1 .
+type K8V1 struct {
+	fail *bool
 }
 
+// SanityCheck .
+func (m *K8V1) SanityCheck() (apiErr *errs.APIError) {
+	if m.fail != nil && *m.fail {
+		return errs.InternalServerError("Sanity check error")
+	}
+	return nil
+}
+
+// Apps .
+func (m *K8V1) Apps(options k8sv1.AppOptions) (apps []*k8sv1.App, apiErr *errs.APIError) {
+	if m.fail != nil && *m.fail {
+		return nil, errs.InternalServerError("Apps Test Error")
+	}
+
+	return []*k8sv1.App{
+		&k8sv1.App{
+			Name:      "test-service",
+			Namespace: "default",
+			Kind:      "Service",
+		},
+		&k8sv1.App{
+			Name:      "test-daemonset",
+			Namespace: "default",
+			Kind:      "DaemonSet",
+		},
+	}, nil
+}
+
+// AppOverview .
 func (m *K8V1) AppOverview(options k8sv1.AppOverviewOptions) (ao *k8sv1.AppOverview, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
 		return ao, errs.InternalServerError("AppOverview Test Error")
@@ -22,13 +50,10 @@ func (m *K8V1) AppOverview(options k8sv1.AppOverviewOptions) (ao *k8sv1.AppOverv
 
 	return &k8sv1.AppOverview{
 		PodOverviews: k8sv1.PodOverview{
-			Name: k8sv1.Name{
-				LabelKey: "app",
-				Value:    "testpod",
-			},
+			Name:      "testpod",
 			Namespace: "default",
-			PodDetails: []*k8sv1.PodDetail{
-				&k8sv1.PodDetail{
+			PodInfo: []*k8sv1.PodInfo{
+				&k8sv1.PodInfo{
 					Name: "testpod",
 				},
 			},
@@ -41,6 +66,7 @@ func (m *K8V1) AppOverview(options k8sv1.AppOverviewOptions) (ao *k8sv1.AppOverv
 	}, nil
 }
 
+// PodDetail .
 func (m *K8V1) PodDetail(options k8sv1.PodDetailOptions) (po *k8sv1.PodDetail, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
 		return po, errs.InternalServerError("PodDetail Test Error")
@@ -51,25 +77,24 @@ func (m *K8V1) PodDetail(options k8sv1.PodDetailOptions) (po *k8sv1.PodDetail, a
 	}, nil
 }
 
+// PodOverview .
 func (m *K8V1) PodOverview(options k8sv1.PodOverviewOptions) (po *k8sv1.PodOverview, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
 		return po, errs.InternalServerError("GetApps Test Error")
 	}
 
 	return &k8sv1.PodOverview{
-		Name: k8sv1.Name{
-			LabelKey: options.AppNameLabelKey,
-			Value:    "test",
-		},
+		Name:      "test",
 		Namespace: "default",
-		PodDetails: []*k8sv1.PodDetail{
-			&k8sv1.PodDetail{
+		PodInfo: []*k8sv1.PodInfo{
+			&k8sv1.PodInfo{
 				Name: "testpod",
 			},
 		},
 	}, nil
 }
 
+// Logs .
 func (m *K8V1) Logs(options k8sv1.LogOptions) (logs k8sv1.Log, apiErr *errs.APIError) {
 	if options.Namespace == "bad2" {
 		logs = k8sv1.Log{
@@ -85,12 +110,14 @@ func (m *K8V1) Logs(options k8sv1.LogOptions) (logs k8sv1.Log, apiErr *errs.APIE
 	}, nil
 }
 
+// ReadLogs .
 func (m *K8V1) ReadLogs(options k8sv1.LogOptions) (rc io.ReadCloser, apiErr *errs.APIError) {
 	stringReader := strings.NewReader("message\n")
 	stringReadCloser := ioutil.NopCloser(stringReader)
 	return stringReadCloser, nil
 }
 
+// ServiceOverviews .
 func (m *K8V1) ServiceOverviews(options k8sv1.ServiceOptions) (svco []k8sv1.ServiceOverview, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
 		return nil, errs.InternalServerError("ServiceOverviews Test Error")
@@ -103,6 +130,7 @@ func (m *K8V1) ServiceOverviews(options k8sv1.ServiceOptions) (svco []k8sv1.Serv
 	}, nil
 }
 
+// DeploymentOverviews .
 func (m *K8V1) DeploymentOverviews(options k8sv1.DeploymentOptions) (deployments []k8sv1.DeploymentOverview, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
 		return nil, errs.InternalServerError("DeploymentOverviews Test Error")

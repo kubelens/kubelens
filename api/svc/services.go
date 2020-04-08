@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2019 The KubeLens Authors
+Copyright (c) 2020 The KubeLens Authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,57 +22,45 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package v1
+package svc
 
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
-
-	"github.com/kubelens/kubelens/api/errs"
-	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
-
-	"github.com/kubelens/kubelens/api/auth/rbac"
 
 	"github.com/creack/httpreq"
+	"github.com/kubelens/kubelens/api/auth/rbac"
+	"github.com/kubelens/kubelens/api/errs"
+	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 	klog "github.com/kubelens/kubelens/api/log"
 )
 
-// Logs Retrieves logs for a pod.
-func (h request) Logs(w http.ResponseWriter, r *http.Request) {
+// Services retrieves a list of services for an application
+func (h request) Services(w http.ResponseWriter, r *http.Request) {
 	l := klog.MustFromContext(r.Context())
 	ra := rbac.MustFromContext(r.Context())
 
-	// "/v1/logs/{pod}" = []string{"", "v1", "apps", "name"}
-	podname := strings.Split(r.URL.Path, "/")[3]
-
 	// get query params
 	var data Req
-	if err := httpreq.NewParsingMapPre(3).
+	if err := httpreq.NewParsingMapPre(1).
 		ToString("namespace", &data.Namespace).
-		ToInt("tail", &data.Tail).
-		ToString("containerName", &data.ContainerName).
+		ToString("labelSelector", &data.LabelSelector).
+		ToBool("detailed", &data.Detailed).
 		Parse(r.URL.Query()); err != nil {
 		l.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	var tl int64 = 100
-
-	if data.Tail > 0 {
-		tl = int64(data.Tail)
-	}
-
-	logs, apiErr := h.k8Client.Logs(k8sv1.LogOptions{
+	so := k8sv1.ServiceOptions{
 		UserRole:      ra,
 		Logger:        l,
 		Namespace:     data.Namespace,
-		PodName:       podname,
-		ContainerName: data.ContainerName,
-		Tail:          tl,
-		Follow:        false,
-	})
+		Detailed:      data.Detailed,
+		LabelSelector: data.LabelSelectorMap(),
+	}
+
+	services, apiErr := h.k8Client.ServiceOverviews(so)
 
 	if apiErr != nil {
 		l.Error(apiErr)
@@ -80,10 +68,9 @@ func (h request) Logs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := json.Marshal(logs)
+	res, err := json.Marshal(services)
 
 	if err != nil {
-		l.Error(err)
 		e := errs.SerializationError(err.Error())
 		http.Error(w, e.Message, e.Code)
 		return

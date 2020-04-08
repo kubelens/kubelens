@@ -1,4 +1,4 @@
-package k8v1
+package k8sv1
 
 import (
 	"testing"
@@ -31,4 +31,26 @@ func TestGetDeployerLinkWithSlug(t *testing.T) {
 	config.Set("../testdata/mock_config.json")
 
 	assert.Equal(t, "https://test-deployer.com/projects-1234", getDeployerLink("app-projects-1234-dev"))
+}
+
+func TestGetFriendlyAppNameDefault(t *testing.T) {
+	config.Set("../testdata/mock_config.json")
+
+	l := map[string]string{}
+	l["notamatch"] = "random-label"
+
+	// should just get the first match
+	n := getFriendlyAppName(l, "default-name")
+	assert.Equal(t, "default-name", n)
+}
+
+func TestGetFriendlyAppNameMatchedt(t *testing.T) {
+	config.Set("../testdata/mock_config.json")
+
+	l := map[string]string{}
+	l["name"] = "real-app-name"
+
+	// should just get the first match
+	n := getFriendlyAppName(l, "auto-generated-name-1234")
+	assert.Equal(t, "real-app-name", n)
 }

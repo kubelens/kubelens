@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2019 The KubeLens Authors
+Copyright (c) 2020 The KubeLens Authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,57 +22,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package v1
+package svc
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/creack/httpreq"
 	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
+
+	"github.com/creack/httpreq"
 	klog "github.com/kubelens/kubelens/api/log"
 )
 
-// Services retrieves a list of services for an application
-func (h request) Services(w http.ResponseWriter, r *http.Request) {
+// Apps retrieves a list of applications.
+func (h request) Apps(w http.ResponseWriter, r *http.Request) {
 	l := klog.MustFromContext(r.Context())
 	ra := rbac.MustFromContext(r.Context())
 
-	var appname string
-
-	// "/v1/services/{name}" = []string{"", "v1", "services", "name"}
-	if params := strings.Split(r.URL.Path, "/"); len(params) == 4 {
-		appname = params[3]
-	}
-
-	// get query params
-	var data Req
-	if err := httpreq.NewParsingMapPre(1).
-		ToString("namespace", &data.Namespace).
-		ToString("labelKey", &data.LabelKey).
-		ToBool("detailed", &data.Detailed).
-		Parse(r.URL.Query()); err != nil {
-		l.Error(err.Error())
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	so := k8sv1.ServiceOptions{
-		UserRole:  ra,
-		Logger:    l,
-		Namespace: data.Namespace,
-		Detailed:  data.Detailed,
-	}
-
-	if len(data.LabelKey) > 0 {
-		so.LabelSelector = fmt.Sprintf("%s=%s", data.LabelKey, appname)
-	}
-
-	services, apiErr := h.k8Client.ServiceOverviews(so)
+	apps, apiErr := h.k8Client.Apps(k8sv1.AppOptions{
+		UserRole: ra,
+		Logger:   l,
+	})
 
 	if apiErr != nil {
 		l.Error(apiErr)
@@ -80,7 +53,58 @@ func (h request) Services(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := json.Marshal(services)
+	res, err := json.Marshal(appsResponse(apps))
+
+	if err != nil {
+		e := errs.SerializationError(err.Error())
+		http.Error(w, e.Message, e.Code)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
+}
+
+// AppOverview retrieves a list of applications overviews.
+func (h request) AppOverview(w http.ResponseWriter, r *http.Request) {
+	l := klog.MustFromContext(r.Context())
+	ra := rbac.MustFromContext(r.Context())
+
+	var appname string
+
+	// "/v1/apps/{name}" = []string{"", "apps", "name"}
+	if params := strings.Split(r.URL.Path, "/"); len(params) > 2 {
+		appname = params[2]
+	}
+
+	// get query params
+	var data Req
+	if err := httpreq.NewParsingMapPre(1).
+		ToString("namespace", &data.Namespace).
+		ToString("labelSelector", &data.LabelSelector).
+		ToBool("detailed", &data.Detailed).
+		Parse(r.URL.Query()); err != nil {
+		l.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	overviews, apiErr := h.k8Client.AppOverview(k8sv1.AppOverviewOptions{
+		UserRole:      ra,
+		Logger:        l,
+		AppName:       appname,
+		LabelSelector: data.LabelSelectorMap(),
+		Namespace:     data.Namespace,
+		Detailed:      data.Detailed,
+	})
+
+	if apiErr != nil {
+		l.Error(apiErr)
+		http.Error(w, apiErr.Message, apiErr.Code)
+		return
+	}
+
+	res, err := json.Marshal(overviews)
 
 	if err != nil {
 		e := errs.SerializationError(err.Error())

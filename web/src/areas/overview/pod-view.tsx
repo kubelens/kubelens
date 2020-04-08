@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2019 The KubeLens Authors
+Copyright (c) 2020 The KubeLens Authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -47,15 +47,13 @@ const Overview = ({
           <h4>Pods</h4>
           <hr />
           <Row>
-            {podOverview.podDetails && podOverview.podDetails.map(pod => {
-              // is this right?
-              const image: string = pod.status && !_.isEmpty(pod.status.containerStatuses) ? pod.status.containerStatuses[0].image : '';
+            {podOverview.pods && podOverview.pods.map(pod => {
               return (
                 <Col sm={6} key={pod.name}>
                   <Card className="kind-detail-container mb-4">
                     <CardHeader className="link-card-title text-center">
                       <Link
-                        to={{ pathname: `/${podOverview.name ? podOverview.name.value : ''}/pods/${pod.name}?namespace=${pod.namespace}&labelKey=${podOverview.name ? podOverview.name.labelKey : ''}` }}>
+                        to={{ pathname: `/${podOverview.name}/pods/${pod.name}?namespace=${pod.namespace}` }}>
                         <strong>{pod.name}</strong>
                       </Link>
                     </CardHeader>
@@ -68,25 +66,27 @@ const Overview = ({
                             <CardText label="Namespace" value={pod.namespace} />
                           </Col>
                           <Col sm={4}>
-                            <CardText label="Start Time" value={moment(pod.status.startTime).format('l LTS')} />
+                            <CardText label="Start Time" value={moment(pod.startTime).format('l LTS')} />
                           </Col>
                           <Col sm={4}>
-                            <CardText label="Status" value={<img style={{ marginTop: '5px' }} height={25} src={PodPhaseStyle(pod.status ? pod.status.phase : "Unknown").img} alt="Status" />} />
+                            <CardText label="Status" value={<img style={{ marginTop: '5px' }} height={25} src={PodPhaseStyle(pod.phase).img} alt="Status" />} />
                           </Col>
                         </Row>
                         <Row >
                           <Col sm={12}>
-                            <CardText label="Image" />
-                            <CopyClipboard labelText={image} value={image} size={16} />
+                            <CardText label={pod.images.length > 1 ? "Images" : "Image"} />
+                            {pod.images.map(image => {
+                              return(<CopyClipboard key={image.containerName} labelText={`${image.containerName}: ${image.name}`} value={image.name} size={16} />)
+                            })}
                           </Col>
                         </Row>
                       </small>
                     </CardBody>
 
                     {/* footer */}
-                    {(pod.status && !_.isEmpty(pod.status.conditions)) ?
+                    {(!_.isEmpty(pod.conditions)) ?
                       <CardFooter>
-                        <PodConditions items={pod.status.conditions} keyPrefix={pod.name} />
+                        <PodConditions items={pod.conditions} keyPrefix={pod.name} />
                       </CardFooter>
                       : null
                     }

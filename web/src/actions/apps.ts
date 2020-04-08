@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2019 The KubeLens Authors
+Copyright (c) 2020 The KubeLens Authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@ SOFTWARE.
 import { ActionCreator, Dispatch } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import { IAppsState } from '../reducers/apps';
-import { AppOverview, App, Service } from "../types";
+import { AppOverview, App, Apps } from "../types";
 import adapter from './adapter';
 import _ from 'lodash';
 
@@ -55,7 +55,7 @@ export interface IGetAppOverview {
 <Promise<Return Type>, State Interface, Type of Param, Type of Action> */
 export const getAppOverview: ActionCreator<
   ThunkAction<Promise<any>, IAppsState, null, IGetAppOverview>
-> = (appname: string, labelKey: string, cluster: string, jwt: string) => {
+> = (appname: string, labelSelector: string, cluster: string, jwt: string) => {
   return async (dispatch: Dispatch) => {
     try {
       dispatch({
@@ -63,7 +63,7 @@ export const getAppOverview: ActionCreator<
         appOverviewRequested: true,
       });
 
-      const response = await adapter.get(`/apps/${appname}?labelKey=${labelKey}&detailed=true`, cluster, jwt);
+      const response = await adapter.get(`/apps/${appname}?labelSelector=${encodeURIComponent(labelSelector)}&detailed=true`, cluster, jwt);
 
       dispatch({
         type: AppsActionTypes.GET_APP_OVERVIEW,
@@ -103,16 +103,16 @@ export const getApps: ActionCreator<
         appsRequested: true
       });
 
-      const response = await adapter.get('/services?detailed=false', cluster, jwt);
-      const data = response.data as Service[];
+      const response = await adapter.get('/apps', cluster, jwt);
+      const data = response.data as Apps;
 
-      const grp = _.groupBy(data, 'appName.value');
+      const grp = _.groupBy(data, 'name');
       let apps = new Array<App>();
 
       _.forEach(grp, (svc, key) => {
         let overview: App = {
           name: key,
-          labelKey: '',
+          labelSelector: "",
           namespaces: [],
           deployerLink: undefined
         };
@@ -120,8 +120,8 @@ export const getApps: ActionCreator<
         let i = 0;
         _.forEach(svc, detail => {
           if (i === 0) {
-            overview.name = detail.appName.value || '';
-            overview.labelKey = detail.appName.labelKey || '';
+            overview.name = detail.name;
+            overview.labelSelector = detail.labelSelector;
 
             if (detail.deployerLink) {
               overview.deployerLink = detail.deployerLink;
@@ -136,6 +136,10 @@ export const getApps: ActionCreator<
           apps.push(overview);
         }
       });
+
+      if (!_.isEmpty(apps)) {
+        apps = _.orderBy(apps, 'name');
+      }
 
       dispatch({
         type: AppsActionTypes.GET_APPS,

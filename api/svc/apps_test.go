@@ -1,4 +1,4 @@
-package v1
+package svc
 
 import (
 	"encoding/json"
@@ -6,17 +6,17 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
 	"github.com/kubelens/kubelens/api/auth/rbac"
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 	klog "github.com/kubelens/kubelens/api/log"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestGetServicesDefault(t *testing.T) {
+func TestGetAppsDefault(t *testing.T) {
 	h := getSvc()
-	req := httptest.NewRequest("GET", "/v1/services/service-name?detailed=false", nil)
+	req := httptest.NewRequest("GET", `/apps?labelSelector="app.kubernetes.io/name=test,component=api"`, nil)
 	w := httptest.NewRecorder()
 
 	dctx := klog.NewContext(req.Context(), "", &logfakes.Logger{})
@@ -25,7 +25,7 @@ func TestGetServicesDefault(t *testing.T) {
 	ctx := rbac.NewContext(req.Context(), rbacfakes.RoleAssignment{})
 	req = req.WithContext(ctx)
 
-	h.Services(w, req)
+	h.Apps(w, req)
 
 	resp := w.Result()
 
@@ -33,7 +33,7 @@ func TestGetServicesDefault(t *testing.T) {
 
 	resBody, _ := ioutil.ReadAll(resp.Body)
 
-	var b []k8sv1.ServiceOverview
+	var b []App
 	err := json.Unmarshal(resBody, &b)
 
 	if err != nil {
@@ -41,12 +41,12 @@ func TestGetServicesDefault(t *testing.T) {
 		return
 	}
 	assert.Equal(t, 200, resp.StatusCode)
-	assert.Equal(t, "service-name", b[0].Name)
+	assert.True(t, len(b) > 0)
 }
 
-func TestGetServicesError(t *testing.T) {
+func TestGetAppOverviewDefault(t *testing.T) {
 	h := getSvc()
-	req := httptest.NewRequest("GET", "/v1/services?namespace=bad", nil)
+	req := httptest.NewRequest("GET", `/apps/test?labelSelector="app.kubernetes.io/name=test,component=api"`, nil)
 	w := httptest.NewRecorder()
 
 	dctx := klog.NewContext(req.Context(), "", &logfakes.Logger{})
@@ -55,11 +55,22 @@ func TestGetServicesError(t *testing.T) {
 	ctx := rbac.NewContext(req.Context(), rbacfakes.RoleAssignment{})
 	req = req.WithContext(ctx)
 
-	h.Services(w, req)
+	h.AppOverview(w, req)
 
 	resp := w.Result()
 
 	defer resp.Body.Close()
 
-	assert.Equal(t, 500, resp.StatusCode)
+	resBody, _ := ioutil.ReadAll(resp.Body)
+
+	var b k8sv1.AppOverview
+	err := json.Unmarshal(resBody, &b)
+
+	if err != nil {
+		assert.Fail(t, err.Error())
+		return
+	}
+	assert.Equal(t, 200, resp.StatusCode)
+	assert.True(t, len(b.ServiceOverviews) > 0)
+	assert.True(t, len(b.PodOverviews.Name) > 0)
 }

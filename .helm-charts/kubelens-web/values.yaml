@@ -2,10 +2,9 @@ apiVersion: v1
 replicaCount: 2
 namespace: default
 metaLabels:
-  - name: domain
-    value: tools
+  - name: maintainers
+    value: operations
 ingress:
-  name: kubelens-web-ingress
   enabled: true
   host: kubelens.local
   annotations:

@@ -1,4 +1,4 @@
-package k8v1
+package k8sv1
 
 import (
 	"github.com/kubelens/kubelens/api/auth/rbac"
@@ -8,14 +8,36 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
+// AppOptions .
+type AppOptions struct {
+	// user roles
+	UserRole rbac.RoleAssignmenter
+	// logger instance
+	Logger klog.Logger
+}
+
+// App represents an application within Kubernetes.
+type App struct {
+	// name of the application
+	Name string `json:"name"`
+	// the namespace of the app
+	Namespace string `json:"namespace"`
+	// kind of application, e.g. Service, DaemonSet
+	Kind string `json:"kind"`
+	// the label selector to match kinds
+	LabelSelector map[string]string `json:"labelSelector"`
+	// deployer link if any
+	DeployerLink string `json:"deployerLink,omitempty"`
+}
+
 // AppOverviewOptions .
 type AppOverviewOptions struct {
 	// name of the  application
 	AppName string `json:"appname"`
 	// namespace of the app
 	Namespace string `json:"namespace"`
-	// the label key used to tag the appication
-	LabelKey string `json:"labelKey"`
+	// the label selector to match kinds
+	LabelSelector map[string]string `json:"labelSelector"`
 	// include detail
 	Detailed bool `json:"detailed"`
 	// user roles
@@ -30,16 +52,6 @@ type AppOverview struct {
 	ServiceOverviews []ServiceOverview `json:"serviceOverviews,omitempty"`
 }
 
-// Name holds fiedls for a name. This can be used to match the label key with the value(name) of the
-// app/pod/component/etc
-type Name struct {
-	// the label key associated with the name. this can be used to search
-	// labels matching the key
-	LabelKey string `json:"labelKey"`
-	// the actual name
-	Value string `json:"value"`
-}
-
 // PodOverviewOptions contains fields used for filtering when retrieving application overiew(s).
 type PodOverviewOptions struct {
 	// name of the application
@@ -48,8 +60,8 @@ type PodOverviewOptions struct {
 	PodName string `json:"podname"`
 	// namespace to filter on
 	Namespace string `json:"namespace"`
-	// The label key used for the application name, ex. app=some-app-name
-	AppNameLabelKey string `json:"appNameLabelKey"`
+	// the label selector to match kinds
+	LabelSelector map[string]string `json:"labelSelector"`
 	// Limit the number of pod summaries to return
 	// Use function GetLimit to get the default limit or this overriden value.
 	Limit int64 `json:"linit"`
@@ -85,8 +97,8 @@ func (a *PodOverviewOptions) UserCanAccess() bool {
 
 // PodOverview is meant to hold higher level application information
 type PodOverview struct {
-	// the name of the application
-	Name Name `json:"name"`
+	// the name of the app
+	Name string `json:"name"`
 	// the namespace (if supported)
 	Namespace string `json:"namespace,omitempty"`
 	// the cluster name (if supported)
@@ -94,7 +106,7 @@ type PodOverview struct {
 	// the link to the tool that deploys the application
 	DeployerLink string `json:"deployerLink,omitempty"`
 	// the pods associated with the application
-	PodDetails []*PodDetail `json:"podDetails,omitempty"`
+	PodInfo []*PodInfo `json:"pods,omitempty"`
 }
 
 // PodDetailOptions .
@@ -151,6 +163,34 @@ type PodDetail struct {
 	Log *Log `json:"log,omitempty"`
 	// individual container names, there will always be at least 1.
 	ContainerNames []string `json:"containerNames"`
+}
+
+// Image - fields pertaining to container image within a pod
+type Image struct {
+	Name          string `json:"name"`
+	ContainerName string `json:"containerName"`
+}
+
+// PodInfo contains an aggregated/condensed view of the pod details.
+type PodInfo struct {
+	// name of the pod
+	Name string `json:"name"`
+	// the namespace of the pod
+	Namespace string `json:"namespace"`
+	// the pod's host ip
+	HostIP string `json:"hostIP,omitempty"`
+	// the ip of the pod
+	PodIP string `json:"podIP,omitempty"`
+	// time when the pod started
+	StartTime string `json:"startTime,omitempty"`
+	// phase is the "phase" status of the pod
+	Phase string `json:"phase,omitempty"`
+	// message description of the phase
+	PhaseMessage string `json:"phaseMessage,omitempty"`
+	// container images
+	Images []Image `json:"images"`
+	// pod conditions
+	Conditions []v1.PodCondition `json:"conditions"`
 }
 
 // Log holds fields related to log output
@@ -230,7 +270,7 @@ func (a *LogOptions) UserCanAccess(labels map[string]string) bool {
 
 // ServiceOverview provides field relating to a service. Can return full values or slimmed down values.
 type ServiceOverview struct {
-	AppName             Name                 `json:"appName"`
+	FriendlyName        string               `json:"friendlyName"`
 	DeployerLink        string               `json:"deployerLink,omitempty"`
 	Name                string               `json:"name"`
 	Namespace           string               `json:"namespace"`
@@ -273,8 +313,8 @@ func (s *ServiceOverview) AddDeploymentOverviews(d []DeploymentOverview) {
 type ServiceOptions struct {
 	// namespace to filter on
 	Namespace string `json:"namespace"`
-	// the label selector used for the application name, ex. app=some-app-name, component=some-component
-	LabelSelector string `json:"labelSelector"`
+	// the label selector to match kinds
+	LabelSelector map[string]string `json:"labelSelector"`
 	// include full detail
 	Detailed bool `json:"detailed"`
 	//users role assignemnt
@@ -309,8 +349,8 @@ func (a *ServiceOptions) UserCanAccess(labels map[string]string) bool {
 
 // DeploymentOptions contains fields used for filtering when retrieving deployments
 type DeploymentOptions struct {
-	// the label selector to match on, e.g. "app=appname"
-	LabelSelector string `json:"labelSelector"`
+	// the label selector to match kinds
+	LabelSelector map[string]string `json:"labelSelector"`
 	// the namespace of the deployment
 	Namespace string `json:"namespace"`
 	// users role assignemnt
@@ -322,9 +362,13 @@ type DeploymentOptions struct {
 // DeploymentOverview contains aggregated fields for a deployment
 type DeploymentOverview struct {
 	// the name of the application
+	FriendlyName string `json:"friendlyName"`
+	// the name of the deployment
 	Name string `json:"name"`
 	// the namespace of the deployment
 	Namespace string `json:"namespace"`
+	// the label selector to match kinds
+	LabelSelector map[string]string `json:"labelSelector"`
 	// the resource version of
 	ResourceVersion string `json:"resourceVersion"`
 	// replicas is the number of desired pods
