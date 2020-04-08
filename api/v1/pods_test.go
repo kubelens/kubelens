@@ -6,17 +6,17 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
 	"github.com/kubelens/kubelens/api/auth/rbac"
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 	klog "github.com/kubelens/kubelens/api/log"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetPodDetailDefault(t *testing.T) {
 	h := getSvc()
-	req := httptest.NewRequest("GET", "/v1/pods/test", nil)
+	req := httptest.NewRequest("GET", `/v1/pods/test?labelSelector="app.kubernetes.io/name=service-name,component=api"`, nil)
 	w := httptest.NewRecorder()
 
 	dctx := klog.NewContext(req.Context(), "", &logfakes.Logger{})
@@ -66,7 +66,7 @@ func TestGetPodDetailError(t *testing.T) {
 
 func TestGetPodDetailsDefault(t *testing.T) {
 	h := getSvc()
-	req := httptest.NewRequest("GET", "/v1/pods/test?namespace=test&labelKey=app", nil)
+	req := httptest.NewRequest("GET", `/v1/pods/test?namespace=test&labelSelector="app.kubernetes.io/name=service-name,app=api`, nil)
 	w := httptest.NewRecorder()
 
 	dctx := klog.NewContext(req.Context(), "", &logfakes.Logger{})

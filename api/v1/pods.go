@@ -57,7 +57,6 @@ func (h request) PodDetail(w http.ResponseWriter, r *http.Request) {
 	var data Req
 	if err := httpreq.NewParsingMapPre(1).
 		ToString("namespace", &data.Namespace).
-		ToString("labelKey", &data.LabelKey).
 		ToString("containerName", &data.ContainerName).
 		Parse(r.URL.Query()); err != nil {
 		l.Error(err.Error())

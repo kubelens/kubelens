@@ -51,7 +51,7 @@ type config struct {
 	ProjectSlugRegex      string   `json:"projectSlugRegex"`
 	DeployerLink          string   `json:"deployerLink"`
 	HealthRoute           string   `json:"healthRoute"`
-	DefaultSearchLabels   []string `json:"defaultSearchLabels"`
+	AppNameLabelKeys      []string `json:"appNameLabelKeys"`
 	EnableTLS             bool     `json:"enableTLS"`
 	TLSCert               string   `json:"tlsCert"`
 	TLSKey                string   `json:"tlsKey"`

@@ -28,6 +28,10 @@
   "rbacClaim": "",
   "projectSlugRegex": "",
   "deployerLink": "",
+  "appNameLabelKeys": [
+    "app",
+    "name"
+  ],
   "defaultSearchLabels": [
     "app",
     "k8s-app",

@@ -117,6 +117,7 @@ func (f *Factory) Register(k8Client k8sv1.Clienter, w http.ResponseWriter, r *ht
 
 	// get stream
 	stream, apiErr := k8Client.ReadLogs(k8sv1.LogOptions{
+		Logger:        l,
 		UserRole:      ra,
 		PodName:       pod,
 		ContainerName: containerName,

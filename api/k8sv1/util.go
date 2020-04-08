@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package k8v1
+package k8sv1
 
 import (
 	"fmt"
@@ -32,55 +32,28 @@ import (
 	"github.com/kubelens/kubelens/api/config"
 )
 
-func getProjectSlug(pod string) string {
+func getProjectSlug(value string) string {
 	if len(config.C.ProjectSlugRegex) > 0 {
-		// Example pod name: some-pod-name-slug-1234-6fd8676889-xsksc
+		// Example value name: some-pod-name-slug-1234-6fd8676889-xsksc
 		// the "slug-1234" piece is the slug mapping to the the id of the deploy template.
 		// Using this could allow building of a link to the deployment.
 		regex := regexp.MustCompile(config.C.ProjectSlugRegex)
-		return regex.FindString(pod)
+		return regex.FindString(value)
 	}
 	return ""
 }
 
-func getAppName(labels map[string]string, appnameLabelKey, defaultLabelKey, defaultName string) (name string, labelKey string) {
+func getFriendlyAppName(labels map[string]string, defaultName string) (name string) {
 	if labels != nil {
-		// first check for the app label
-		if len(appnameLabelKey) > 0 {
-			if len(labels[appnameLabelKey]) > 0 {
-				return labels[appnameLabelKey], appnameLabelKey
-			}
-		}
 		// if no app label
-		for _, search := range config.C.DefaultSearchLabels {
+		for _, search := range config.C.AppNameLabelKeys {
 			if len(labels[search]) > 0 {
-				return labels[search], search
+				return labels[search]
 			}
 		}
 	}
 
-	return defaultName, defaultLabelKey
-}
-
-// should this be a new config value, or is there a better
-// way to handle this?
-func getDefaultSearchLabel(selector map[string]string) string {
-	// first try to get the app name by spec.selector, which should never be empty, but check just in case
-	if selector != nil {
-		for _, dlbl := range config.C.DefaultSearchLabels {
-			for name, slbl := range selector {
-				if strings.Contains(slbl, dlbl) {
-					return name
-				}
-			}
-		}
-	}
-	// try to get the first item in default search labels
-	if len(config.C.DefaultSearchLabels) > 0 {
-		return config.C.DefaultSearchLabels[0]
-	}
-	// all else fails, just use "app" which seems to be very common
-	return "app"
+	return defaultName
 }
 
 // getDeployerLink tries to build a link to the tool that deploys the application. See doc.go for more info.
@@ -95,4 +68,11 @@ func getDeployerLink(value string) string {
 	}
 
 	return ""
+}
+
+func toLabelSelectorString(labelSelector map[string]string) (labelSelectorString string) {
+	for k, v := range labelSelector {
+		labelSelectorString += fmt.Sprintf("%s=%s,", k, v)
+	}
+	return strings.TrimSuffix(labelSelectorString, ",")
 }

@@ -1,4 +1,4 @@
-package k8v1
+package k8sv1
 
 import (
 	"strings"
@@ -25,7 +25,7 @@ func (k *Client) ServiceOverviews(options ServiceOptions) (svco []ServiceOvervie
 	}
 
 	if len(options.LabelSelector) > 0 {
-		lo.LabelSelector = options.LabelSelector
+		lo.LabelSelector = toLabelSelectorString(options.LabelSelector)
 	}
 
 	list, err := clientset.CoreV1().Services(options.Namespace).List(lo)
@@ -43,21 +43,14 @@ func (k *Client) ServiceOverviews(options ServiceOptions) (svco []ServiceOvervie
 	for i, item := range list.Items {
 		// check access at label level
 		if options.UserCanAccess(item.GetLabels()) {
-			name, labelKey := getAppName(
-				item.GetLabels(),
-				"",
-				getDefaultSearchLabel(item.Spec.Selector),
-				item.GetName(),
-			)
-
 			go func(index int, service v1.Service) {
 				defer wg.Done()
 
 				svc := ServiceOverview{
-					AppName: Name{
-						LabelKey: labelKey,
-						Value:    name,
-					},
+					FriendlyName: getFriendlyAppName(
+						item.GetLabels(),
+						item.GetName(),
+					),
 					DeployerLink: getDeployerLink(service.GetName()),
 					Name:         service.GetName(),
 					Namespace:    service.GetNamespace(),
@@ -71,8 +64,8 @@ func (k *Client) ServiceOverviews(options ServiceOptions) (svco []ServiceOvervie
 				// specific to certian K8s kinds.
 				if options.Detailed && options.UserRole.HasDeploymentAccess(item.GetLabels()) {
 					deployments, err := k.DeploymentOverviews(DeploymentOptions{
-						LabelSelector: options.LabelSelector,
-						Namespace:     service.GetName(),
+						LabelSelector: svc.Selector,
+						Namespace:     service.GetNamespace(),
 						UserRole:      options.UserRole,
 						Logger:        options.Logger,
 					})

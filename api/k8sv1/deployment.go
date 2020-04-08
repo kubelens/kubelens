@@ -1,4 +1,4 @@
-package k8v1
+package k8sv1
 
 import (
 	"github.com/kubelens/kubelens/api/errs"
@@ -18,11 +18,13 @@ func (k *Client) DeploymentOverviews(options DeploymentOptions) (deployments []D
 	}
 
 	lo := metav1.ListOptions{
-		LabelSelector:        options.LabelSelector,
 		IncludeUninitialized: true,
 	}
 
-	// could match on deployment name, but this allows a bit more flexibility
+	if len(options.LabelSelector) > 0 {
+		lo.LabelSelector = toLabelSelectorString(options.LabelSelector)
+	}
+
 	list, err := clientset.AppsV1().Deployments(options.Namespace).List(lo)
 
 	if err != nil {
@@ -33,9 +35,26 @@ func (k *Client) DeploymentOverviews(options DeploymentOptions) (deployments []D
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
 			if options.UserRole.HasDeploymentAccess(item.GetLabels()) {
+				var labelSelector map[string]string
+				// this shouldn't be null, but default to regular labels if it is.
+				if item.Spec.Selector != nil {
+					labelSelector = item.Spec.Selector.MatchLabels
+				} else if len(options.LabelSelector) > 0 {
+					labelSelector = options.LabelSelector
+				} else {
+					labelSelector = item.GetLabels()
+				}
+
+				name := getFriendlyAppName(
+					item.GetLabels(),
+					item.GetName(),
+				)
+
 				deployments = append(deployments, DeploymentOverview{
+					FriendlyName:         name,
 					Name:                 item.GetName(),
 					Namespace:            item.GetNamespace(),
+					LabelSelector:        labelSelector,
 					ResourceVersion:      item.GetResourceVersion(),
 					AvailableReplicas:    int(item.Status.AvailableReplicas),
 					ReadyReplicas:        int(item.Status.ReadyReplicas),

@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package k8v1
+package k8sv1
 
 import (
 	"io"
@@ -37,6 +37,9 @@ type Clienter interface {
 	// SanityCheck tries to list pods. if it can't, return will be false, else true.
 	// really only used for a sanity/health check.
 	SanityCheck() (success bool)
+	// Apps returns a list of apps running in kubernetes, determined by searching deployments for each namespace.
+	// For each namespace, Kubernetes Kinds are searched for the type of application, e.g. Service, DaemonSet, etc.
+	Apps(options AppOptions) (apps []App, apiErr *errs.APIError)
 	// AppOverview returns an list of application overviews with high level info such as pods, services, deployments, etc.
 	AppOverview(options AppOverviewOptions) (ao *AppOverview, apiErr *errs.APIError)
 	// PodDetail returns details for a pod

@@ -26,9 +26,7 @@ package v1
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/creack/httpreq"
 	"github.com/kubelens/kubelens/api/auth/rbac"
@@ -42,18 +40,11 @@ func (h request) Services(w http.ResponseWriter, r *http.Request) {
 	l := klog.MustFromContext(r.Context())
 	ra := rbac.MustFromContext(r.Context())
 
-	var appname string
-
-	// "/v1/services/{name}" = []string{"", "v1", "services", "name"}
-	if params := strings.Split(r.URL.Path, "/"); len(params) == 4 {
-		appname = params[3]
-	}
-
 	// get query params
 	var data Req
 	if err := httpreq.NewParsingMapPre(1).
 		ToString("namespace", &data.Namespace).
-		ToString("labelKey", &data.LabelKey).
+		ToString("labelSelector", &data.LabelSelector).
 		ToBool("detailed", &data.Detailed).
 		Parse(r.URL.Query()); err != nil {
 		l.Error(err.Error())
@@ -62,14 +53,11 @@ func (h request) Services(w http.ResponseWriter, r *http.Request) {
 	}
 
 	so := k8sv1.ServiceOptions{
-		UserRole:  ra,
-		Logger:    l,
-		Namespace: data.Namespace,
-		Detailed:  data.Detailed,
-	}
-
-	if len(data.LabelKey) > 0 {
-		so.LabelSelector = fmt.Sprintf("%s=%s", data.LabelKey, appname)
+		UserRole:      ra,
+		Logger:        l,
+		Namespace:     data.Namespace,
+		Detailed:      data.Detailed,
+		LabelSelector: data.LabelSelectorMap(),
 	}
 
 	services, apiErr := h.k8Client.ServiceOverviews(so)

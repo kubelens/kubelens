@@ -26,11 +26,9 @@
   "rbacClaim": "",
   "projectSlugRegex": "projects-[0-9]+",
   "deployerLink": "https://test-deployer.com/",
-  "defaultSearchLabels": [
+  "appNameLabelKeys": [
     "app",
-    "k8s-app",
-    "component",
-    "run"
+    "name"
   ],
   "viewerLabelInclusions": [
     "app"

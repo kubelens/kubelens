@@ -74,14 +74,14 @@ func (rq request) Register(router *mux.Router) {
 
 	rv1 := router.PathPrefix("/v1").Subrouter()
 	// /apps
-	rv1.HandleFunc("/apps/{name}", rq.Apps).Methods("GET")
+	rv1.HandleFunc("/apps", rq.Apps).Methods("GET")
+	rv1.HandleFunc("/apps/{name}", rq.AppOverview).Methods("GET")
 
 	// /pods
 	rv1.HandleFunc("/pods/{name}", rq.PodDetail).Methods("GET")
 
 	// /services
 	rv1.HandleFunc("/services", rq.Services).Methods("GET")
-	rv1.HandleFunc("/services/{name}", rq.Services).Methods("GET")
 
 	// /logs
 	rv1.HandleFunc("/logs/{pod}", rq.Logs).Methods("GET")

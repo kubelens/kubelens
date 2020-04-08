@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package k8v1
+package k8sv1
 
 import (
 	"k8s.io/client-go/kubernetes"

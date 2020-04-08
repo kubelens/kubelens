@@ -1,4 +1,4 @@
-package k8v1
+package k8sv1
 
 import (
 	"context"
@@ -24,6 +24,11 @@ type mockWrapper struct {
 	innerFail bool
 }
 
+const (
+	FriendlyAppName string = "some-friendly-app-name"
+	AppNameLabel    string = "name"
+)
+
 func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error) {
 	if m.fail {
 		return nil, errors.New("GetClientSet Test Error")
@@ -47,6 +52,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 
 	lbl := make(map[string]string)
 	lbl["app"] = name
+	lbl[AppNameLabel] = FriendlyAppName
 
 	// We will create an informer that writes added pods to a channel.
 	pods := make(chan *v1.Pod, 1)
@@ -74,32 +80,37 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 	nsInformer.AddEventHandler(&cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			ns := obj.(*v1.Namespace)
-			// watcher.Add(pod)
+			ns.Name = namespace
+			ns.Namespace = namespace
 			fmt.Printf("namespace added: %s\n", ns.Name)
 			namepsaces <- ns
 			cancel()
 		},
 	})
 
-	svcSelector := map[string]string{}
-	svcSelector["cmtest"] = "cmvalue"
+	// svcSelector := map[string]string{}
+	// svcSelector["cmtest"] = "cmvalue"
 
-	svcSelectorNotMatch := map[string]string{}
-	svcSelectorNotMatch["cmtest"] = "cmNotMatchValue"
+	// svcSelectorNotMatch := map[string]string{}
+
+	// for k, v := range lbl {
+	// 	svcSelector[k] = v
+	// 	svcSelectorNotMatch[k]
+	// }
+	// svcSelectorNotMatch["cmtest"] = "cmNotMatchValue"
 
 	services := make(chan *v1.Service, 1)
 	svcInformer := informers.Core().V1().Services().Informer()
 	svcInformer.AddEventHandler(&cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			svc := obj.(*v1.Service)
-			svc.SetName(name)
+			svc.SetName(name + "-svc")
 			svc.SetNamespace(namespace)
 			svc.SetLabels(lbl)
 			svc.Spec = v1.ServiceSpec{
-				Selector: svcSelector,
+				Selector: lbl,
 			}
 			svc.Status = v1.ServiceStatus{}
-			// watcher.Add(pod)
 			fmt.Printf("service added: %s\n", svc.Name)
 			services <- svc
 			cancel()
@@ -115,7 +126,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			cm := obj.(*v1.ConfigMap)
 			cm.SetName(name + "-cm")
 			cm.SetNamespace(namespace)
-			cm.SetLabels(svcSelector)
+			cm.SetLabels(lbl)
 			fmt.Printf("config map added: %s\n", cm.Name)
 			configMapMatch <- cm
 
@@ -123,7 +134,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			cm2 := obj.(*v1.ConfigMap)
 			cm2.SetName(name + "-cm-notmatch")
 			cm2.SetNamespace(namespace)
-			cm2.SetLabels(svcSelectorNotMatch)
+			cm2.SetLabels(map[string]string{"random": "label"})
 			fmt.Printf("config map (not match) added: %s\n", cm2.Name)
 			configMapNotMatch <- cm2
 
@@ -137,9 +148,12 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		AddFunc: func(obj interface{}) {
 			// add a config map that matches the service
 			d := obj.(*appsv1.Deployment)
-			d.SetName(name)
+			d.SetName(name + "-dpl")
 			d.SetNamespace(namespace)
-			d.SetLabels(svcSelector)
+			d.SetLabels(lbl)
+			d.Spec.Selector = &metav1.LabelSelector{
+				MatchLabels: lbl,
+			}
 			fmt.Printf("deployment added: %s\n", d.Name)
 			deployment <- d
 			cancel()
@@ -153,10 +167,10 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		// This is not required in tests, but it serves as a proof-of-concept by
 		// ensuring that the informer goroutine have warmed up and called List before
 		// we send any events to it.
-		for !podInformer.HasSynced() ||
-			!nsInformer.HasSynced() ||
-			!svcInformer.HasSynced() ||
-			!cmInformer.HasSynced() ||
+		for !podInformer.HasSynced() &&
+			!nsInformer.HasSynced() &&
+			!svcInformer.HasSynced() &&
+			!cmInformer.HasSynced() &&
 			!dplInformer.HasSynced() {
 			time.Sleep(100 * time.Millisecond)
 		}
@@ -181,21 +195,21 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		}
 
 		// Inject an event into the fake client.
-		c1 := &v1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: (name + "-cm"), Namespace: namespace, Labels: svcSelector}}
+		c1 := &v1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: (name + "-cm"), Namespace: namespace, Labels: lbl}}
 		_, err = client.CoreV1().ConfigMaps(namespace).Create(c1)
 		if err != nil {
 			return nil, err
 		}
 
 		// Inject an event into the fake client.
-		c2 := &v1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: (name + "-cm-notmatch"), Namespace: namespace, Labels: svcSelectorNotMatch}}
+		c2 := &v1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: (name + "-cm-notmatch"), Namespace: namespace, Labels: map[string]string{"asdf": "yep"}}}
 		_, err = client.CoreV1().ConfigMaps(namespace).Create(c2)
 		if err != nil {
 			return nil, err
 		}
 
 		// Inject an event into the fake client.
-		d := &appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: svcSelector}}
+		d := &appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: lbl}}
 		_, err = client.AppsV1().Deployments(namespace).Create(d)
 		if err != nil {
 			return nil, err
