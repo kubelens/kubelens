@@ -50,8 +50,12 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 
 	lbl := make(map[string]string)
 	lbl["app"] = name
-	lbl["cmkey"] = "cmvalue"
 	lbl[AppNameLabel] = FriendlyAppName
+	cmlbl := map[string]string{}
+	cmlbl["cmkey"] = "cmvalue"
+	for k, v := range lbl {
+		cmlbl[k] = v
+	}
 
 	// We will create an informer that writes added pods to a channel.
 	pods := make(chan *v1.Pod, 1)
@@ -108,7 +112,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			cm := obj.(*v1.ConfigMap)
 			cm.SetName(name + "-cm")
 			cm.SetNamespace(namespace)
-			cm.SetLabels(lbl)
+			cm.SetLabels(cmlbl)
 			fmt.Printf("config map added: %s\n", cm.Name)
 			configMap <- cm
 			cancel()
