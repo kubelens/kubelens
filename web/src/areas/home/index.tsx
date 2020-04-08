@@ -92,7 +92,7 @@ class Home extends Component<HomeProps, initialState> {
   }
 
   private onViewApp(appname: string, labelSelector: string) {
-    this.props.setSelectedAppName(appname);
+    this.props.setSelectedAppName(labelSelector);
 
     this.props.getAppOverview(appname, labelSelector, this.props.cluster, this.props.identityToken);
 

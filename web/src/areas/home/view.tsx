@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2020 The KubeLens Authors
+Copyright (c) 2019 The KubeLens Authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -79,7 +79,7 @@ const HomePage = (props: HomeViewProps) => {
               return (
                 <div key={`${svc.name}-${index}`} id="anti-shadow-div">
                   <div id="shadow-div" >
-                    <Card dir="ltr" style={{ marginRight: (svc.name === selected) ? -40 : 0, marginBottom: '10px', border: '3px solid #4D5061' }}>
+                    <Card dir="ltr" style={{ marginRight: (svc.labelSelector === selected) ? -40 : 0, marginBottom: '10px', border: '3px solid #4D5061' }}>
                       <CardHeader className="text-center" style={{ backgroundColor: 'white' }}>
                         <strong>
                           {svc.name}
@@ -90,7 +90,7 @@ const HomePage = (props: HomeViewProps) => {
                           <Col sm={10}>
                             <div>
                               <div className="app-list-text-root">
-                                <small>Namespaces: <strong>{_.join(svc.namespaces, ",")}</strong></small>
+                                <small>Namespace: <strong>{svc.namespace}</strong></small>
                               </div>
                               <div className="app-list-text-secondary">
                                 <small>

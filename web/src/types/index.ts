@@ -47,18 +47,13 @@ export type Log = {
 
 export type App = {
   name: string,
-  labelSelector: string,
-  namespaces: string[],
-  deployerLink?: string
-};
-
-export type Apps = [{
-  name: string,
   namespace: string,
   labelSelector: string,
   kind: string,
   deployerLink?: string
-}];
+};
+
+export type Apps = App[];
 
 export type ContainerStatus = {
   image: string,
@@ -128,10 +123,30 @@ export type Service = {
   spec?: {},
   status?: {},
   deployerLink?: string,
-  configMaps?: [{}]
+  configMaps?: [{}],
+  deploymentOverviews: DeploymentOverview[]
 };
 
 export type AppOverview = {
   serviceOverviews: Service[],
   podOverviews: PodOverview
+}
+
+export type DeploymentOverview = {
+  friendlyName: string,
+  name: string,
+  namespace: string,
+  labelSelector: {},
+  replicas: number,
+  updatedReplicas: number,
+  readyReplicas: number,
+  unavailableReplicas: number,
+  deploymentConditions: [{
+    type: string,
+    status: boolean,
+    lastUpdateTime: string,
+    lastTransitionTime: string,
+    reason: string,
+    message: string
+  }]
 }

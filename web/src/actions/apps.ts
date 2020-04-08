@@ -105,41 +105,7 @@ export const getApps: ActionCreator<
 
       const response = await adapter.get('/apps', cluster, jwt);
       const data = response.data as Apps;
-
-      const grp = _.groupBy(data, 'name');
-      let apps = new Array<App>();
-
-      _.forEach(grp, (svc, key) => {
-        let overview: App = {
-          name: key,
-          labelSelector: "",
-          namespaces: [],
-          deployerLink: undefined
-        };
-
-        let i = 0;
-        _.forEach(svc, detail => {
-          if (i === 0) {
-            overview.name = detail.name;
-            overview.labelSelector = detail.labelSelector;
-
-            if (detail.deployerLink) {
-              overview.deployerLink = detail.deployerLink;
-            }
-          }
-          overview.namespaces.push(detail.namespace || '');
-          i++;
-        })
-        overview.namespaces = _.uniq(overview.namespaces);
-
-        if (!_.isEmpty(overview.name)) {
-          apps.push(overview);
-        }
-      });
-
-      if (!_.isEmpty(apps)) {
-        apps = _.orderBy(apps, 'name');
-      }
+      const apps = _.orderBy(data, 'name');
 
       dispatch({
         type: AppsActionTypes.GET_APPS,
@@ -215,8 +181,10 @@ export const filterApps: ActionCreator<
   return async (dispatch: Dispatch) => {
 
     const filtered = _.filter(apps, (svc: App) => {
-      return (svc.name.includes(value))
-        || _.join(svc.namespaces, ",").includes(value);
+      return (svc.name.includes(value)) 
+        || svc.namespace.includes(value)
+        || svc.labelSelector.includes(value)
+        || svc.kind.includes(value);
     });
 
     dispatch({
