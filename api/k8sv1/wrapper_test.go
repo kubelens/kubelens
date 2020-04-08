@@ -50,6 +50,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 
 	lbl := make(map[string]string)
 	lbl["app"] = name
+	lbl["cmkey"] = "cmvalue"
 	lbl[AppNameLabel] = FriendlyAppName
 
 	// We will create an informer that writes added pods to a channel.
