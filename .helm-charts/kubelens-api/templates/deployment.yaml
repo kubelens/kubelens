@@ -40,13 +40,13 @@ spec:
           mountPath: {{ .Values.configMap.mountPath }}
         livenessProbe:
           httpGet:
-            path: {{ .Values.service.livenessProbePath }}
+            path: /health
             port: http
           initialDelaySeconds: 10
           periodSeconds: 10
         readinessProbe:
           httpGet:
-            path: {{ .Values.service.readinessProbePath }}
+            path: /ready
             port: http
           initialDelaySeconds: 20
           periodSeconds: 10

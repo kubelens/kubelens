@@ -27,8 +27,6 @@ done
 
 docker version
 
-docker build -t ${id}/${app}:${tag} .
-
 if [ -z "${DOCKER_PASS}" ]; then
   echo "please provide docker password"
   read -s DOCKER_PASS
@@ -36,14 +34,18 @@ fi
 
 echo ${DOCKER_PASS} | docker login --username ${user} --password-stdin
 
-if [[ ${branch} -eq "staging" ]]; then
-  docker tag ${id}/${app}:${tag} ${id}/${app}:${tag}-staging
+if [ ${branch} == "staging" ]; then
+  echo "Building docker image for staging branch"
+  docker build -t ${id}/${app}:${tag}-staging .
   docker push ${id}/${app}:${tag}-staging
 fi
 
 # tag latest and push on master branch
-if [[ ${branch} -eq "master" ]]; then
-  docker tag ${id}/${app}:${tag} ${id}/${app}:latest
+if [ ${branch} == "master" ]; then
+  echo "Building docker image for master branch"
+  docker build -t ${id}/${app}:${tag} .
   docker push ${id}/${app}:${tag}
+  # update latest image.
+  docker tag ${id}/${app}:${tag} ${id}/${app}:latest
   docker push ${id}/${app}:latest
 fi

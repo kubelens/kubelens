@@ -1,4 +1,4 @@
-package k8v1
+package k8sv1
 
 import (
 	"testing"
@@ -12,10 +12,10 @@ func TestGetServiceOverviewsDefaultSuccess(t *testing.T) {
 	c := setupClient("test", "test", false, false)
 
 	_, err := c.ServiceOverviews(ServiceOptions{
-		UserRole:    &rbacfakes.RoleAssignment{},
-		Logger:      &logfakes.Logger{},
-		Namespace:   "test",
-		LabelSearch: "app=test",
+		UserRole:      &rbacfakes.RoleAssignment{},
+		Logger:        &logfakes.Logger{},
+		Namespace:     "test",
+		LabelSelector: map[string]string{"app": "test"},
 	})
 
 	assert.Nil(t, err)
@@ -25,10 +25,10 @@ func TestGetServiceOverviewsDefaultMissingNamespace(t *testing.T) {
 	c := setupClient("test", "test", false, false)
 
 	_, err := c.ServiceOverviews(ServiceOptions{
-		UserRole:    &rbacfakes.RoleAssignment{},
-		Logger:      &logfakes.Logger{},
-		Namespace:   "",
-		LabelSearch: "app=test",
+		UserRole:      &rbacfakes.RoleAssignment{},
+		Logger:        &logfakes.Logger{},
+		Namespace:     "",
+		LabelSelector: map[string]string{"app": "test"},
 	})
 
 	assert.Nil(t, err)
@@ -38,10 +38,10 @@ func TestGetServiceOverviewsDefaultMissingLabelSearch(t *testing.T) {
 	c := setupClient("test", "test", false, false)
 
 	_, err := c.ServiceOverviews(ServiceOptions{
-		UserRole:    &rbacfakes.RoleAssignment{},
-		Logger:      &logfakes.Logger{},
-		Namespace:   "fake",
-		LabelSearch: "",
+		UserRole:      &rbacfakes.RoleAssignment{},
+		Logger:        &logfakes.Logger{},
+		Namespace:     "fake",
+		LabelSelector: map[string]string{},
 	})
 
 	assert.Nil(t, err)
@@ -72,7 +72,5 @@ func TestGetServiceOverviewsDetailed(t *testing.T) {
 	})
 
 	assert.Nil(t, err)
-	assert.NotNil(t, r[0].Spec)
-	assert.NotNil(t, r[0].ConfigMaps)
-	assert.Len(t, *r[0].ConfigMaps, 1)
+	assert.True(t, len(r) > 0)
 }

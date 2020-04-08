@@ -1,13 +1,13 @@
-package k8v1
+package k8sv1
 
 import (
 	"net/http"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
 	"github.com/kubelens/kubelens/api/config"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPodDetailDefault(t *testing.T) {
@@ -42,30 +42,34 @@ func TestPodOverviewDefault(t *testing.T) {
 	c := setupClient("default", "test", false, false)
 
 	r, err := c.PodOverview(PodOverviewOptions{
-		UserRole:        rbacfakes.RoleAssignment{},
-		Logger:          &logfakes.Logger{},
-		AppNameLabelKey: "app",
-		Namespace:       "default",
-		AppName:         "test",
+		UserRole:      rbacfakes.RoleAssignment{},
+		Logger:        &logfakes.Logger{},
+		LabelSelector: map[string]string{"app": "test"},
+		Namespace:     "default",
+		AppName:       "test",
 	})
 
 	assert.Nil(t, err)
-	assert.True(t, len(r.PodDetails) > 0)
+	assert.True(t, len(r.PodInfo) > 0)
 }
 
 func TestPodOverviewDefaultWithFilters(t *testing.T) {
 	c := setupClient("default", "test", false, false)
 
+	lbl := make(map[string]string)
+	lbl["app"] = "test"
+	lbl[AppNameLabel] = FriendlyAppName
+
 	r, err := c.PodOverview(PodOverviewOptions{
-		UserRole:        rbacfakes.RoleAssignment{},
-		Logger:          &logfakes.Logger{},
-		AppNameLabelKey: "app",
-		Namespace:       "default",
-		AppName:         "test",
+		UserRole:      rbacfakes.RoleAssignment{},
+		Logger:        &logfakes.Logger{},
+		LabelSelector: lbl,
+		Namespace:     "default",
+		AppName:       "test",
 	})
 
 	assert.Nil(t, err)
-	assert.True(t, len(r.PodDetails) > 0)
+	assert.True(t, len(r.PodInfo) > 0)
 }
 
 func TestGetPodOverviewByName(t *testing.T) {
@@ -74,33 +78,33 @@ func TestGetPodOverviewByName(t *testing.T) {
 	c := setupClient("blah", n, false, false)
 
 	r, err := c.PodOverview(PodOverviewOptions{
-		UserRole:        rbacfakes.RoleAssignment{},
-		Logger:          &logfakes.Logger{},
-		AppNameLabelKey: "app",
-		Namespace:       "blah",
-		AppName:         "test",
+		UserRole:      rbacfakes.RoleAssignment{},
+		Logger:        &logfakes.Logger{},
+		LabelSelector: map[string]string{"app": "test"},
+		Namespace:     "blah",
+		AppName:       "test",
 	})
 
 	assert.Nil(t, err)
-	assert.Equal(t, n, r.Name.Value)
+	assert.Equal(t, n, r.Name)
 }
 
 func TestGetPodOverviewByNamespaceAndName(t *testing.T) {
 	config.Set("../config/config.json")
-	ns := "app"
+	ns := "somens"
 	n := "some-projects-1234-dev"
 
 	c := setupClient(ns, n, false, false)
 
 	r, err := c.PodOverview(PodOverviewOptions{
-		UserRole:        rbacfakes.RoleAssignment{},
-		Logger:          &logfakes.Logger{},
-		AppNameLabelKey: "app",
-		Namespace:       ns,
-		AppName:         n,
+		UserRole:      rbacfakes.RoleAssignment{},
+		Logger:        &logfakes.Logger{},
+		LabelSelector: map[string]string{"app": n},
+		Namespace:     ns,
+		AppName:       n,
 	})
 
 	assert.Nil(t, err)
-	assert.Equal(t, ns, r.Name.LabelKey)
-	assert.Equal(t, n, r.Name.Value)
+	assert.Equal(t, ns, r.Namespace)
+	assert.Equal(t, n, r.Name)
 }

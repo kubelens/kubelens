@@ -1,7 +1,6 @@
-package k8v1
+package k8sv1
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/kubelens/kubelens/api/errs"
@@ -78,7 +77,7 @@ func (k *Client) PodOverview(options PodOverviewOptions) (po *PodOverview, apiEr
 	}
 
 	list, err := clientset.CoreV1().Pods(options.Namespace).List(metav1.ListOptions{
-		LabelSelector:        fmt.Sprintf("%s=%s", options.AppNameLabelKey, options.AppName),
+		LabelSelector:        toLabelSelectorString(options.LabelSelector),
 		IncludeUninitialized: true,
 		Limit:                options.GetLimit(),
 	})
@@ -88,7 +87,7 @@ func (k *Client) PodOverview(options PodOverviewOptions) (po *PodOverview, apiEr
 	}
 
 	po = &PodOverview{
-		PodDetails: []*PodDetail{},
+		PodInfo: []*PodInfo{},
 	}
 
 	wg := sync.WaitGroup{}
@@ -103,19 +102,8 @@ func (k *Client) PodOverview(options PodOverviewOptions) (po *PodOverview, apiEr
 				options.UserRole.Matches(pod.GetLabels(), &options.AppName) {
 				// set common overivew fields on first pass
 				if index == 0 {
-					// try get the app/component name
-					name, labelKey := getAppName(
-						pod.GetLabels(),
-						options.AppNameLabelKey,
-						getDefaultSearchLabel(nil),
-						pod.GetName(),
-					)
-
 					// set app overview and initialize pod quickview
-					po.Name = Name{
-						LabelKey: labelKey,
-						Value:    name,
-					}
+					po.Name = pod.GetName()
 					po.Namespace = pod.GetNamespace()
 					po.ClusterName = pod.GetClusterName()
 					po.DeployerLink = getDeployerLink(pod.GetName())
@@ -140,20 +128,26 @@ func (k *Client) PodOverview(options PodOverviewOptions) (po *PodOverview, apiEr
 					}
 				}
 
+				pi := &PodInfo{
+					Name:         pod.GetName(),
+					Namespace:    pod.GetNamespace(),
+					HostIP:       pod.Status.HostIP,
+					PodIP:        pod.Status.PodIP,
+					StartTime:    st,
+					Phase:        string(pod.Status.Phase),
+					PhaseMessage: pod.Status.Message,
+					Conditions:   pod.Status.Conditions,
+				}
+
+				for _, container := range pod.Spec.Containers {
+					pi.Images = append(pi.Images, Image{
+						ContainerName: container.Name,
+						Name:          container.Image,
+					})
+				}
+
 				// add the current pod
-				po.PodDetails = append(po.PodDetails, &PodDetail{
-					Name:            pod.GetName(),
-					Namespace:       pod.GetNamespace(),
-					HostIP:          pod.Status.HostIP,
-					PodIP:           pod.Status.PodIP,
-					StartTime:       st,
-					Phase:           pod.Status.Phase,
-					PhaseMessage:    pod.Status.Message,
-					ContainerStatus: pod.Status.ContainerStatuses,
-					Status:          pod.Status,
-					Spec:            *spec,
-					ContainerNames:  containerNames,
-				})
+				po.PodInfo = append(po.PodInfo, pi)
 			}
 		}(i, pod)
 	}

@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2019 The KubeLens Authors
+Copyright (c) 2020 The KubeLens Authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -56,7 +56,7 @@ const get = async (path: string, cluster: string, jwt: string): Promise<AxiosRes
       }
     })
 
-    return await axios.get(`${endpoint}/v1${path}`, rc);
+    return await axios.get(`${endpoint}/${path}`, rc);
   } catch (err) {
     return Promise.reject(err);
   }

@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2019 The KubeLens Authors
+Copyright (c) 2020 The KubeLens Authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,52 +22,56 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package v1
+package svc
 
 import (
 	"encoding/json"
 	"net/http"
 	"strings"
 
-	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
+
+	"github.com/kubelens/kubelens/api/auth/rbac"
 
 	"github.com/creack/httpreq"
 	klog "github.com/kubelens/kubelens/api/log"
 )
 
-// Apps retrieves a list of applications overviews.
-func (h request) Apps(w http.ResponseWriter, r *http.Request) {
+// Logs Retrieves logs for a pod.
+func (h request) Logs(w http.ResponseWriter, r *http.Request) {
 	l := klog.MustFromContext(r.Context())
 	ra := rbac.MustFromContext(r.Context())
 
-	var appname string
-
-	// "/v1/apps/{name}" = []string{"", "v1", "pods", "name"}
-	if params := strings.Split(r.URL.Path, "/"); len(params) == 4 {
-		appname = params[3]
-	}
+	// "/v1/logs/{pod}" = []string{"", apps", "name"}
+	podname := strings.Split(r.URL.Path, "/")[2]
 
 	// get query params
 	var data Req
-	if err := httpreq.NewParsingMapPre(1).
+	if err := httpreq.NewParsingMapPre(3).
 		ToString("namespace", &data.Namespace).
-		ToString("labelKey", &data.LabelKey).
-		ToBool("detailed", &data.Detailed).
+		ToInt("tail", &data.Tail).
+		ToString("containerName", &data.ContainerName).
 		Parse(r.URL.Query()); err != nil {
 		l.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	apps, apiErr := h.k8Client.AppOverview(k8sv1.AppOverviewOptions{
-		UserRole:  ra,
-		Logger:    l,
-		AppName:   appname,
-		LabelKey:  data.LabelKey,
-		Namespace: data.Namespace,
-		Detailed:  data.Detailed,
+	var tl int64 = 100
+
+	if data.Tail > 0 {
+		tl = int64(data.Tail)
+	}
+
+	logs, apiErr := h.k8Client.Logs(k8sv1.LogOptions{
+		UserRole:      ra,
+		Logger:        l,
+		Namespace:     data.Namespace,
+		PodName:       podname,
+		ContainerName: data.ContainerName,
+		Tail:          tl,
+		Follow:        false,
 	})
 
 	if apiErr != nil {
@@ -76,9 +80,10 @@ func (h request) Apps(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := json.Marshal(apps)
+	res, err := json.Marshal(logs)
 
 	if err != nil {
+		l.Error(err)
 		e := errs.SerializationError(err.Error())
 		http.Error(w, e.Message, e.Code)
 		return

@@ -1,4 +1,4 @@
-package k8v1
+package k8sv1
 
 import (
 	"strings"
@@ -24,8 +24,8 @@ func (k *Client) ServiceOverviews(options ServiceOptions) (svco []ServiceOvervie
 		IncludeUninitialized: true,
 	}
 
-	if len(options.LabelSearch) > 0 {
-		lo.LabelSelector = options.LabelSearch
+	if len(options.LabelSelector) > 0 {
+		lo.LabelSelector = toLabelSelectorString(options.LabelSelector)
 	}
 
 	list, err := clientset.CoreV1().Services(options.Namespace).List(lo)
@@ -43,21 +43,14 @@ func (k *Client) ServiceOverviews(options ServiceOptions) (svco []ServiceOvervie
 	for i, item := range list.Items {
 		// check access at label level
 		if options.UserCanAccess(item.GetLabels()) {
-			name, labelKey := getAppName(
-				item.GetLabels(),
-				"",
-				getDefaultSearchLabel(item.Spec.Selector),
-				item.GetName(),
-			)
-
 			go func(index int, service v1.Service) {
 				defer wg.Done()
 
 				svc := ServiceOverview{
-					AppName: Name{
-						LabelKey: labelKey,
-						Value:    name,
-					},
+					FriendlyName: getFriendlyAppName(
+						item.GetLabels(),
+						item.GetName(),
+					),
 					DeployerLink: getDeployerLink(service.GetName()),
 					Name:         service.GetName(),
 					Namespace:    service.GetNamespace(),
@@ -65,6 +58,22 @@ func (k *Client) ServiceOverviews(options ServiceOptions) (svco []ServiceOvervie
 
 				if options.Detailed {
 					svc.AddDetail(&service.Spec, &service.Status)
+				}
+
+				// add deployments per service for ease of display by client since deployments are really
+				// specific to certian K8s kinds.
+				if options.Detailed && options.UserRole.HasDeploymentAccess(item.GetLabels()) {
+					deployments, err := k.DeploymentOverviews(DeploymentOptions{
+						LabelSelector: svc.Selector,
+						Namespace:     service.GetNamespace(),
+						UserRole:      options.UserRole,
+						Logger:        options.Logger,
+					})
+					// just trace the error and move on, shouldn't be critical.
+					if err != nil {
+						klog.Trace()
+					}
+					svc.AddDeploymentOverviews(deployments)
 				}
 
 				// get this list of config maps here to ensure correct namespace. This should perform

@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2019 The KubeLens Authors
+Copyright (c) 2020 The KubeLens Authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -51,7 +51,7 @@ type config struct {
 	ProjectSlugRegex      string   `json:"projectSlugRegex"`
 	DeployerLink          string   `json:"deployerLink"`
 	HealthRoute           string   `json:"healthRoute"`
-	DefaultSearchLabels   []string `json:"defaultSearchLabels"`
+	AppNameLabelKeys      []string `json:"appNameLabelKeys"`
 	EnableTLS             bool     `json:"enableTLS"`
 	TLSCert               string   `json:"tlsCert"`
 	TLSKey                string   `json:"tlsKey"`

@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2019 The KubeLens Authors
+Copyright (c) 2020 The KubeLens Authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package k8v1
+package k8sv1
 
 import (
 	"io"
@@ -34,9 +34,12 @@ const defaultErrorMessage = "Error retrieving container info, please contact you
 
 // Clienter is the interface for Client
 type Clienter interface {
-	// SanityCheck tries to list pods. if it can't, return will be false, else true.
+	// SanityCheck tries to list pods. if it can't, return will be error, else nil.
 	// really only used for a sanity/health check.
-	SanityCheck() (success bool)
+	SanityCheck() (apiErr *errs.APIError)
+	// Apps returns a list of apps running in kubernetes, determined by searching deployments for each namespace.
+	// For each namespace, Kubernetes Kinds are searched for the type of application, e.g. Service, DaemonSet, etc.
+	Apps(options AppOptions) (apps []*App, apiErr *errs.APIError)
 	// AppOverview returns an list of application overviews with high level info such as pods, services, deployments, etc.
 	AppOverview(options AppOverviewOptions) (ao *AppOverview, apiErr *errs.APIError)
 	// PodDetail returns details for a pod
@@ -49,6 +52,8 @@ type Clienter interface {
 	ReadLogs(options LogOptions) (rc io.ReadCloser, apiErr *errs.APIError)
 	// ServiceOverviews returns a list of services given filter options
 	ServiceOverviews(options ServiceOptions) (svco []ServiceOverview, apiErr *errs.APIError)
+	// DeploymentOverviews returns a list of deployments given filter options
+	DeploymentOverviews(options DeploymentOptions) (deployments []DeploymentOverview, apiErr *errs.APIError)
 }
 
 // Client is the wrapper for kubernetes go client commands

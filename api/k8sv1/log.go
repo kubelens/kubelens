@@ -1,4 +1,4 @@
-package k8v1
+package k8sv1
 
 import (
 	"bytes"
