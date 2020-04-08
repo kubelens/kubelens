@@ -20,18 +20,18 @@ func (m *K8V1) SanityCheck() (success bool) {
 }
 
 // Apps .
-func (m *K8V1) Apps(options k8sv1.AppOptions) (apps []k8sv1.App, apiErr *errs.APIError) {
+func (m *K8V1) Apps(options k8sv1.AppOptions) (apps []*k8sv1.App, apiErr *errs.APIError) {
 	if m.fail != nil && *m.fail {
 		return nil, errs.InternalServerError("Apps Test Error")
 	}
 
-	return []k8sv1.App{
-		k8sv1.App{
+	return []*k8sv1.App{
+		&k8sv1.App{
 			Name:      "test-service",
 			Namespace: "default",
 			Kind:      "Service",
 		},
-		k8sv1.App{
+		&k8sv1.App{
 			Name:      "test-daemonset",
 			Namespace: "default",
 			Kind:      "DaemonSet",
@@ -49,8 +49,8 @@ func (m *K8V1) AppOverview(options k8sv1.AppOverviewOptions) (ao *k8sv1.AppOverv
 		PodOverviews: k8sv1.PodOverview{
 			Name:      "testpod",
 			Namespace: "default",
-			PodDetails: []*k8sv1.PodDetail{
-				&k8sv1.PodDetail{
+			PodInfo: []*k8sv1.PodInfo{
+				&k8sv1.PodInfo{
 					Name: "testpod",
 				},
 			},
@@ -83,8 +83,8 @@ func (m *K8V1) PodOverview(options k8sv1.PodOverviewOptions) (po *k8sv1.PodOverv
 	return &k8sv1.PodOverview{
 		Name:      "test",
 		Namespace: "default",
-		PodDetails: []*k8sv1.PodDetail{
-			&k8sv1.PodDetail{
+		PodInfo: []*k8sv1.PodInfo{
+			&k8sv1.PodInfo{
 				Name: "testpod",
 			},
 		},

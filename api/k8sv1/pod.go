@@ -87,7 +87,7 @@ func (k *Client) PodOverview(options PodOverviewOptions) (po *PodOverview, apiEr
 	}
 
 	po = &PodOverview{
-		PodDetails: []*PodDetail{},
+		PodInfo: []*PodInfo{},
 	}
 
 	wg := sync.WaitGroup{}
@@ -128,20 +128,26 @@ func (k *Client) PodOverview(options PodOverviewOptions) (po *PodOverview, apiEr
 					}
 				}
 
+				pi := &PodInfo{
+					Name:         pod.GetName(),
+					Namespace:    pod.GetNamespace(),
+					HostIP:       pod.Status.HostIP,
+					PodIP:        pod.Status.PodIP,
+					StartTime:    st,
+					Phase:        string(pod.Status.Phase),
+					PhaseMessage: pod.Status.Message,
+					Conditions:   pod.Status.Conditions,
+				}
+
+				for _, container := range pod.Spec.Containers {
+					pi.Images = append(pi.Images, Image{
+						ContainerName: container.Name,
+						Name:          container.Image,
+					})
+				}
+
 				// add the current pod
-				po.PodDetails = append(po.PodDetails, &PodDetail{
-					Name:            pod.GetName(),
-					Namespace:       pod.GetNamespace(),
-					HostIP:          pod.Status.HostIP,
-					PodIP:           pod.Status.PodIP,
-					StartTime:       st,
-					Phase:           pod.Status.Phase,
-					PhaseMessage:    pod.Status.Message,
-					ContainerStatus: pod.Status.ContainerStatuses,
-					Status:          pod.Status,
-					Spec:            *spec,
-					ContainerNames:  containerNames,
-				})
+				po.PodInfo = append(po.PodInfo, pi)
 			}
 		}(i, pod)
 	}

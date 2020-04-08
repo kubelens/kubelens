@@ -1,16 +1,16 @@
 {
-  "oAuthJwtIssuer": "https://YOUR_DOMAIN.oktapreview.com/oauth2/YOUR_TENANT",
-  "oAuthAudience": "auth://YOUR_DOMAIN.com",
-  "oAuthClientId": "CLIENT_ID",
+  "oAuthJwtIssuer": "https://chrobinson.oktapreview.com/oauth2/ausm432959XUSGBbK0h7",
+  "oAuthAudience": "auth://chrobinson.com",
+  "oAuthClientId": "0oaqqeowjdUZg3sdi0h7",
   "oAuthRedirectUri": "http://localhost:3000",
   "oAuthResponseType": "id_token token",
   "oAuthRequestType": "Bearer",
   "oAuthScope": "openid profile email",
-  "oAuthConnection": "adfs",
+  "oAuthConnection": "chradfs",
   "oAuthEnabled": true,
   "availableClusters": [
     {
-      "minikube": "http://api.kubelens.local"
+      "minikube": "http://test-api.kubelens.centralus-vision-aks-np.centralus.chrazure.cloud"
     }
   ],
   "deployerLinkName": "Octopus Link"

@@ -50,7 +50,7 @@ func TestPodOverviewDefault(t *testing.T) {
 	})
 
 	assert.Nil(t, err)
-	assert.True(t, len(r.PodDetails) > 0)
+	assert.True(t, len(r.PodInfo) > 0)
 }
 
 func TestPodOverviewDefaultWithFilters(t *testing.T) {
@@ -65,7 +65,7 @@ func TestPodOverviewDefaultWithFilters(t *testing.T) {
 	})
 
 	assert.Nil(t, err)
-	assert.True(t, len(r.PodDetails) > 0)
+	assert.True(t, len(r.PodInfo) > 0)
 }
 
 func TestGetPodOverviewByName(t *testing.T) {

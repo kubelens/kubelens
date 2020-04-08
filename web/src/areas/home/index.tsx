@@ -91,12 +91,12 @@ class Home extends Component<HomeProps, initialState> {
     this.props.filterApps(event.target.value, this.props.apps);
   }
 
-  private onViewApp(appname: string, labelKey: string) {
+  private onViewApp(appname: string, labelSelector: string) {
     this.props.setSelectedAppName(appname);
 
-    this.props.getAppOverview(appname, labelKey, this.props.cluster, this.props.identityToken);
+    this.props.getAppOverview(appname, labelSelector, this.props.cluster, this.props.identityToken);
 
-    this.props.history.push(`/${appname}?labelKey=${labelKey}`);
+    this.props.history.push(`/${appname}?labelSelector=${encodeURIComponent(labelSelector)}`);
   }
 
   public render() {

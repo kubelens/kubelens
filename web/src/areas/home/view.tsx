@@ -38,7 +38,7 @@ export type HomeViewProps =
     appName?: string
   }>> & {
     onFilterChanged: Function,
-    onViewApp(appname: string, labelKey: string),
+    onViewApp(appname: string, labelSelector: string),
     filteredApps: App[],
     appsRequested: boolean,
     selectedAppName: string
@@ -68,7 +68,7 @@ const HomePage = (props: HomeViewProps) => {
             {filteredApps && filteredApps.map((value: any, index: number) => {
               const svc = value as App;
               const viewApp = () => {
-                return onViewApp(svc.name, svc.labelKey);
+                return onViewApp(svc.name, svc.labelSelector);
               };
               // if from a link, grab the name of the app so we can mark which one is being viewed.
               const selected =

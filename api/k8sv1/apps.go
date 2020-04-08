@@ -1,7 +1,10 @@
 package k8sv1
 
 import (
+	"reflect"
 	"sync"
+
+	v1 "k8s.io/api/core/v1"
 
 	"github.com/kubelens/kubelens/api/errs"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -11,8 +14,8 @@ import (
 
 // Apps returns a list of apps running in kubernetes, determined by searching deployments for each namespace.
 // For each namespace, Kubernetes Kinds are searched for the type of application, e.g. Service, DaemonSet, etc.
-func (k *Client) Apps(options AppOptions) (apps []App, apiErr *errs.APIError) {
-	apps = []App{}
+func (k *Client) Apps(options AppOptions) (apps []*App, apiErr *errs.APIError) {
+	apps = []*App{}
 	clientset, err := k.wrapper.GetClientSet()
 
 	if err != nil {
@@ -32,32 +35,47 @@ func (k *Client) Apps(options AppOptions) (apps []App, apiErr *errs.APIError) {
 	}
 
 	if namespaces != nil {
+		wg := sync.WaitGroup{}
+		wg.Add(len(namespaces.Items))
+
 		for _, item := range namespaces.Items {
-			dos, err := k.DeploymentOverviews(DeploymentOptions{
-				Namespace: item.GetName(),
-				UserRole:  options.UserRole,
-				Logger:    options.Logger,
-			})
+			go func(ns v1.Namespace) {
+				defer wg.Done()
 
-			if err != nil {
-				klog.Trace()
-				return apps, errs.InternalServerError(err.Message)
-			}
+				dos, err := k.DeploymentOverviews(DeploymentOptions{
+					Namespace: ns.GetName(),
+					UserRole:  options.UserRole,
+					Logger:    options.Logger,
+				})
 
-			for _, do := range dos {
-				kind := k.getAppKind(do.LabelSelector, do.Namespace)
-
-				if len(kind) > 0 {
-					apps = append(apps, App{
-						Name:          do.FriendlyName,
-						Namespace:     do.Namespace,
-						Kind:          kind,
-						LabelSelector: do.LabelSelector,
-						DeployerLink:  getDeployerLink(do.Name),
-					})
+				if err != nil {
+					klog.Trace()
 				}
-			}
+
+				wginner := sync.WaitGroup{}
+				wginner.Add(len(dos))
+
+				for _, do := range dos {
+					go func(dep DeploymentOverview) {
+						defer wginner.Done()
+
+						kind := k.getAppKind(dep.LabelSelector, dep.Namespace)
+
+						if len(kind) > 0 {
+							apps = append(apps, &App{
+								Name:          dep.FriendlyName,
+								Namespace:     dep.Namespace,
+								Kind:          kind,
+								LabelSelector: dep.LabelSelector,
+								DeployerLink:  getDeployerLink(dep.Name),
+							})
+						}
+					}(do)
+				}
+				wginner.Wait()
+			}(item)
 		}
+		wg.Wait()
 	}
 
 	return apps, nil
@@ -113,7 +131,7 @@ func (k *Client) AppOverview(options AppOverviewOptions) (ao *AppOverview, apiEr
 	}, nil
 }
 
-// getAppKind checks for Service, DaemonSet, by name and namespace.
+// getAppKind checks for Service, DaemonSet, by LabelSelector and namespace.
 // The Kubernetes Kind is returned if found.
 func (k *Client) getAppKind(labelSelector map[string]string, namespace string) (kind string) {
 	clientset, err := k.wrapper.GetClientSet()
@@ -124,7 +142,6 @@ func (k *Client) getAppKind(labelSelector map[string]string, namespace string) (
 	}
 
 	opts := metav1.ListOptions{
-		LabelSelector:        toLabelSelectorString(labelSelector),
 		IncludeUninitialized: true,
 	}
 
@@ -134,8 +151,24 @@ func (k *Client) getAppKind(labelSelector map[string]string, namespace string) (
 		klog.Trace()
 	}
 
+	var svcfound string
+
 	if svcList != nil && len(svcList.Items) > 0 {
-		return "Service"
+		wg1 := sync.WaitGroup{}
+		wg1.Add(len(svcList.Items))
+		for _, item := range svcList.Items {
+			go func(svc v1.Service) {
+				defer wg1.Done()
+				if reflect.DeepEqual(svc.Spec.Selector, labelSelector) {
+					svcfound = "Service"
+				}
+			}(item)
+		}
+		wg1.Wait()
+	}
+
+	if len(svcfound) > 0 {
+		return svcfound
 	}
 
 	dsList, err := clientset.AppsV1().DaemonSets(namespace).List(opts)
@@ -143,8 +176,19 @@ func (k *Client) getAppKind(labelSelector map[string]string, namespace string) (
 		klog.Trace()
 	}
 
+	var dsfound string
+
 	if dsList != nil && len(dsList.Items) > 0 {
-		return "DaemonSet"
+		for _, item := range dsList.Items {
+			if reflect.DeepEqual(item.Spec.Selector, labelSelector) {
+				dsfound = "DaemonSet"
+				break
+			}
+		}
+	}
+
+	if len(dsfound) > 0 {
+		return dsfound
 	}
 
 	return ""

@@ -46,7 +46,7 @@ type App struct {
 	// the namespace of the app
 	Namespace string `json:"namespace"`
 	// kind of application, e.g. Service, DaemonSet
-	Kind string `json:"type"`
+	Kind string `json:"kind"`
 	// the label selector to match kinds
 	LabelSelector string `json:"labelSelector"`
 	// deployer link if any

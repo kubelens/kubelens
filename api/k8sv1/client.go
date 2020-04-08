@@ -39,7 +39,7 @@ type Clienter interface {
 	SanityCheck() (success bool)
 	// Apps returns a list of apps running in kubernetes, determined by searching deployments for each namespace.
 	// For each namespace, Kubernetes Kinds are searched for the type of application, e.g. Service, DaemonSet, etc.
-	Apps(options AppOptions) (apps []App, apiErr *errs.APIError)
+	Apps(options AppOptions) (apps []*App, apiErr *errs.APIError)
 	// AppOverview returns an list of application overviews with high level info such as pods, services, deployments, etc.
 	AppOverview(options AppOverviewOptions) (ao *AppOverview, apiErr *errs.APIError)
 	// PodDetail returns details for a pod

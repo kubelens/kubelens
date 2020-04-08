@@ -23,7 +23,7 @@ type App struct {
 	// the namespace of the app
 	Namespace string `json:"namespace"`
 	// kind of application, e.g. Service, DaemonSet
-	Kind string `json:"type"`
+	Kind string `json:"kind"`
 	// the label selector to match kinds
 	LabelSelector map[string]string `json:"labelSelector"`
 	// deployer link if any
@@ -106,7 +106,7 @@ type PodOverview struct {
 	// the link to the tool that deploys the application
 	DeployerLink string `json:"deployerLink,omitempty"`
 	// the pods associated with the application
-	PodDetails []*PodDetail `json:"podDetails,omitempty"`
+	PodInfo []*PodInfo `json:"pods,omitempty"`
 }
 
 // PodDetailOptions .
@@ -163,6 +163,34 @@ type PodDetail struct {
 	Log *Log `json:"log,omitempty"`
 	// individual container names, there will always be at least 1.
 	ContainerNames []string `json:"containerNames"`
+}
+
+// Image - fields pertaining to container image within a pod
+type Image struct {
+	Name          string `json:"name"`
+	ContainerName string `json:"containerName"`
+}
+
+// PodInfo contains an aggregated/condensed view of the pod details.
+type PodInfo struct {
+	// name of the pod
+	Name string `json:"name"`
+	// the namespace of the pod
+	Namespace string `json:"namespace"`
+	// the pod's host ip
+	HostIP string `json:"hostIP,omitempty"`
+	// the ip of the pod
+	PodIP string `json:"podIP,omitempty"`
+	// time when the pod started
+	StartTime string `json:"startTime,omitempty"`
+	// phase is the "phase" status of the pod
+	Phase string `json:"phase,omitempty"`
+	// message description of the phase
+	PhaseMessage string `json:"phaseMessage,omitempty"`
+	// container images
+	Images []Image `json:"images"`
+	// pod conditions
+	Conditions []v1.PodCondition `json:"conditions"`
 }
 
 // Log holds fields related to log output

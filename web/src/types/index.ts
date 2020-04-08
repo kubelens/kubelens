@@ -47,10 +47,25 @@ export type Log = {
 
 export type App = {
   name: string,
-  labelKey: string,
+  labelSelector: string,
   namespaces: string[],
   deployerLink?: string
 };
+
+export type Apps = [{
+  name: string,
+  namespace: string,
+  labelSelector: string,
+  kind: string,
+  deployerLink?: string
+}];
+
+export type ContainerStatus = {
+  image: string,
+  name: string,
+  restartCount: number,
+  ready: boolean
+}
 
 export type PodDetail = {
   name: string,
@@ -62,11 +77,7 @@ export type PodDetail = {
   phaseMessage: string,
   containerStatus: [],
   status: {
-    containerStatuses: [{
-      image: string,
-      restartCount: number,
-      ready: boolean
-    }],
+    containerStatuses: ContainerStatus[],
     conditions: [],
     startTime: string,
     phase: string
@@ -79,12 +90,29 @@ export type PodDetail = {
   containerNames: string[]
 };
 
+export type Image = {
+  name: string,
+  containerName: string
+}
+
+export type PodInfo = {
+  name: string,
+  namespace: string,
+  hostIP?: string,
+  podIP?: string,
+  startTime?: string,
+  phase: string,
+  phaseMessage: string,
+  images: Image[],
+  conditions: []
+}
+
 export type PodOverview = {
-  name: Name,
+  name: string,
   namespace: string,
   clusterName?: string,
   deployerLink?: string,
-  podDetails: PodDetail[]
+  pods: PodInfo[]
 }
 
 export type Service = {

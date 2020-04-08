@@ -36,7 +36,7 @@ __NOTE:__ Any new clusters will need to be added to the `allowedOrigins` & `allo
 
 -- `allowedHeaders` - (Required) The allowed list of headers from a client. Defaults are commonly used headers and those sent from the UI.
 
-- `defaultSearchLabels` (Required) The default labels used to search Kubernetes objects to match on, e.g. "app" will search labels containing "app" as the key.
+- `appNameLabelKeys` (Optional) This will allow generation of "friendly" application names based on the label key provided, e.g. a value of "app" will look for labels on kubernetes objects for the value and set the return name as that value vs the provided name of the object. This can be useful for applications that have auto-generated names for length requirements.
 
 - `viewerLabelInclusions` (Optional) __Used when `enableRBAC` is true__ The allowed list of labels to match on K8s objects. Examples: Given a value of "app=team-unique-app1" will only return objects matching exact. This also supports "like" values, e.g. given 2 values "team-unique-app1", "team-unique-app2", a value of "app=team*" will return a match for both. If this is empty, all objects will be returned.
 
@@ -119,6 +119,30 @@ Deploy the API - `helm upgrade --install kubelens-api api/_helm/kubelens-api`
 Once the API is running, you'll probably have to get the API's URL and update the web's config.json with its value: `minikube service kubelens-api --url`
 
 Deploy the UI - `helm upgrade --install kubelens-web web/_helm/kubelens-web`
+
+### Using a local image
+
+If you don't have a [Docker Hub](https://hub.docker.com/) account, it's free to signup. 
+
+`docker login` - Enter your Docker username/password
+
+To build/push the API, go to the "api" directory
+
+```
+docker build -t <Your-Docker-ID>/kubelens-api:test .
+
+docker push <Your-Docker-ID>/kubelens-api:test
+```
+
+To build/push the UI, go to the "web" directory
+
+```
+docker build -t <Your-Docker-ID>/kubelens-api:test .
+
+docker push <Your-Docker-ID>/kubelens-api:test
+```
+
+Once these are pushed to Docker Hub, they can then be used within minikube (or anywhere for that matter).
 
 ## Code, Build & Deploy
 
