@@ -175,7 +175,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			time.Sleep(100 * time.Millisecond)
 		}
 
-		a := &v1.Service{ObjectMeta: metav1.ObjectMeta{Name: (name + "svc2"), Namespace: namespace}}
+		a := &v1.Service{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace}}
 		_, err = client.CoreV1().Services(namespace).Create(a)
 		if err != nil {
 			return nil, err
@@ -188,7 +188,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		}
 
 		// Inject an event into the fake client.
-		p := &v1.Pod{ObjectMeta: metav1.ObjectMeta{Name: (name + "-pod2"), Namespace: namespace, Labels: lbl}}
+		p := &v1.Pod{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: lbl}}
 		_, err = client.CoreV1().Pods(namespace).Create(p)
 		if err != nil {
 			return nil, err

@@ -102,5 +102,5 @@ func TestGetPodOverviewByNamespaceAndName(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, ns, r.Namespace)
-	assert.Contains(t, r.Name, n)
+	assert.Equal(t, n, r.Name)
 }
