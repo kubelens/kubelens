@@ -2,7 +2,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ .Values.ingress.name }}
+  name: "{{ .Release.Name }}-ingress"
   namespace: {{ .Values.namespace }}
   labels:
     app: {{ .Release.Name }}

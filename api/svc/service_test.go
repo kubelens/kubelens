@@ -1,4 +1,4 @@
-package v1
+package svc
 
 import (
 	"encoding/json"
@@ -14,9 +14,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetAppsDefault(t *testing.T) {
+func TestGetServicesDefault(t *testing.T) {
 	h := getSvc()
-	req := httptest.NewRequest("GET", `/v1/apps?labelSelector="app.kubernetes.io/name=test,component=api"`, nil)
+	req := httptest.NewRequest("GET", `/services?detailed=false&labelSelector="app.kubernetes.io/name=service-name,component=api"`, nil)
 	w := httptest.NewRecorder()
 
 	dctx := klog.NewContext(req.Context(), "", &logfakes.Logger{})
@@ -25,7 +25,7 @@ func TestGetAppsDefault(t *testing.T) {
 	ctx := rbac.NewContext(req.Context(), rbacfakes.RoleAssignment{})
 	req = req.WithContext(ctx)
 
-	h.Apps(w, req)
+	h.Services(w, req)
 
 	resp := w.Result()
 
@@ -33,7 +33,7 @@ func TestGetAppsDefault(t *testing.T) {
 
 	resBody, _ := ioutil.ReadAll(resp.Body)
 
-	var b []App
+	var b []k8sv1.ServiceOverview
 	err := json.Unmarshal(resBody, &b)
 
 	if err != nil {
@@ -41,12 +41,12 @@ func TestGetAppsDefault(t *testing.T) {
 		return
 	}
 	assert.Equal(t, 200, resp.StatusCode)
-	assert.True(t, len(b) > 0)
+	assert.Equal(t, "service-name", b[0].Name)
 }
 
-func TestGetAppOverviewDefault(t *testing.T) {
+func TestGetServicesError(t *testing.T) {
 	h := getSvc()
-	req := httptest.NewRequest("GET", `/v1/apps/test?labelSelector="app.kubernetes.io/name=test,component=api"`, nil)
+	req := httptest.NewRequest("GET", "/services?namespace=bad", nil)
 	w := httptest.NewRecorder()
 
 	dctx := klog.NewContext(req.Context(), "", &logfakes.Logger{})
@@ -55,22 +55,11 @@ func TestGetAppOverviewDefault(t *testing.T) {
 	ctx := rbac.NewContext(req.Context(), rbacfakes.RoleAssignment{})
 	req = req.WithContext(ctx)
 
-	h.AppOverview(w, req)
+	h.Services(w, req)
 
 	resp := w.Result()
 
 	defer resp.Body.Close()
 
-	resBody, _ := ioutil.ReadAll(resp.Body)
-
-	var b k8sv1.AppOverview
-	err := json.Unmarshal(resBody, &b)
-
-	if err != nil {
-		assert.Fail(t, err.Error())
-		return
-	}
-	assert.Equal(t, 200, resp.StatusCode)
-	assert.True(t, len(b.ServiceOverviews) > 0)
-	assert.True(t, len(b.PodOverviews.Name) > 0)
+	assert.Equal(t, 500, resp.StatusCode)
 }

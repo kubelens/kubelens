@@ -32,12 +32,6 @@
     "app",
     "name"
   ],
-  "defaultSearchLabels": [
-    "app",
-    "k8s-app",
-    "component",
-    "run"
-  ],
   "viewerLabelInclusions": [
     "app"
   ],

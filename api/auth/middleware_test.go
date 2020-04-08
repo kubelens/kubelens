@@ -123,7 +123,7 @@ func TestAuthMWUnauthorized(t *testing.T) {
 func TestAuthMWHealthRouteAllowed(t *testing.T) {
 	a0Reset()
 
-	r := httptest.NewRequest("GET", "/healthcheck", nil)
+	r := httptest.NewRequest("GET", "/healthc", nil)
 	r.Header.Add("Authorization", "Bearer THIS_IS_A_KEY")
 	w := httptest.NewRecorder()
 
@@ -133,7 +133,7 @@ func TestAuthMWHealthRouteAllowed(t *testing.T) {
 	r.Header.Add("test", "bad")
 
 	mh2 := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, "/healthcheck", r.URL.Path)
+		assert.Equal(t, "/health", r.URL.Path)
 	})
 
 	authMiddleware(mh2).ServeHTTP(w, r)

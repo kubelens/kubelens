@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2019 The KubeLens Authors
+Copyright (c) 2020 The KubeLens Authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package v1
+package svc
 
 import (
 	"encoding/json"
@@ -72,9 +72,9 @@ func (h request) AppOverview(w http.ResponseWriter, r *http.Request) {
 
 	var appname string
 
-	// "/v1/apps/{name}" = []string{"", "v1", "pods", "name"}
-	if params := strings.Split(r.URL.Path, "/"); len(params) > 3 {
-		appname = params[3]
+	// "/v1/apps/{name}" = []string{"", "apps", "name"}
+	if params := strings.Split(r.URL.Path, "/"); len(params) > 2 {
+		appname = params[2]
 	}
 
 	// get query params

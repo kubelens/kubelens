@@ -29,11 +29,7 @@
   "rbacClaim": "",
   "projectSlugRegex": ".+",
   "deployerLink": "",
-  "defaultSearchLabels": [
-    "app",
-    "component",
-    "run"
-  ],
+  "appNameLabelKeys": [],
   "viewerLabelInclusions": [],
   "viewerLabelExclusions": [],
   "adminEmails": [],

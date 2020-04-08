@@ -15,8 +15,11 @@ type K8V1 struct {
 }
 
 // SanityCheck .
-func (m *K8V1) SanityCheck() (success bool) {
-	return true
+func (m *K8V1) SanityCheck() (apiErr *errs.APIError) {
+	if m.fail != nil && *m.fail {
+		return errs.InternalServerError("Sanity check error")
+	}
+	return nil
 }
 
 // Apps .

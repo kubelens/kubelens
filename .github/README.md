@@ -36,7 +36,7 @@ __NOTE:__ Any new clusters will need to be added to the `allowedOrigins` & `allo
 
 -- `allowedHeaders` - (Required) The allowed list of headers from a client. Defaults are commonly used headers and those sent from the UI.
 
-- `appNameLabelKeys` (Optional) This will allow generation of "friendly" application names based on the label key provided, e.g. a value of "app" will look for labels on kubernetes objects for the value and set the return name as that value vs the provided name of the object. This can be useful for applications that have auto-generated names for length requirements.
+- `appNameLabelKeys` (Optional) This will allow generation of "friendly" application names based on the label key(s) provided. Examples: Given a value of \["app"\], the name of the object will be the value of the label "app" the vs the actual name of the object. This can be useful for applications that have auto-generated names for length requirements.
 
 - `viewerLabelInclusions` (Optional) __Used when `enableRBAC` is true__ The allowed list of labels to match on K8s objects. Examples: Given a value of "app=team-unique-app1" will only return objects matching exact. This also supports "like" values, e.g. given 2 values "team-unique-app1", "team-unique-app2", a value of "app=team*" will return a match for both. If this is empty, all objects will be returned.
 

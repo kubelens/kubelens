@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2019 The KubeLens Authors
+Copyright (c) 2020 The KubeLens Authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,9 +34,9 @@ const defaultErrorMessage = "Error retrieving container info, please contact you
 
 // Clienter is the interface for Client
 type Clienter interface {
-	// SanityCheck tries to list pods. if it can't, return will be false, else true.
+	// SanityCheck tries to list pods. if it can't, return will be error, else nil.
 	// really only used for a sanity/health check.
-	SanityCheck() (success bool)
+	SanityCheck() (apiErr *errs.APIError)
 	// Apps returns a list of apps running in kubernetes, determined by searching deployments for each namespace.
 	// For each namespace, Kubernetes Kinds are searched for the type of application, e.g. Service, DaemonSet, etc.
 	Apps(options AppOptions) (apps []*App, apiErr *errs.APIError)

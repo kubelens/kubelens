@@ -175,41 +175,41 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			time.Sleep(100 * time.Millisecond)
 		}
 
-		a := &v1.Service{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace}}
+		a := &v1.Service{ObjectMeta: metav1.ObjectMeta{Name: (name + "svc2"), Namespace: namespace}}
 		_, err = client.CoreV1().Services(namespace).Create(a)
 		if err != nil {
 			return nil, err
 		}
 
-		x := &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: namespace}}
+		x := &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: (namespace + "ns2")}}
 		_, err = client.CoreV1().Namespaces().Create(x)
 		if err != nil {
 			return nil, err
 		}
 
 		// Inject an event into the fake client.
-		p := &v1.Pod{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: lbl}}
+		p := &v1.Pod{ObjectMeta: metav1.ObjectMeta{Name: (name + "-pod2"), Namespace: namespace, Labels: lbl}}
 		_, err = client.CoreV1().Pods(namespace).Create(p)
 		if err != nil {
 			return nil, err
 		}
 
 		// Inject an event into the fake client.
-		c1 := &v1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: (name + "-cm"), Namespace: namespace, Labels: lbl}}
+		c1 := &v1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: (name + "-cm2"), Namespace: namespace, Labels: lbl}}
 		_, err = client.CoreV1().ConfigMaps(namespace).Create(c1)
 		if err != nil {
 			return nil, err
 		}
 
 		// Inject an event into the fake client.
-		c2 := &v1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: (name + "-cm-notmatch"), Namespace: namespace, Labels: map[string]string{"asdf": "yep"}}}
+		c2 := &v1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: (name + "-cm-notmatch2"), Namespace: namespace, Labels: map[string]string{"asdf": "yep"}}}
 		_, err = client.CoreV1().ConfigMaps(namespace).Create(c2)
 		if err != nil {
 			return nil, err
 		}
 
 		// Inject an event into the fake client.
-		d := &appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: lbl}}
+		d := &appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: (name + "-dpl2"), Namespace: namespace, Labels: lbl}}
 		_, err = client.AppsV1().Deployments(namespace).Create(d)
 		if err != nil {
 			return nil, err

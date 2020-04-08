@@ -1,7 +1,7 @@
 /*
 MIT License
 
-Copyright (c) 2019 The KubeLens Authors
+Copyright (c) 2020 The KubeLens Authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,10 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package v1
+package svc
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -57,32 +56,38 @@ func New(k8Client k8sv1.Clienter) Requestor {
 // Health checks the health of the API. Should try
 // to run commands to ensure proper permissions.
 func (rq request) Health(w http.ResponseWriter, r *http.Request) {
-	SanityCheck := rq.k8Client.SanityCheck()
-	if !SanityCheck {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"message":"I'm not feeling too well"}`))
+	err := rq.k8Client.SanityCheck()
+	if err != nil {
+		w.WriteHeader(err.Code)
+		w.Write([]byte(err.Message))
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf(`{"message":"I'm good, thanks for checking."}`)))
+	w.Write([]byte(http.StatusText(http.StatusOK)))
+}
+
+// Ready is just a means to indicate the API is up and running and ready for traffic.
+func (rq request) Ready(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(http.StatusText(http.StatusOK)))
 }
 
 // Register registers all routes with the v1 sub router.
 func (rq request) Register(router *mux.Router) {
-	router.HandleFunc("/healthcheck", rq.Health).Methods("GET")
+	router.HandleFunc("/ready", rq.Ready).Methods("GET")
+	router.HandleFunc("/health", rq.Health).Methods("GET")
 
-	rv1 := router.PathPrefix("/v1").Subrouter()
 	// /apps
-	rv1.HandleFunc("/apps", rq.Apps).Methods("GET")
-	rv1.HandleFunc("/apps/{name}", rq.AppOverview).Methods("GET")
+	router.HandleFunc("/apps", rq.Apps).Methods("GET")
+	router.HandleFunc("/apps/{name}", rq.AppOverview).Methods("GET")
 
 	// /pods
-	rv1.HandleFunc("/pods/{name}", rq.PodDetail).Methods("GET")
+	router.HandleFunc("/pods/{name}", rq.PodDetail).Methods("GET")
 
 	// /services
-	rv1.HandleFunc("/services", rq.Services).Methods("GET")
+	router.HandleFunc("/services", rq.Services).Methods("GET")
 
 	// /logs
-	rv1.HandleFunc("/logs/{pod}", rq.Logs).Methods("GET")
+	router.HandleFunc("/logs/{pod}", rq.Logs).Methods("GET")
 }

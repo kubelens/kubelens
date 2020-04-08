@@ -1,4 +1,4 @@
-package v1
+package svc
 
 import (
 	"encoding/json"
@@ -16,7 +16,7 @@ import (
 
 func TestGetPodDetailDefault(t *testing.T) {
 	h := getSvc()
-	req := httptest.NewRequest("GET", `/v1/pods/test?labelSelector="app.kubernetes.io/name=service-name,component=api"`, nil)
+	req := httptest.NewRequest("GET", `/pods/test?labelSelector="app.kubernetes.io/name=service-name,component=api"`, nil)
 	w := httptest.NewRecorder()
 
 	dctx := klog.NewContext(req.Context(), "", &logfakes.Logger{})
@@ -46,7 +46,7 @@ func TestGetPodDetailDefault(t *testing.T) {
 
 func TestGetPodDetailError(t *testing.T) {
 	h := getSvc()
-	req := httptest.NewRequest("GET", "/v1/pods/test?namespace=bad", nil)
+	req := httptest.NewRequest("GET", "/pods/test?namespace=bad", nil)
 	w := httptest.NewRecorder()
 
 	dctx := klog.NewContext(req.Context(), "", &logfakes.Logger{})
@@ -66,7 +66,7 @@ func TestGetPodDetailError(t *testing.T) {
 
 func TestGetPodDetailsDefault(t *testing.T) {
 	h := getSvc()
-	req := httptest.NewRequest("GET", `/v1/pods/test?namespace=test&labelSelector="app.kubernetes.io/name=service-name,app=api`, nil)
+	req := httptest.NewRequest("GET", `/pods/test?namespace=test&labelSelector="app.kubernetes.io/name=service-name,app=api`, nil)
 	w := httptest.NewRecorder()
 
 	dctx := klog.NewContext(req.Context(), "", &logfakes.Logger{})
@@ -96,7 +96,7 @@ func TestGetPodDetailsDefault(t *testing.T) {
 
 func TestGetPodDetailDefaultError(t *testing.T) {
 	h := getSvc()
-	req := httptest.NewRequest("GET", "/v1/pods/test?namespace=bad", nil)
+	req := httptest.NewRequest("GET", "/pods/test?namespace=bad", nil)
 	w := httptest.NewRecorder()
 
 	dctx := klog.NewContext(req.Context(), "", &logfakes.Logger{})

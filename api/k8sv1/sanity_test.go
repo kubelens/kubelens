@@ -9,23 +9,23 @@ import (
 func TestSanityCheckFail(t *testing.T) {
 	c := setupClient("default", "test", false, false)
 
-	success := c.SanityCheck()
+	err := c.SanityCheck()
 
-	assert.True(t, success)
+	assert.Nil(t, err)
 }
 
 func TestSanityCheck(t *testing.T) {
 	c := setupClient("default", "test", true, false)
 
-	success := c.SanityCheck()
+	err := c.SanityCheck()
 
-	assert.False(t, success)
+	assert.NotNil(t, err)
 }
 
 func TestSanityCheckFailedGetServices(t *testing.T) {
 	c := setupClient("default", "test", false, true)
 
-	success := c.SanityCheck()
+	err := c.SanityCheck()
 
-	assert.False(t, success)
+	assert.NotNil(t, err)
 }
