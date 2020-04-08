@@ -112,7 +112,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			cm := obj.(*v1.ConfigMap)
 			cm.SetName(name + "-cm")
 			cm.SetNamespace(namespace)
-			cm.SetLabels(cmlbl)
+			cm.SetLabels(lbl)
 			fmt.Printf("config map added: %s\n", cm.Name)
 			configMap <- cm
 			cancel()
@@ -149,7 +149,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			!svcInformer.HasSynced() &&
 			!cmInformer.HasSynced() &&
 			!dplInformer.HasSynced() {
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(500 * time.Millisecond)
 		}
 
 		a := &v1.Service{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace}}
@@ -171,8 +171,10 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			return nil, err
 		}
 
+		cmlbl := lbl
+		cmlbl["cmtest"] = "cmvalue"
 		// Inject an event into the fake client.
-		c1 := &v1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: lbl}}
+		c1 := &v1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: cmlbl}}
 		_, err = client.CoreV1().ConfigMaps(namespace).Create(c1)
 		if err != nil {
 			return nil, err
