@@ -56,10 +56,14 @@ func TestPodOverviewDefault(t *testing.T) {
 func TestPodOverviewDefaultWithFilters(t *testing.T) {
 	c := setupClient("default", "test", false, false)
 
+	lbl := make(map[string]string)
+	lbl["app"] = "test"
+	lbl[AppNameLabel] = FriendlyAppName
+
 	r, err := c.PodOverview(PodOverviewOptions{
 		UserRole:      rbacfakes.RoleAssignment{},
 		Logger:        &logfakes.Logger{},
-		LabelSelector: map[string]string{"app": "test"},
+		LabelSelector: lbl,
 		Namespace:     "default",
 		AppName:       "test",
 	})

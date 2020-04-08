@@ -144,7 +144,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			!svcInformer.HasSynced() &&
 			!cmInformer.HasSynced() &&
 			!dplInformer.HasSynced() {
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(100 * time.Millisecond)
 		}
 
 		a := &v1.Service{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace}}
