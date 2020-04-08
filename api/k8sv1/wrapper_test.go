@@ -47,8 +47,6 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 
 	// Create the fake client.
 	client := fake.NewSimpleClientset()
-	// watcher := watch.NewFake()
-	// client.PrependWatchReactor("pods", testcore.DefaultWatchReactor(watcher, nil))
 
 	lbl := make(map[string]string)
 	lbl["app"] = name
@@ -61,14 +59,9 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 	podInformer.AddEventHandler(&cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			pod := obj.(*v1.Pod)
-			// pod.SetName(fmt.Sprintf("%s-%d", name, rand.Intn(1000)))
 			pod.SetNamespace(namespace)
 			pod.SetLabels(lbl)
 			pod.SetName(name)
-			// pod.Status = v1.PodStatus{
-			// 	HostIP: "1.1.1.1",
-			// }
-			// watcher.Add(pod)
 			fmt.Printf("pod added: %s/%s\n", pod.Namespace, pod.Name)
 			pods <- pod
 			cancel()
@@ -88,17 +81,6 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		},
 	})
 
-	// svcSelector := map[string]string{}
-	// svcSelector["cmtest"] = "cmvalue"
-
-	// svcSelectorNotMatch := map[string]string{}
-
-	// for k, v := range lbl {
-	// 	svcSelector[k] = v
-	// 	svcSelectorNotMatch[k]
-	// }
-	// svcSelectorNotMatch["cmtest"] = "cmNotMatchValue"
-
 	services := make(chan *v1.Service, 1)
 	svcInformer := informers.Core().V1().Services().Informer()
 	svcInformer.AddEventHandler(&cache.ResourceEventHandlerFuncs{
@@ -117,8 +99,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		},
 	})
 
-	configMapMatch := make(chan *v1.ConfigMap, 1)
-	configMapNotMatch := make(chan *v1.ConfigMap, 1)
+	configMap := make(chan *v1.ConfigMap, 1)
 	cmInformer := informers.Core().V1().ConfigMaps().Informer()
 	cmInformer.AddEventHandler(&cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -128,16 +109,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			cm.SetNamespace(namespace)
 			cm.SetLabels(lbl)
 			fmt.Printf("config map added: %s\n", cm.Name)
-			configMapMatch <- cm
-
-			// add a config map the should not match the service
-			cm2 := obj.(*v1.ConfigMap)
-			cm2.SetName(name + "-cm-notmatch")
-			cm2.SetNamespace(namespace)
-			cm2.SetLabels(map[string]string{"random": "label"})
-			fmt.Printf("config map (not match) added: %s\n", cm2.Name)
-			configMapNotMatch <- cm2
-
+			configMap <- cm
 			cancel()
 		},
 	})
@@ -195,14 +167,14 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		}
 
 		// Inject an event into the fake client.
-		c1 := &v1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: (name + "-cm2"), Namespace: namespace, Labels: lbl}}
+		c1 := &v1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: lbl}}
 		_, err = client.CoreV1().ConfigMaps(namespace).Create(c1)
 		if err != nil {
 			return nil, err
 		}
 
 		// Inject an event into the fake client.
-		c2 := &v1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: (name + "-cm-notmatch2"), Namespace: namespace, Labels: map[string]string{"asdf": "yep"}}}
+		c2 := &v1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: (name + "-notmatch"), Namespace: namespace, Labels: map[string]string{"asdf": "yep"}}}
 		_, err = client.CoreV1().ConfigMaps(namespace).Create(c2)
 		if err != nil {
 			return nil, err
@@ -228,11 +200,8 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 	case ns := <-namepsaces:
 		fmt.Printf("Got namespace from channel: %s\n", ns.Name)
 		return client, nil
-	case cmm := <-configMapMatch:
+	case cmm := <-configMap:
 		fmt.Printf("Got matcher config maps from channel: %s/%s\n", cmm.Namespace, cmm.Name)
-		return client, nil
-	case cmnm := <-configMapMatch:
-		fmt.Printf("Got non-matcher config maps from channel: %s/%s\n", cmnm.Namespace, cmnm.Name)
 		return client, nil
 	case dp := <-deployment:
 		fmt.Printf("Got deployments from channel: %s/%s\n", dp.Namespace, dp.Name)
