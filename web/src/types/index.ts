@@ -150,39 +150,3 @@ export type DeploymentOverview = {
     message: string
   }]
 }
-/*
-"deploymentOverviews": [
-        {
-          "friendlyName": "kubelens-api-test",
-          "name": "kubelens-api-test",
-          "namespace": "default",
-          "labelSelector": {
-            "app": "kubelens-api-test"
-          },
-          "resourceVersion": "12444001",
-          "replicas": 1,
-          "updatedReplicas": 0,
-          "readyReplicas": 1,
-          "availableReplicas": 1,
-          "unavailableReplicas": 0,
-          "deploymentConditions": [
-            {
-              "type": "Available",
-              "status": "True",
-              "lastUpdateTime": "2020-04-08T05:34:43Z",
-              "lastTransitionTime": "2020-04-08T05:34:43Z",
-              "reason": "MinimumReplicasAvailable",
-              "message": "Deployment has minimum availability."
-            },
-            {
-              "type": "Progressing",
-              "status": "True",
-              "lastUpdateTime": "2020-04-08T13:55:33Z",
-              "lastTransitionTime": "2020-04-07T20:28:44Z",
-              "reason": "NewReplicaSetAvailable",
-              "message": "ReplicaSet \"kubelens-api-test-cd7d86fbb\" has successfully progressed."
-            }
-          ]
-        }
-      ]
-*/
