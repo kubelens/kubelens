@@ -56,7 +56,7 @@ const get = async (path: string, cluster: string, jwt: string): Promise<AxiosRes
       }
     })
 
-    return await axios.get(`${endpoint}/${path}`, rc);
+    return await axios.get(`${endpoint}${path}`, rc);
   } catch (err) {
     return Promise.reject(err);
   }

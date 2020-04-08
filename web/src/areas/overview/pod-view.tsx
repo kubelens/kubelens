@@ -76,7 +76,7 @@ const Overview = ({
                           <Col sm={12}>
                             <CardText label={pod.images.length > 1 ? "Images" : "Image"} />
                             {pod.images.map(image => {
-                              return(<CopyClipboard key={image.containerName} labelText={`${image.containerName}: ${image.name}`} value={image.name} size={16} />)
+                              return(<CopyClipboard key={image.containerName} labelText={`${image.name}`} value={image.name} size={16} />)
                             })}
                           </Col>
                         </Row>

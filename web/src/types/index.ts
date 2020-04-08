@@ -47,18 +47,13 @@ export type Log = {
 
 export type App = {
   name: string,
-  labelSelector: string,
-  namespaces: string[],
-  deployerLink?: string
-};
-
-export type Apps = [{
-  name: string,
   namespace: string,
   labelSelector: string,
   kind: string,
   deployerLink?: string
-}];
+};
+
+export type Apps = App[];
 
 export type ContainerStatus = {
   image: string,
@@ -128,10 +123,66 @@ export type Service = {
   spec?: {},
   status?: {},
   deployerLink?: string,
-  configMaps?: [{}]
+  configMaps?: [{}],
+  deploymentOverviews: DeploymentOverview[]
 };
 
 export type AppOverview = {
   serviceOverviews: Service[],
   podOverviews: PodOverview
 }
+
+export type DeploymentOverview = {
+  friendlyName: string,
+  name: string,
+  namespace: string,
+  labelSelector: {},
+  replicas: number,
+  updatedReplicas: number,
+  readyReplicas: number,
+  unavailableReplicas: number,
+  deploymentConditions: [{
+    type: string,
+    status: boolean,
+    lastUpdateTime: string,
+    lastTransitionTime: string,
+    reason: string,
+    message: string
+  }]
+}
+/*
+"deploymentOverviews": [
+        {
+          "friendlyName": "kubelens-api-test",
+          "name": "kubelens-api-test",
+          "namespace": "default",
+          "labelSelector": {
+            "app": "kubelens-api-test"
+          },
+          "resourceVersion": "12444001",
+          "replicas": 1,
+          "updatedReplicas": 0,
+          "readyReplicas": 1,
+          "availableReplicas": 1,
+          "unavailableReplicas": 0,
+          "deploymentConditions": [
+            {
+              "type": "Available",
+              "status": "True",
+              "lastUpdateTime": "2020-04-08T05:34:43Z",
+              "lastTransitionTime": "2020-04-08T05:34:43Z",
+              "reason": "MinimumReplicasAvailable",
+              "message": "Deployment has minimum availability."
+            },
+            {
+              "type": "Progressing",
+              "status": "True",
+              "lastUpdateTime": "2020-04-08T13:55:33Z",
+              "lastTransitionTime": "2020-04-07T20:28:44Z",
+              "reason": "NewReplicaSetAvailable",
+              "message": "ReplicaSet \"kubelens-api-test-cd7d86fbb\" has successfully progressed."
+            }
+          ]
+        }
+      ]
+*/

@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 import React from 'react';
-import { Row, Col, Card, CardBody, Button } from 'reactstrap';
+import { Row, Col, Card, CardBody, CardFooter, Button } from 'reactstrap';
 import CardText from '../../components/text';
 import JsonViewModal from '../../components/json-view-modal';
 import { Service } from '../../types';
@@ -33,7 +33,8 @@ export type ServiceOverviewProps = {
   toggleModalType: (type: string) => void,
   specModalOpen: boolean,
   statusModalOpen: boolean,
-  configMapModalOpen: boolean
+  configMapModalOpen: boolean,
+  deploymentModalOpen: boolean
 };
 
 const ServiceOverview = ({
@@ -41,79 +42,118 @@ const ServiceOverview = ({
   toggleModalType,
   specModalOpen,
   statusModalOpen,
-  configMapModalOpen
+  configMapModalOpen,
+  deploymentModalOpen
 }: ServiceOverviewProps) => {
   // There should only ever be 1 overview for a service, kept as an array for ease.
-  const overview:Service = !_.isEmpty(serviceOverviews) ? serviceOverviews[0] : {} as Service;
+  // const overview:Service = !_.isEmpty(serviceOverviews) ? serviceOverviews[0] : {} as Service;
 
   return (
     <div>
-      {!_.isEmpty(overview)
-      ? <div>
-          <h4>Service Name: {overview.name}</h4>
-          <hr />
-          <Card className="kind-detail-container mb-4">
-            <CardBody>
-              <small>
-                <Row>
-                  <Col sm={7}>
-                    <Row>
-                      <Col sm={4}>
-                        <CardText label="Namespace" value={overview.namespace} />
-                      </Col>
-                      <Col sm={4}>
-                        <CardText label="Cluster IP" value={overview.clusterIP} />
-                      </Col>
-                      <Col sm={4}>
-                        <CardText label="Type" value={overview.type} />
-                      </Col>
-                    </Row>
-                  </Col>
-                  <Col sm={5}>
-                    <Row>
-                      {!_.isEmpty(overview.configMaps)
-                      ? <Col sm={6}>
-                          <Button outline color="info" onClick={() => toggleModalType('configMap')} block>Service ConfigMaps</Button>
-                        </Col>
+      {!_.isEmpty(serviceOverviews) && serviceOverviews.map((overview: Service) => {
+      return (
+      <div key={overview.name}>
+        <Card className="kind-detail-container mb-4">
+          <CardBody>
+            <small>
+              <Row>
+                <Col sm={7}>
+                  <Row>
+                    <Col sm={4}>
+                      <CardText label="Namespace" value={overview.namespace} />
+                    </Col>
+                    <Col sm={4}>
+                      <CardText label="Cluster IP" value={overview.clusterIP} />
+                    </Col>
+                    <Col sm={4}>
+                      <CardText label="Type" value={overview.type} />
+                    </Col>
+                  </Row>
+                </Col>
+                <Col sm={5}>
+                  <Row>
+                    <Col sm={6}>
+                      {!_.isEmpty(overview.deploymentOverviews)
+                      ? <Button outline color="info" onClick={() => toggleModalType('deployment')} block>Deployments</Button>
                       : null}
-                      <Col sm={!_.isEmpty(overview.configMaps) ? 6 : 12}>
-                        <Button outline color="info" onClick={() => toggleModalType('spec')} block>Service Spec</Button>
-                        <Button outline color="info" onClick={() => toggleModalType('status')} block>Service Status</Button>
+                      {!_.isEmpty(overview.configMaps)
+                      ? <Button outline color="info" onClick={() => toggleModalType('configMap')} block>ConfigMaps</Button>
+                      : null}
+                    </Col>
+                    <Col sm={6}>
+                      <Button outline color="info" onClick={() => toggleModalType('spec')} block>Service Spec</Button>
+                      <Button outline color="info" onClick={() => toggleModalType('status')} block>Service Status</Button>
+                    </Col>
+                  </Row>
+                </Col>
+              </Row>
+            </small>
+          </CardBody>
+          {!_.isEmpty(overview.deploymentOverviews) ?
+            <CardFooter>
+              {overview.deploymentOverviews.map(ov => {
+                return(
+                  <small className="text-center" key={ov.name}>
+                    <Row>
+                      <Col sm={3}>
+                        <div className="text-center"><strong>Replicas</strong></div>
+                        <div>{ov.replicas}</div>
+                      </Col>
+                      <Col sm={3}>
+                        <div className="text-center"><strong>UpdatedReplicas</strong></div>
+                        <div>{ov.updatedReplicas}</div>
+                      </Col>
+                      <Col sm={3}>
+                        <div className="text-center"><strong>ReadyReplicas</strong></div>
+                        <div>{ov.readyReplicas}</div>
+                      </Col>
+                      <Col sm={3}>
+                        <div className="text-center"><strong>UnavailableReplicas</strong></div>
+                        <div>{ov.unavailableReplicas}</div>
                       </Col>
                     </Row>
-                  </Col>
-                </Row>
-              </small>
-            </CardBody>
-          </Card>
-        </div>
-      : null}
+                    </small>
+                )
+              })}
+            </CardFooter>
+          : null
+          }
+        </Card>
 
-    <JsonViewModal
-      title="Service Spec"
-      show={specModalOpen}
-      body={overview.spec}
-      handleClose={() => {
-        toggleModalType('spec');
-      }} />
+        <JsonViewModal
+          title="Service Spec"
+          show={specModalOpen}
+          body={overview.spec}
+          handleClose={() => {
+            toggleModalType('spec');
+          }} />
+    
+        <JsonViewModal
+          title="Service Status"
+          show={statusModalOpen}
+          body={overview.status}
+          handleClose={() => {
+            toggleModalType('status');
+          }} />
+    
+        <JsonViewModal
+          title="ConfigMaps"
+          show={configMapModalOpen}
+          body={overview.configMaps}
+          handleClose={() => {
+            toggleModalType('configMap');
+          }} />
 
-    <JsonViewModal
-      title="Service Status"
-      show={statusModalOpen}
-      body={overview.status}
-      handleClose={() => {
-        toggleModalType('status');
-      }} />
-
-    <JsonViewModal
-      title="Service ConfigMaps"
-      show={configMapModalOpen}
-      body={overview.configMaps}
-      handleClose={() => {
-        toggleModalType('configMap');
-      }} />
-
-    </div>
+        <JsonViewModal
+          title="Deployments"
+          show={deploymentModalOpen}
+          body={overview.deploymentOverviews}
+          handleClose={() => {
+            toggleModalType('deployment');
+          }} />
+      </div>
+    )})}
+  </div>
   );
 };
 

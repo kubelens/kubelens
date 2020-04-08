@@ -35,7 +35,8 @@ import { getAppOverview, setSelectedAppName, clearAppsErrors } from '../../actio
 type initialState = {
   specModalOpen: boolean,
   statusModalOpen: boolean,
-  configMapModalOpen: boolean
+  configMapModalOpen: boolean,
+  deploymentModalOpen: boolean
 };
 
 export type OverviewProps = {
@@ -57,7 +58,8 @@ class Overview extends Component<OverviewProps, initialState> {
   state: initialState = {
     specModalOpen: false,
     statusModalOpen: false,
-    configMapModalOpen: false
+    configMapModalOpen: false,
+    deploymentModalOpen: false
   }
 
   async componentDidMount() {
@@ -108,6 +110,9 @@ class Overview extends Component<OverviewProps, initialState> {
       case 'configMap':
         this.setState({ configMapModalOpen: !this.state.configMapModalOpen});
         break;
+      case 'deployment':
+        this.setState({ deploymentModalOpen: !this.state.deploymentModalOpen});
+        break;
       default:
         break;
     }
@@ -121,7 +126,8 @@ class Overview extends Component<OverviewProps, initialState> {
           toggleModalType={this.toggleModalType}
           specModalOpen={this.state.specModalOpen}
           statusModalOpen={this.state.statusModalOpen}
-          configMapModalOpen={this.state.configMapModalOpen} />
+          configMapModalOpen={this.state.configMapModalOpen}
+          deploymentModalOpen={this.state.deploymentModalOpen} />
         <PodOverviewPage podOverview={this.props.podOverview} />
         <ErrorModal
           show={this.props.isError}
