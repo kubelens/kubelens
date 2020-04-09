@@ -4,17 +4,37 @@
 
 Giving software engineers a quick view into applications running within [Kubernetes](https://kubernetes.io/).
 
-![Selected Application](application-detail.png)
-
-![Pod Detail & Logs](pod-detail.png)
-
-Let's get to the quick details.
-
 - Fully functional and has been running in multiple K8s clusters in an enterprise production environment since mid-spring 2019.
 - Security focused. Authentication & Authorization flows can easily be configured at different levels if desired. See the [Configuration](https://github.com/kubelens/kubelens/blob/staging/.github/README.md#configuration) setion for options.
 - Intended to be generic and highly configurable to fit any organizations needs. If you find something isn't flexible enough, let's fix it for everyone. 
 
 More features to come. Any help/contributions/feedback is very much appreciated!
+
+## Table of Contents
+
+* [Screenshots](#screenshots)
+* [Configuration](#configuration)
+  * [API config.json](#api-configjson)
+    * [Auth Settings](#auth-settings)
+  * [Web/UI config.json](#auth-settings-1)
+* [Run Locally - Minikube](#run-locally---minikube)
+  * [Using a Local Image](#using-a-local-image)
+* [Code, Build & Deploy](#code-build--deploy)
+  * [Helm](#helm)
+    * [Using scripts from npm & make](#using-scripts-in-npm--make)
+    * [Using Helm directly](#using-helm-directly)
+  * [API](#api)
+    * [Install Go](#install-go)
+    * [Make](#make)
+  * [Web/UI](#webui)
+    * [Default scripts](#default-available-scripts)
+    * [Learn more](#learn-more)
+
+## Screenshots
+
+![Selected Application](application-detail.png)
+
+![Pod Detail & Logs](pod-detail.png)
 
 ## Configuration
 
@@ -34,7 +54,7 @@ __NOTE:__ Any new clusters will need to be added to the `allowedOrigins` & `allo
 
 - `allowedMethods` - (Required) The allowed Http methods, defaults to the currently supported methods.
 
--- `allowedHeaders` - (Required) The allowed list of headers from a client. Defaults are commonly used headers and those sent from the UI.
+- `allowedHeaders` - (Required) The allowed list of headers from a client. Defaults are commonly used headers and those sent from the UI.
 
 - `appNameLabelKeys` (Optional) This will allow generation of "friendly" application names based on the label key(s) provided. Examples: Given a value of \["app"\], the name of the object will be the value of the label "app" the vs the actual name of the object. This can be useful for applications that have auto-generated names for length requirements.
 
