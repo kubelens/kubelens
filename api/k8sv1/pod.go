@@ -3,12 +3,154 @@ package k8sv1
 import (
 	"sync"
 
+	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 
 	klog "github.com/kubelens/kubelens/api/log"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+// PodOverviewOptions contains fields used for filtering when retrieving application overiew(s).
+type PodOverviewOptions struct {
+	// name of the application
+	AppName string `json:"appname"`
+	// name of the pod
+	PodName string `json:"podname"`
+	// namespace to filter on
+	Namespace string `json:"namespace"`
+	// the label selector to match kinds
+	LabelSelector map[string]string `json:"labelSelector"`
+	// Limit the number of pod summaries to return
+	// Use function GetLimit to get the default limit or this overriden value.
+	Limit int64 `json:"linit"`
+	//users role assignemnt
+	UserRole rbac.RoleAssignmenter
+	// logger instance
+	Logger klog.Logger
+}
+
+// ValidNamespace retuns true if the length self.Namespace is > 0
+func (a *PodOverviewOptions) ValidNamespace() bool {
+	if len(a.Namespace) > 0 {
+		return true
+	}
+	return false
+}
+
+// GetLimit returns PodOverviewOptions.Limit > 0 || default (32, why not)
+func (a *PodOverviewOptions) GetLimit() int64 {
+	if a.Limit > 0 {
+		return a.Limit
+	}
+	return 32
+}
+
+// UserCanAccess validates the user has access
+func (a *PodOverviewOptions) UserCanAccess() bool {
+	if !a.UserRole.HasApplicationAccess() || !a.UserRole.HasNamespaceAccess(a.Namespace) {
+		return false
+	}
+	return true
+}
+
+// PodOverview is meant to hold higher level application information
+type PodOverview struct {
+	// the name of the app
+	Name string `json:"name"`
+	// the namespace (if supported)
+	Namespace string `json:"namespace,omitempty"`
+	// the cluster name (if supported)
+	ClusterName string `json:"clusterName,omitempty"`
+	// the link to the tool that deploys the application
+	DeployerLink string `json:"deployerLink,omitempty"`
+	// the pods associated with the application
+	PodInfo []*PodInfo `json:"pods,omitempty"`
+}
+
+// PodDetailOptions .
+type PodDetailOptions struct {
+	// the name of the pod
+	Name string `json:"name"`
+	// the name of the container in the pod. Defaults to the application name for
+	// backwards compatibility (original functionality)
+	ContainerName string `json:"containerName"`
+	// the namespace of the pod
+	Namespace string `json:"namespace"`
+	//users role assignemnt
+	UserRole rbac.RoleAssignmenter
+	// logger instance
+	Logger klog.Logger
+}
+
+// Valid .
+func (p *PodDetailOptions) Valid() bool {
+	return len(p.Name) > 0
+}
+
+// UserCanAccess validates the user has access
+func (p *PodDetailOptions) UserCanAccess(labels map[string]string) bool {
+	if !p.UserRole.HasPodAccess(labels) || !p.UserRole.HasNamespaceAccess(p.Namespace) {
+		return false
+	}
+	return true
+}
+
+// PodDetail holds more detailed information for a pod
+type PodDetail struct {
+	// name of the pod
+	Name string `json:"name"`
+	// the namespace of the pod
+	Namespace string `json:"namespace"`
+	// the pod's host ip
+	HostIP string `json:"hostIP,omitempty"`
+	// the ip of the pod
+	PodIP string `json:"podIP,omitempty"`
+	// time when the pod started
+	StartTime string `json:"startTime,omitempty"`
+	// phase is the "phase" status of the pod
+	Phase v1.PodPhase `json:"phase,omitempty"`
+	// message description of the phase
+	PhaseMessage string `json:"phaseMessage,omitempty"`
+	// status of the container
+	ContainerStatus []v1.ContainerStatus `json:"containerStatus,omitempty"`
+	// the status object of the pod
+	Status v1.PodStatus `json:"status,omitempty"`
+	// the pod's spec
+	Spec v1.PodSpec `json:"spec,omitempty"`
+	// the pod's log output
+	Log *Log `json:"log,omitempty"`
+	// individual container names, there will always be at least 1.
+	ContainerNames []string `json:"containerNames"`
+}
+
+// Image - fields pertaining to container image within a pod
+type Image struct {
+	Name          string `json:"name"`
+	ContainerName string `json:"containerName"`
+}
+
+// PodInfo contains an aggregated/condensed view of the pod details.
+type PodInfo struct {
+	// name of the pod
+	Name string `json:"name"`
+	// the namespace of the pod
+	Namespace string `json:"namespace"`
+	// the pod's host ip
+	HostIP string `json:"hostIP,omitempty"`
+	// the ip of the pod
+	PodIP string `json:"podIP,omitempty"`
+	// time when the pod started
+	StartTime string `json:"startTime,omitempty"`
+	// phase is the "phase" status of the pod
+	Phase string `json:"phase,omitempty"`
+	// message description of the phase
+	PhaseMessage string `json:"phaseMessage,omitempty"`
+	// container images
+	Images []Image `json:"images"`
+	// pod conditions
+	Conditions []v1.PodCondition `json:"conditions"`
+}
 
 // PodDetail returns details for a pod
 func (k *Client) PodDetail(options PodDetailOptions) (po *PodDetail, apiErr *errs.APIError) {

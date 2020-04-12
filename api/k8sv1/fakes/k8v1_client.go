@@ -172,12 +172,38 @@ func (m *K8V1) DaemonSetOverviews(options k8sv1.DaemonSetOptions) (daemonsets []
 // DaemonSetAppInfos .
 func (m *K8V1) DaemonSetAppInfos(options k8sv1.DaemonSetOptions) (info []k8sv1.AppInfo, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
-		return nil, errs.InternalServerError("DaemonSetOverviews Test Error")
+		return nil, errs.InternalServerError("DaemonSetAppInfos Test Error")
 	}
 
 	return []k8sv1.AppInfo{
 		k8sv1.AppInfo{
 			Name: "daemonset-name",
+		},
+	}, nil
+}
+
+// JobOverviews .
+func (m *K8V1) JobOverviews(options k8sv1.JobOptions) (jobs []k8sv1.JobOverview, apiErr *errs.APIError) {
+	if options.Namespace == "bad" {
+		return nil, errs.InternalServerError("JobOverviews Test Error")
+	}
+
+	return []k8sv1.JobOverview{
+		k8sv1.JobOverview{
+			Name: "job-name",
+		},
+	}, nil
+}
+
+// JobAppInfos .
+func (m *K8V1) JobAppInfos(options k8sv1.JobOptions) (info []k8sv1.AppInfo, apiErr *errs.APIError) {
+	if options.Namespace == "bad" {
+		return nil, errs.InternalServerError("JobAppInfos Test Error")
+	}
+
+	return []k8sv1.AppInfo{
+		k8sv1.AppInfo{
+			Name: "job-name",
 		},
 	}, nil
 }

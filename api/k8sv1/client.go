@@ -60,6 +60,10 @@ type Clienter interface {
 	DaemonSetOverviews(options DaemonSetOptions) (daemonsets []DaemonSetOverview, apiErr *errs.APIError)
 	// DaemonSetAppInfos returns basic info for all daemon sets found for a given namespace.
 	DaemonSetAppInfos(options DaemonSetOptions) (info []AppInfo, apiErr *errs.APIError)
+	// JobOverviews returns a list of jobs given filter options
+	JobOverviews(options JobOptions) (jobs []JobOverview, apiErr *errs.APIError)
+	// JobAppInfos returns basic info for all jobs found for a given namespace.
+	JobAppInfos(options JobOptions) (info []AppInfo, apiErr *errs.APIError)
 }
 
 // Client is the wrapper for kubernetes go client commands
