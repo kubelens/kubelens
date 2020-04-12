@@ -48,8 +48,23 @@ type AppOverviewOptions struct {
 
 // AppOverview .
 type AppOverview struct {
-	PodOverviews     PodOverview       `json:"podOverviews,omitempty"`
-	ServiceOverviews []ServiceOverview `json:"serviceOverviews,omitempty"`
+	PodOverviews       PodOverview         `json:"podOverviews,omitempty"`
+	ServiceOverviews   []ServiceOverview   `json:"serviceOverviews,omitempty"`
+	DaemonSetOverviews []DaemonSetOverview `json:"daemonSetOverviews,omitempty"`
+}
+
+// AppInfo .
+type AppInfo struct {
+	// friendly name of app
+	FriendlyName string
+	// actual name of app
+	Name string
+	// namspace the app is in
+	Namespace string
+	// the kind of app, e.g. Service, DaemonSet, etc.
+	Kind string
+	// the LabelSelector of the object.
+	LabelSelector map[string]string
 }
 
 // PodOverviewOptions contains fields used for filtering when retrieving application overiew(s).
@@ -383,4 +398,51 @@ type DeploymentOverview struct {
 	UnavailableReplicas int `json:"unavailableReplicas"`
 	// represents the latest available observations of a deployment's current state.
 	DeploymentConditions []appsv1.DeploymentCondition `json:"deploymentConditions"`
+}
+
+// DaemonSetOptions contains fields used for filtering when retrieving daemon sets
+type DaemonSetOptions struct {
+	// namespace to filter on
+	Namespace string `json:"namespace"`
+	// the label selector to match kinds
+	LabelSelector map[string]string `json:"labelSelector"`
+	//users role assignemnt
+	UserRole rbac.RoleAssignmenter
+	// logger instance
+	Logger klog.Logger
+}
+
+// DaemonSetOverview .
+type DaemonSetOverview struct {
+	// the name of the application
+	FriendlyName string `json:"friendlyName"`
+	// the name of the deployment
+	Name string `json:"name"`
+	// the namespace of the deployment
+	Namespace string `json:"namespace"`
+	// the label selector to match kinds
+	LabelSelector          map[string]string `json:"labelSelector"`
+	CurrentNumberScheduled int               `json:"currentNumberScheduled"`
+	DesiredNumberScheduled int               `json:"desiredNumberScheduled"`
+	NumberAvailable        int               `json:"numberAvailable"`
+	NumberMisscheduled     int               `json:"numberMisscheduled"`
+	NumberReady            int               `json:"numberReady"`
+	NumberUnavailable      int               `json:"numberUnavailable"`
+	UpdatedNumberScheduled int               `json:"updatedNumberScheduled"`
+	// represents the latest available observations of a deployment's current state.
+	Conditions          []appsv1.DaemonSetCondition `json:"conditions"`
+	ConfigMaps          *[]v1.ConfigMap             `json:"configMaps,omitempty"`
+	DeploymentOverviews *[]DeploymentOverview       `json:"deploymentOverviews,omitempty"`
+}
+
+// AddConfigMaps sets the ConfigMaps value. Normally wouldn't have a pointer for a slice,
+// but this allows to easily return empty for the client.
+func (d *DaemonSetOverview) AddConfigMaps(cms *[]v1.ConfigMap) {
+	d.ConfigMaps = cms
+}
+
+// AddDeploymentOverviews sets the DeploymentOverviews value. Adding separately for ease of
+// checking access before hand.
+func (d *DaemonSetOverview) AddDeploymentOverviews(dp *[]DeploymentOverview) {
+	d.DeploymentOverviews = dp
 }

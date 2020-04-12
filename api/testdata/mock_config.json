@@ -21,6 +21,7 @@
   "oAuthJwk": "",
   "oAuthJwtIssuer": "",
   "oAuthAudience": "",
+  "oAuthClientID": "",
   "enableAuth": true,
   "enableRBAC": true,
   "rbacClaim": "",
@@ -38,7 +39,9 @@
     "component",
     "run"
   ],
-  "adminEmails": [],
+  "adminEmails": [
+    "test-admin@domain.com"
+  ],
   "contentSecurityPolicy": "",
   "enableTLS": false,
   "tlsCert": "",

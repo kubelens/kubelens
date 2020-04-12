@@ -25,20 +25,20 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter, RouteComponentProps } from 'react-router';
 import NavBar from '../../components/nav';
-import ErrorModal from '../../components/error-modal';
 import View from './view';
 import { App } from "../../types";
 import _ from 'lodash';
 import { IGlobalState } from '../../store';
-import { getApps, getAppOverview, setSelectedAppName, filterApps, clearAppsErrors } from '../../actions/apps';
+import { getApps, getAppOverview, setSelectedAppName, filterApps } from '../../actions/apps';
+import { closeErrorModal } from '../../actions/error';
+import APIErrorModal from '../../components/error-modal';
+import { IErrorState } from '../../reducers/error';
 
 type initialState = {};
 
 export type HomeProps = {
   cluster: string,
   identityToken?: string,
-  isError: boolean,
-  appsError: Error,
   appsRequested: boolean,
   selectedAppName: string,
   filteredApps: App[],
@@ -47,7 +47,7 @@ export type HomeProps = {
   getAppOverview(appname: string, queryString: string, cluster: string, jwt: string): void,
   setSelectedAppName(value: string): void,
   filterApps(value: string, apps: App[]): void,
-  clearAppsErrors(): void
+  error: IErrorState
 } | RouteComponentProps<{
   appName?: string
 }>;
@@ -56,7 +56,6 @@ class Home extends Component<HomeProps, initialState> {
   constructor(props) {
     super(props);
 
-    this.closeErrorModal = this.closeErrorModal.bind(this);
     this.onFilterChanged = this.onFilterChanged.bind(this);
     this.onViewApp = this.onViewApp.bind(this);
   }
@@ -83,10 +82,6 @@ class Home extends Component<HomeProps, initialState> {
     return false;
   }
 
-  private closeErrorModal() {
-    this.props.clearAppsErrors();
-  }
-
   private onFilterChanged(event) {
     this.props.filterApps(event.target.value, this.props.apps);
   }
@@ -107,28 +102,27 @@ class Home extends Component<HomeProps, initialState> {
           onFilterChanged={this.onFilterChanged}
           onViewApp={this.onViewApp}
           {...this.props} />
-        <ErrorModal
-          show={this.props.isError}
-          handleClose={this.closeErrorModal}
-          error={this.props.appsError} />
+        <APIErrorModal
+          open={this.props.error.apiOpen}
+          handleClose={this.props.closeErrorModal}
+          status={this.props.error.status}
+          statusText={this.props.error.statusText}
+          message={this.props.error.message} />
 
       </div>
     );
   }
 }
 
-export const mapStateToProps = ({ appsState, authState, clustersState }: IGlobalState) => {
-  const isError = !_.isEmpty(appsState.appsError) ? true : false;
-
+export const mapStateToProps = ({ appsState, authState, clustersState, errorState }: IGlobalState) => {
   return {
     cluster: clustersState.cluster,
     identityToken: authState.identityToken,
     apps: appsState.apps,
     filteredApps: appsState.filteredApps || appsState.apps,
-    appsError: appsState.appsError,
     appsRequested: appsState.appsRequested,
-    isError: isError,
-    selectedAppName: appsState.selectedAppName
+    selectedAppName: appsState.selectedAppName,
+    error: errorState
   };
 };
 
@@ -138,7 +132,7 @@ export const mapActionsToProps = (dispatch) => {
     getAppOverview: (appname: string, queryString: string, cluster: string, jwt: string) => dispatch(getAppOverview(appname, queryString, cluster, jwt)),
     setSelectedAppName: (value: string) => dispatch(setSelectedAppName(value)),
     filterApps: (value: string, apps: App[]) => dispatch(filterApps(value, apps)),
-    clearAppsErrors: () => dispatch(clearAppsErrors())
+    closeErrorModal: () => dispatch(closeErrorModal())
   };
 };
 

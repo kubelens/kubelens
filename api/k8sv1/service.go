@@ -51,6 +51,7 @@ func (k *Client) ServiceOverviews(options ServiceOptions) (svco []ServiceOvervie
 						item.GetLabels(),
 						item.GetName(),
 					),
+					Selector:     service.Spec.Selector,
 					DeployerLink: getDeployerLink(service.GetName()),
 					Name:         service.GetName(),
 					Namespace:    service.GetNamespace(),
@@ -115,4 +116,58 @@ func (k *Client) ServiceOverviews(options ServiceOptions) (svco []ServiceOvervie
 	wg.Wait()
 
 	return svco, nil
+}
+
+// ServiceAppInfos returns basic info for all services found for a given namespace.
+func (k *Client) ServiceAppInfos(options ServiceOptions) (info []AppInfo, apiErr *errs.APIError) {
+	clientset, err := k.wrapper.GetClientSet()
+
+	if err != nil {
+		klog.Trace()
+		return nil, errs.InternalServerError(err.Error())
+	}
+
+	list, err := clientset.CoreV1().Services(options.Namespace).List(metav1.ListOptions{IncludeUninitialized: true})
+
+	if err != nil {
+		klog.Trace()
+		return nil, errs.InternalServerError(err.Error())
+	}
+
+	errors := []*errs.APIError{}
+
+	if list != nil {
+		info = make([]AppInfo, len(list.Items))
+
+		wg := sync.WaitGroup{}
+		wg.Add(len(list.Items))
+
+		for i, item := range list.Items {
+			go func(index int, svc v1.Service) {
+				defer wg.Done()
+
+				name := getFriendlyAppName(
+					svc.GetLabels(),
+					svc.GetName(),
+				)
+
+				info[index] = AppInfo{
+					FriendlyName:  name,
+					Name:          svc.GetName(),
+					Namespace:     svc.GetNamespace(),
+					Kind:          "Service",
+					LabelSelector: svc.Spec.Selector,
+				}
+			}(i, item)
+		}
+		wg.Wait()
+	}
+
+	if len(errors) > 0 {
+		if len(errors) > 0 {
+			return info, errs.ListToInternalServerError(errors)
+		}
+	}
+
+	return info, nil
 }

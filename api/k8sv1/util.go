@@ -63,10 +63,6 @@ func getDeployerLink(value string) string {
 		return fmt.Sprintf("%s%s", config.C.DeployerLink, slug)
 	}
 
-	if len(config.C.DeployerLink) > 0 {
-		return config.C.DeployerLink
-	}
-
 	return ""
 }
 

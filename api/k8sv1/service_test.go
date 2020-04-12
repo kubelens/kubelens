@@ -74,3 +74,32 @@ func TestGetServiceOverviewsDetailed(t *testing.T) {
 	assert.Nil(t, err)
 	assert.True(t, len(r) > 0)
 }
+
+func TestServiceAppInfosDefaultSuccess(t *testing.T) {
+	c := setupClient("testns", "test", false, false)
+
+	ls := map[string]string{}
+	ls[AppNameLabel] = FriendlyAppName
+
+	d, err := c.ServiceAppInfos(ServiceOptions{
+		UserRole:  &rbacfakes.RoleAssignment{},
+		Logger:    &logfakes.Logger{},
+		Namespace: "testns",
+	})
+
+	assert.Nil(t, err)
+	assert.Len(t, d, 1)
+	assert.Equal(t, d[0].Namespace, "testns")
+}
+
+func TestGetServiceAppInfosDefaultFail(t *testing.T) {
+	c := setupClient("testns", "test", true, true)
+
+	_, err := c.ServiceAppInfos(ServiceOptions{
+		UserRole:  &rbacfakes.RoleAssignment{},
+		Logger:    &logfakes.Logger{},
+		Namespace: "testns",
+	})
+
+	assert.NotNil(t, err)
+}

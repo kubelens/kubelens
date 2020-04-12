@@ -36,3 +36,15 @@ func TestSerializationError(t *testing.T) {
 	assert.Equal(t, http.StatusInternalServerError, r.Code)
 	assert.Equal(t, "\nInternal Server Error: test\n", r.Message)
 }
+
+func TestListToInternalServerError(t *testing.T) {
+	list := []*APIError{
+		InternalServerError("test1"),
+		InternalServerError("test2"),
+	}
+
+	r := ListToInternalServerError(list)
+
+	assert.Equal(t, http.StatusInternalServerError, r.Code)
+	assert.Equal(t, "Error 1: Internal Server Error: test1\nError 2: Internal Server Error: test2\n\n", r.Message)
+}

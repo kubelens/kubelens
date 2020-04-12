@@ -21,29 +21,47 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-import React from 'react';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Reducer } from 'redux';
+import { ErrorActions, ErrorActionTypes } from '../actions/error';
 
-export type APIErrorModalProps = {
-  handleClose(),
-  open: boolean,
-  status?: number,
-  statusText?: string,
-  message?: string
-};
-
-const APIErrorModal = (props: APIErrorModalProps) => {
-  return (
-    <Modal isOpen={props.open} toggle={props.handleClose}>
-      <ModalHeader toggle={props.handleClose}>{props.status} - {props.statusText}</ModalHeader>
-      <ModalBody>
-        {props.message}
-      </ModalBody>
-      <ModalFooter>
-        <Button color="primary" onClick={props.handleClose}>Close</Button>
-      </ModalFooter>
-    </Modal>
-  );
+export interface IErrorState {
+  readonly apiOpen: boolean,
+  readonly status?: number,
+  readonly statusText?: string,
+  readonly message?: string
 }
 
-export default APIErrorModal;
+const INITIAL_STATE: IErrorState = {
+  apiOpen: false,
+  status: undefined,
+  statusText: undefined,
+  message: undefined
+};
+
+export const errorReducer: Reducer<IErrorState, ErrorActions> = (
+  state = INITIAL_STATE,
+  action
+) => {
+  switch (action.type) {
+
+    case ErrorActionTypes.OPEN_API_ERROR_MODAL: {
+      return {
+        ...state,
+        apiOpen: true,
+        status: action.status,
+        statusText: action.statusText,
+        message: action.message
+      }
+    }
+
+    case ErrorActionTypes.CLOSE_API_ERROR_MODAL: {
+      return {
+        ...state,
+        apiOpen: false
+      }
+    }
+
+    default:
+      return state;
+  }
+};

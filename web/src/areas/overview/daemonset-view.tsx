@@ -25,59 +25,75 @@ import React from 'react';
 import { Row, Col, Card, CardBody, CardFooter, Button } from 'reactstrap';
 import CardText from '../../components/text';
 import JsonViewModal from '../../components/json-view-modal';
-import { Service } from '../../types';
+import { DaemonSetOverview } from '../../types';
 import _ from 'lodash';
 
-export type ServiceOverviewProps = {
-  serviceOverviews: Service[],
+export type DaemonSetOverviewProps = {
+  daemonSetOverviews: DaemonSetOverview[],
   toggleModalType: (type: string) => void,
-  specModalOpen: boolean,
-  statusModalOpen: boolean,
+  conditionsModalOpen: boolean,
   configMapModalOpen: boolean,
   deploymentModalOpen: boolean
 };
 
 const ServiceOverview = ({
-  serviceOverviews,
+  daemonSetOverviews,
   toggleModalType,
-  specModalOpen,
-  statusModalOpen,
+  conditionsModalOpen,
   configMapModalOpen,
   deploymentModalOpen
-}: ServiceOverviewProps) => {
-  // There should only ever be 1 overview for a service, kept as an array for ease.
-  // const overview:Service = !_.isEmpty(serviceOverviews) ? serviceOverviews[0] : {} as Service;
-
+}: DaemonSetOverviewProps) => {
   return (
     <div>
-      {!_.isEmpty(serviceOverviews) &&
+      {!_.isEmpty(daemonSetOverviews) &&
         <span>
-          <h4>Service</h4>
+          <h4>DaemonSet</h4>
           <hr />
         </span>
       }
-      {!_.isEmpty(serviceOverviews) && serviceOverviews.map((overview: Service) => {
+      {!_.isEmpty(daemonSetOverviews) && daemonSetOverviews.map((overview: DaemonSetOverview) => {
       return (
       <div key={overview.name}>
         <Card className="kind-detail-container mb-4">
           <CardBody>
             <small>
               <Row>
-                <Col sm={7}>
+                <Col sm={!_.isEmpty(overview.conditions) || !_.isEmpty(overview.deploymentOverviews) ||!_.isEmpty(overview.configMaps) ? 7 : 12}>
+                  <Row>
+                    <Col sm={3}>
+                      <CardText label="Ready" value={overview.numberReady} />
+                    </Col>
+                    <Col sm={3}>
+                      <CardText label="Available" value={overview.numberAvailable} />
+                    </Col>
+                    <Col sm={3}>
+                      <CardText label="Unavailable" value={overview.numberUnavailable} />
+                    </Col>
+                    <Col sm={3}>
+                      <CardText label="Misscheduled" value={overview.numberMisscheduled} />
+                    </Col>
+                  </Row>
+                  <hr />
                   <Row>
                     <Col sm={4}>
-                      <CardText label="Namespace" value={overview.namespace} />
+                      <CardText label="CurrentNumberScheduled" value={overview.currentNumberScheduled} />
                     </Col>
                     <Col sm={4}>
-                      <CardText label="Cluster IP" value={overview.clusterIP} />
+                      <CardText label="UpdatedNumberScheduled" value={overview.updatedNumberScheduled} />
                     </Col>
                     <Col sm={4}>
-                      <CardText label="Type" value={overview.type} />
+                      <CardText label="DesiredNumberScheduled" value={overview.desiredNumberScheduled} />
                     </Col>
                   </Row>
                 </Col>
-                <Col sm={5}>
+                {!_.isEmpty(overview.conditions) || !_.isEmpty(overview.deploymentOverviews) ||!_.isEmpty(overview.configMaps)
+                ? <Col sm={5}>
                   <Row>
+                    <Col sm={6}>
+                      {!_.isEmpty(overview.conditions)
+                      ? <Button outline color="info" onClick={() => toggleModalType('condition')} block>Conditions</Button>
+                      : null}
+                    </Col>
                     <Col sm={6}>
                       {!_.isEmpty(overview.deploymentOverviews)
                       ? <Button outline color="info" onClick={() => toggleModalType('deployment')} block>Deployments</Button>
@@ -86,18 +102,15 @@ const ServiceOverview = ({
                       ? <Button outline color="info" onClick={() => toggleModalType('configMap')} block>ConfigMaps</Button>
                       : null}
                     </Col>
-                    <Col sm={6}>
-                      <Button outline color="info" onClick={() => toggleModalType('spec')} block>Spec</Button>
-                      <Button outline color="info" onClick={() => toggleModalType('status')} block>Status</Button>
-                    </Col>
                   </Row>
                 </Col>
+                : null}
               </Row>
             </small>
           </CardBody>
           {!_.isEmpty(overview.deploymentOverviews) ?
             <CardFooter>
-              {overview.deploymentOverviews.map(ov => {
+              {overview.deploymentOverviews && overview.deploymentOverviews.map(ov => {
                 return(
                   <small className="text-center" key={ov.name}>
                     <Row>
@@ -127,17 +140,9 @@ const ServiceOverview = ({
         </Card>
 
         <JsonViewModal
-          title="Service Spec"
-          show={specModalOpen}
-          body={overview.spec}
-          handleClose={() => {
-            toggleModalType('spec');
-          }} />
-    
-        <JsonViewModal
-          title="Service Status"
-          show={statusModalOpen}
-          body={overview.status}
+          title="Conditions"
+          show={conditionsModalOpen}
+          body={overview.conditions}
           handleClose={() => {
             toggleModalType('status');
           }} />

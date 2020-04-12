@@ -26,6 +26,7 @@ import { ThunkAction } from 'redux-thunk';
 import { PodDetail } from '../types';
 import { IPodState } from '../reducers/pods';
 import adapter from './adapter';
+import { ErrorActionTypes } from './error';
 
 /* 
 Combine the action types with a union (we assume there are more)
@@ -71,10 +72,16 @@ export const getPod: ActionCreator<
       });
     } catch (err) {
       dispatch({
-        type: PodActionTypes.GET_POD,
+        type: PodActionTypes.CLEAR_POD,
         pod: null,
-        podRequested: false,
-        podError: err
+        podRequested: false
+      });
+
+      dispatch({
+        type: ErrorActionTypes.OPEN_API_ERROR_MODAL,
+        status: err.response.status,
+        statusText: err.response.statusText,
+        message: err.response.data
       });
     }
   };

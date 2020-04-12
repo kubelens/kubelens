@@ -20,7 +20,7 @@ import (
 const jwkdata = `{"keys":[{"alg":"RS256","kty":"RSA","use":"sig","x5c":["MIIC9jCCAd6gAwIBAgIJfrWuWelwcfdiMA0GCSqGSIb3DQEBBQUAMCIxIDAeBgNVBAMTF3Rlc3Qtc3NvLmNocm9iaW5zb24uY29tMB4XDTE2MDUwNjE1MzM1OFoXDTMwMDExMzE2MzM1OFowIjEgMB4GA1UEAxMXdGVzdC1zc28uY2hyb2JpbnNvbi5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCtZo+k6Rz9D4yk01OVXhx05/8/UxlCyXxt182biWhoTMYNJCKXvHKEzKkvjh11/MZV/NShpOyombN1Tzg2ckABOvT23ZrhzkhN6eD2qSE0LUj9ZkNKfvouAIuMkn3NOWdjhkudPIRXfULEG0rBvCHkSIVeiLSNQ2uHW7oTpbG5EfnbZAzoOHwFIAMmd9IDv0yZOmZzcbCsRHJWQEbw2uWAKG8JY6Re5F3ftHW+3k7ROzxM5JFtk9g9jzeGwOeTUq3P6NbmDeViNxUfkxbVdQDPhNjLTjXnJ6gZGC23YgjPcX6kYMt6L+sWJZ8fBHoJw7HFkSSZR1VOCr7DFVk+AnnlAgMBAAGjLzAtMAwGA1UdEwQFMAMBAf8wHQYDVR0OBBYEFEaZUSzk2/EPQsdIRPuUQFu5LYOrMA0GCSqGSIb3DQEBBQUAA4IBAQBNqEzHRc8mZeCpTKQIvuQBXDHAL/2NOxuY/WF14GLWCj88+b9G/n7qePj4yUH9k7rRgPeg7rYUts/b5Vyo4fiHZb0LwwJPOaaNKykKizoaQnBmVyZ/gbaE9M13k172Kq3KLJwY/EHbOHi4rJi4ll3ncJpFyPMTEsncGUazwmvQuux+lCPDHx9mPFpRIZD2Cwm4NaXxwjNY0aqBqqXn6G6nCqPw39+kwj6X/hFkvcjSRMcV/2LBiJv+3e3KFnhq1+dhFotalTbdylFC7iudHmJzoWkw+g5JTZaB4FUDtdoH3NNqMBmHEjlQS4DdSrYAAb9En2uEmPVZSAwY/FtAgHXm"],"n":"rWaPpOkc_Q-MpNNTlV4cdOf_P1MZQsl8bdfNm4loaEzGDSQil7xyhMypL44ddfzGVfzUoaTsqJmzdU84NnJAATr09t2a4c5ITeng9qkhNC1I_WZDSn76LgCLjJJ9zTlnY4ZLnTyEV31CxBtKwbwh5EiFXoi0jUNrh1u6E6WxuRH522QM6Dh8BSADJnfSA79MmTpmc3GwrERyVkBG8NrlgChvCWOkXuRd37R1vt5O0Ts8TOSRbZPYPY83hsDnk1Ktz-jW5g3lYjcVH5MW1XUAz4TYy0415yeoGRgtt2IIz3F-pGDLei_rFiWfHwR6CcOxxZEkmUdVTgq-wxVZPgJ55Q","e":"AQAB","kid":"MDhDRUVDOEEyMkY5MEZBNjc5QTBGNzU5MDM0MTExRkQzMjBENTAyNg","x5t":"MDhDRUVDOEEyMkY5MEZBNjc5QTBGNzU5MDM0MTExRkQzMjBENTAyNg"}]}`
 
 func a0Reset() {
-	config.Set("../config/config.json")
+	config.Set("../testdata/mock_config.json")
 }
 
 func TestSetAuthMiddlewareNoProvider(t *testing.T) {
@@ -123,7 +123,7 @@ func TestAuthMWUnauthorized(t *testing.T) {
 func TestAuthMWHealthRouteAllowed(t *testing.T) {
 	a0Reset()
 
-	r := httptest.NewRequest("GET", "/healthc", nil)
+	r := httptest.NewRequest("GET", "/health", nil)
 	r.Header.Add("Authorization", "Bearer THIS_IS_A_KEY")
 	w := httptest.NewRecorder()
 
@@ -266,4 +266,34 @@ func TestGetPemCertNoCert(t *testing.T) {
 
 	assert.Contains(t, err.Error(), "unable to find appropriate key")
 
+}
+
+func TestOktaAuthorization(t *testing.T) {
+	_, err := oktaAuthorization(&logfakes.Logger{}, "FAKE")
+
+	assert.NotNil(t, err)
+}
+
+func TestGetOktaRolesViewers(t *testing.T) {
+	a0Reset()
+
+	r := getOktaRoles("random@domain.com")
+
+	assert.True(t, r.Viewers)
+	assert.False(t, r.Operators)
+
+	assert.EqualValues(t, r.MatchLabels, config.C.ViewerLabelInclusions)
+	assert.EqualValues(t, r.Exclusions, config.C.ViewerLabelExclusions)
+}
+
+func TestGetOktaRolesOperators(t *testing.T) {
+	a0Reset()
+
+	r := getOktaRoles("test-admin@domain.com")
+
+	assert.True(t, r.Viewers)
+	assert.True(t, r.Operators)
+
+	assert.Empty(t, r.Exclusions)
+	assert.Empty(t, r.MatchLabels)
 }

@@ -3,6 +3,7 @@ package svc
 import (
 	"encoding/json"
 	"io/ioutil"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -73,4 +74,27 @@ func TestGetAppOverviewDefault(t *testing.T) {
 	assert.Equal(t, 200, resp.StatusCode)
 	assert.True(t, len(b.ServiceOverviews) > 0)
 	assert.True(t, len(b.PodOverviews.Name) > 0)
+}
+
+func TestGetAppOverviewDefaultMissingLabelSelector(t *testing.T) {
+	h := getSvc()
+	req := httptest.NewRequest("GET", `/apps/test?labelSelector=`, nil)
+	w := httptest.NewRecorder()
+
+	dctx := klog.NewContext(req.Context(), "", &logfakes.Logger{})
+	req = req.WithContext(dctx)
+
+	ctx := rbac.NewContext(req.Context(), rbacfakes.RoleAssignment{})
+	req = req.WithContext(ctx)
+
+	h.AppOverview(w, req)
+
+	resp := w.Result()
+
+	defer resp.Body.Close()
+
+	resBody, _ := ioutil.ReadAll(resp.Body)
+
+	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
+	assert.Equal(t, "missing labelSelector\n", string(resBody))
 }

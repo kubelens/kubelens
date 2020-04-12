@@ -27,6 +27,7 @@ import { IAppsState } from '../reducers/apps';
 import { AppOverview, App, Apps } from "../types";
 import adapter from './adapter';
 import _ from 'lodash';
+import { ErrorActionTypes } from './error';
 
 /* 
 Combine the action types with a union (we assume there are more)
@@ -75,8 +76,14 @@ export const getAppOverview: ActionCreator<
       dispatch({
         type: AppsActionTypes.GET_APP_OVERVIEW,
         appOverview: null,
-        appOverviewRequested: false,
-        appOverviewError: err
+        appOverviewRequested: false
+      });
+
+      dispatch({
+        type: ErrorActionTypes.OPEN_API_ERROR_MODAL,
+        status: err.response.status,
+        statusText: err.response.statusText,
+        message: err.response.data
       });
     }
   };
@@ -118,8 +125,14 @@ export const getApps: ActionCreator<
       dispatch({
         type: AppsActionTypes.GET_APPS,
         apps: null,
-        appsRequested: false,
-        appsError: err
+        appsRequested: false
+      });
+
+      dispatch({
+        type: ErrorActionTypes.OPEN_API_ERROR_MODAL,
+        status: err.response.status,
+        statusText: err.response.statusText,
+        message: err.response.data
       });
     }
   };
