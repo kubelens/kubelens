@@ -24,7 +24,6 @@ SOFTWARE.
 import React from 'react';
 import { Row, Col } from 'reactstrap';
 import { DeploymentOverview } from '../../types';
-import './styles.css';
 
 export type TextItemsProps = {
   keyPrefix: string,
