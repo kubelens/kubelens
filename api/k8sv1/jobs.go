@@ -38,11 +38,11 @@ type JobOverview struct {
 	// Represents time when the job was completed. It is not guaranteed to
 	CompletionTime string `json:"completionTime"`
 	// The number of actively running pods.
-	Active int `json:"active,omitempty" protobuf:"varint,4,opt,name=active"`
+	Active int `json:"active"`
 	// The number of pods which reached phase Succeeded.
-	Succeeded int `json:"succeeded,omitempty" protobuf:"varint,5,opt,name=succeeded"`
+	Succeeded int `json:"succeeded"`
 	// The number of pods which reached phase Failed.
-	Failed int `json:"failed,omitempty" protobuf:"varint,6,opt,name=failed"`
+	Failed int `json:"failed"`
 	// The latest available observations of an object's current state.
 	Conditions          []batchv1.JobCondition `json:"conditions"`
 	ConfigMaps          *[]v1.ConfigMap        `json:"configMaps,omitempty"`

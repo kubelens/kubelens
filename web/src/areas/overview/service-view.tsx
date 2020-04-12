@@ -26,6 +26,7 @@ import { Row, Col, Card, CardBody, CardFooter, Button } from 'reactstrap';
 import CardText from '../../components/text';
 import JsonViewModal from '../../components/json-view-modal';
 import { Service } from '../../types';
+import DeploymentOverviews from '../../components/deployment-overviews';
 import _ from 'lodash';
 
 export type ServiceOverviewProps = {
@@ -97,30 +98,7 @@ const ServiceOverview = ({
           </CardBody>
           {!_.isEmpty(overview.deploymentOverviews) ?
             <CardFooter>
-              {overview.deploymentOverviews.map(ov => {
-                return(
-                  <small className="text-center" key={ov.name}>
-                    <Row>
-                      <Col sm={3}>
-                        <div className="text-center"><strong>Replicas</strong></div>
-                        <div>{ov.replicas}</div>
-                      </Col>
-                      <Col sm={3}>
-                        <div className="text-center"><strong>UpdatedReplicas</strong></div>
-                        <div>{ov.updatedReplicas}</div>
-                      </Col>
-                      <Col sm={3}>
-                        <div className="text-center"><strong>ReadyReplicas</strong></div>
-                        <div>{ov.readyReplicas}</div>
-                      </Col>
-                      <Col sm={3}>
-                        <div className="text-center"><strong>UnavailableReplicas</strong></div>
-                        <div>{ov.unavailableReplicas}</div>
-                      </Col>
-                    </Row>
-                    </small>
-                )
-              })}
+              <DeploymentOverviews overviews={overview.deploymentOverviews} keyPrefix={`svc-${overview.name}`} />
             </CardFooter>
           : null
           }

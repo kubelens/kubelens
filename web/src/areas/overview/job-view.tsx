@@ -25,34 +25,34 @@ import React from 'react';
 import { Row, Col, Card, CardBody, CardFooter, Button } from 'reactstrap';
 import CardText from '../../components/text';
 import JsonViewModal from '../../components/json-view-modal';
-import { DaemonSetOverview } from '../../types';
+import { JobOverview } from '../../types';
 import DeploymentOverviews from '../../components/deployment-overviews';
 import _ from 'lodash';
 
-export type DaemonSetOverviewProps = {
-  daemonSetOverviews: DaemonSetOverview[],
+export type JobOverviewProps = {
+  jobOverviews: JobOverview[],
   toggleModalType: (type: string) => void,
   conditionsModalOpen: boolean,
   configMapModalOpen: boolean,
   deploymentModalOpen: boolean
 };
 
-const DaemonSetView = ({
-  daemonSetOverviews,
+const JobView = ({
+  jobOverviews,
   toggleModalType,
   conditionsModalOpen,
   configMapModalOpen,
   deploymentModalOpen
-}: DaemonSetOverviewProps) => {
+}: JobOverviewProps) => {
   return (
     <div>
-      {!_.isEmpty(daemonSetOverviews) &&
+      {!_.isEmpty(jobOverviews) &&
         <span>
-          <h4>DaemonSet</h4>
+          <h4>Job</h4>
           <hr />
         </span>
       }
-      {!_.isEmpty(daemonSetOverviews) && daemonSetOverviews.map((overview: DaemonSetOverview) => {
+      {!_.isEmpty(jobOverviews) && jobOverviews.map((overview: JobOverview) => {
       return (
       <div key={overview.name}>
         <Card className="kind-detail-container mb-4">
@@ -61,29 +61,26 @@ const DaemonSetView = ({
               <Row>
                 <Col sm={!_.isEmpty(overview.conditions) || !_.isEmpty(overview.deploymentOverviews) ||!_.isEmpty(overview.configMaps) ? 7 : 12}>
                   <Row>
-                    <Col sm={3}>
-                      <CardText label="Ready" value={overview.numberReady} />
+                    <Col sm={4}>
+                      <CardText label="Name" value={overview.name} />
                     </Col>
-                    <Col sm={3}>
-                      <CardText label="Available" value={overview.numberAvailable} />
+                    <Col sm={4}>
+                      <CardText label="Start Time" value={overview.startTime} />
                     </Col>
-                    <Col sm={3}>
-                      <CardText label="Unavailable" value={overview.numberUnavailable} />
-                    </Col>
-                    <Col sm={3}>
-                      <CardText label="Misscheduled" value={overview.numberMisscheduled} />
+                    <Col sm={4}>
+                      <CardText label="Completion Time" value={overview.completionTime} />
                     </Col>
                   </Row>
                   <hr />
                   <Row>
                     <Col sm={4}>
-                      <CardText label="CurrentNumberScheduled" value={overview.currentNumberScheduled} />
+                      <CardText label="Active" value={overview.active} />
                     </Col>
                     <Col sm={4}>
-                      <CardText label="UpdatedNumberScheduled" value={overview.updatedNumberScheduled} />
+                      <CardText label="Succeeded" value={overview.succeeded} />
                     </Col>
                     <Col sm={4}>
-                      <CardText label="DesiredNumberScheduled" value={overview.desiredNumberScheduled} />
+                      <CardText label="Failed" value={overview.failed} />
                     </Col>
                   </Row>
                 </Col>
@@ -111,7 +108,7 @@ const DaemonSetView = ({
           </CardBody>
           {!_.isEmpty(overview.deploymentOverviews) ?
             <CardFooter>
-              <DeploymentOverviews overviews={overview.deploymentOverviews} keyPrefix={`ds-${overview.name}`} />
+              <DeploymentOverviews overviews={overview.deploymentOverviews} keyPrefix={`job-${overview.name}`} />
             </CardFooter>
           : null
           }
@@ -146,4 +143,4 @@ const DaemonSetView = ({
   );
 };
 
-export default DaemonSetView;
+export default JobView;
