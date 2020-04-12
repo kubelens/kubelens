@@ -1,14 +1,74 @@
 package k8sv1
 
 import (
-	"fmt"
 	"sync"
 
+	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	klog "github.com/kubelens/kubelens/api/log"
 )
+
+// AppOptions .
+type AppOptions struct {
+	// user roles
+	UserRole rbac.RoleAssignmenter
+	// logger instance
+	Logger klog.Logger
+}
+
+// App represents an application within Kubernetes.
+type App struct {
+	// name of the application
+	Name string `json:"name"`
+	// the namespace of the app
+	Namespace string `json:"namespace"`
+	// kind of application, e.g. Service, DaemonSet
+	Kind string `json:"kind"`
+	// the label selector to match kinds
+	LabelSelector map[string]string `json:"labelSelector"`
+	// deployer link if any
+	DeployerLink string `json:"deployerLink,omitempty"`
+}
+
+// AppOverviewOptions .
+type AppOverviewOptions struct {
+	// name of the  application
+	AppName string `json:"appname"`
+	// namespace of the app
+	Namespace string `json:"namespace"`
+	// the label selector to match kinds
+	LabelSelector map[string]string `json:"labelSelector"`
+	// include detail
+	Detailed bool `json:"detailed"`
+	// user roles
+	UserRole rbac.RoleAssignmenter
+	// logger instance
+	Logger klog.Logger
+}
+
+// AppOverview .
+type AppOverview struct {
+	PodOverviews       PodOverview         `json:"podOverviews,omitempty"`
+	ServiceOverviews   []ServiceOverview   `json:"serviceOverviews,omitempty"`
+	DaemonSetOverviews []DaemonSetOverview `json:"daemonSetOverviews,omitempty"`
+	JobOverviews       []JobOverview       `json:"jobOverviews,omitempty"`
+}
+
+// AppInfo .
+type AppInfo struct {
+	// friendly name of app
+	FriendlyName string
+	// actual name of app
+	Name string
+	// namspace the app is in
+	Namespace string
+	// the kind of app, e.g. Service, DaemonSet, etc.
+	Kind string
+	// the LabelSelector of the object.
+	LabelSelector map[string]string
+}
 
 // Apps returns a list of apps running in kubernetes, determined by searching deployments for each namespace.
 // For each namespace, Kubernetes Kinds are searched for the type of application, e.g. Service, DaemonSet, etc.
@@ -36,14 +96,14 @@ func (k *Client) Apps(options AppOptions) (apps []App, apiErr *errs.APIError) {
 		appInfos := []*[]AppInfo{}
 
 		wg := sync.WaitGroup{}
-		// adding 2x since we are using 2 go routines per iteration
-		wg.Add(len(namespaces.Items) * 2)
+		// adding 3x since we are using 3 go routines per iteration
+		wg.Add(len(namespaces.Items) * 3)
 
 		errors := []*errs.APIError{}
 
 		for i, item := range namespaces.Items {
 			ns := item.GetName()
-			fmt.Printf("\nNamespace: %s\n", ns)
+
 			// get services
 			go func(index int, namespace string) {
 				defer wg.Done()
@@ -70,6 +130,20 @@ func (k *Client) Apps(options AppOptions) (apps []App, apiErr *errs.APIError) {
 				}
 
 				appInfos = append(appInfos, &dsInfos)
+			}(i, ns)
+
+			// get jobs
+			go func(index int, namespace string) {
+				defer wg.Done()
+
+				jobInfos, err := k.JobAppInfos(JobOptions{Namespace: namespace})
+
+				if err != nil {
+					klog.Trace()
+					errors = append(errors, err)
+				}
+
+				appInfos = append(appInfos, &jobInfos)
 			}(i, ns)
 		}
 

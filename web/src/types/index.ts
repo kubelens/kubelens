@@ -55,6 +55,12 @@ export type App = {
 
 export type Apps = App[];
 
+export type AppOverview = {
+  serviceOverviews: Service[],
+  daemonSetOverviews: DaemonSetOverview[],
+  podOverviews: PodOverview
+}
+
 export type ContainerStatus = {
   image: string,
   name: string,
@@ -127,12 +133,6 @@ export type Service = {
   deploymentOverviews: DeploymentOverview[]
 };
 
-export type AppOverview = {
-  serviceOverviews: Service[],
-  daemonSetOverviews: DaemonSetOverview[],
-  podOverviews: PodOverview
-}
-
 export type DeploymentOverview = {
   friendlyName: string,
   name: string,
@@ -164,6 +164,21 @@ export type DaemonSetOverview = {
   numberReady: number,
   numberUnavailable: number,
   updatedNumberScheduled: number,
+  conditions: [],
+  configMaps?: [{}],
+  deploymentOverviews?: DeploymentOverview[]
+}
+
+export type JobOverview = {
+  friendlyName: string,
+  name: string,
+  namespace: string,
+  labelSelector: {},
+	startTime: string,
+	completionTime: string,
+	active: number,
+	succeeded: number,
+	failed: number,
   conditions: [],
   configMaps?: [{}],
   deploymentOverviews?: DeploymentOverview[]

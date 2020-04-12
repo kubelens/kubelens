@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
+	batchv1 "k8s.io/api/batch/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/informers"
@@ -150,6 +151,28 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		},
 	})
 
+	job := make(chan *batchv1.Job, 1)
+	jobInformer := informers.Batch().V1().Jobs().Informer()
+	jobInformer.AddEventHandler(&cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			// add a config map that matches the service
+			j := obj.(*batchv1.Job)
+			j.SetName(name + "-job")
+			j.SetNamespace(namespace)
+			j.SetLabels(lbl)
+			j.Spec.Selector = &metav1.LabelSelector{
+				MatchLabels: lbl,
+			}
+			j.Status = batchv1.JobStatus{
+				StartTime:      &metav1.Time{Time: time.Now()},
+				CompletionTime: &metav1.Time{Time: time.Now().Add(time.Second)},
+			}
+			fmt.Printf("job added: %s\n", j.Name)
+			job <- j
+			cancel()
+		},
+	})
+
 	// Make sure informers are running.
 	informers.Start(ctx.Done())
 
@@ -162,7 +185,8 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			!svcInformer.HasSynced() &&
 			!cmInformer.HasSynced() &&
 			!dplInformer.HasSynced() &&
-			!dsInformer.HasSynced() {
+			!dsInformer.HasSynced() &&
+			!jobInformer.HasSynced() {
 			time.Sleep(100 * time.Millisecond)
 		}
 
@@ -214,6 +238,13 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		if err != nil {
 			return nil, err
 		}
+
+		// Inject an event into the fake client.
+		j := &batchv1.Job{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: lbl}}
+		_, err = client.BatchV1().Jobs(namespace).Create(j)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Wait and check result.
@@ -236,6 +267,9 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		return client, nil
 	case dss := <-daemonset:
 		fmt.Printf("Got daemonsets from channel: %s/%s\n", dss.Namespace, dss.Name)
+		return client, nil
+	case jb := <-job:
+		fmt.Printf("Got jobs from channel: %s/%s\n", jb.Namespace, jb.Name)
 		return client, nil
 	default:
 		fmt.Println("informer did not get the added pod")
