@@ -23,33 +23,36 @@ SOFTWARE.
 */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import ErrorModal from '../../components/error-modal';
 import ServiceOverviewPage from './service-view';
 import PodOverviewPage from './pod-view';
+import DaemonSetOverviewPage from './daemonset-view';
 import { Service, PodOverview } from "../../types";
 import { RouteComponentProps, withRouter } from 'react-router';
 import _ from 'lodash';
 import { IGlobalState } from '../../store';
-import { getAppOverview, setSelectedAppName, clearAppsErrors } from '../../actions/apps';
+import { getAppOverview, setSelectedAppName } from '../../actions/apps';
+import APIErrorModal from '../../components/error-modal';
+import { closeErrorModal } from '../../actions/error';
+import { IErrorState } from '../../reducers/error';
 
 type initialState = {
   specModalOpen: boolean,
   statusModalOpen: boolean,
   configMapModalOpen: boolean,
-  deploymentModalOpen: boolean
+  deploymentModalOpen: boolean,
+  dsConfigMapModalOpen: boolean,
+  dsDeploymentModalOpen: boolean
 };
 
 export type OverviewProps = {
   identityToken?: string,
   serviceOverviews: Service[],
   podOverview: PodOverview,
-  appOverviewError: Error,
-  isError: boolean,
   selectedAppName: string,
   appOverviewRequested: boolean,
   getAppOverview(appname: string, queryString: string): void,
   setSelectedAppName(value: string): void,
-  clearAppsErrors(): void
+  error: IErrorState
 } | RouteComponentProps<{
   appName?: string
 }>;
@@ -59,7 +62,9 @@ class Overview extends Component<OverviewProps, initialState> {
     specModalOpen: false,
     statusModalOpen: false,
     configMapModalOpen: false,
-    deploymentModalOpen: false
+    deploymentModalOpen: false,
+    dsConfigMapModalOpen: false,
+    dsDeploymentModalOpen: false
   }
 
   async componentDidMount() {
@@ -94,11 +99,6 @@ class Overview extends Component<OverviewProps, initialState> {
     }
   }
 
-  closeErrorModal = () => {
-    this.props.appActions &&
-      this.props.clearAppsErrors();
-  }
-
   toggleModalType = (type) => {
     switch (type) {
       case 'spec':
@@ -128,25 +128,36 @@ class Overview extends Component<OverviewProps, initialState> {
           statusModalOpen={this.state.statusModalOpen}
           configMapModalOpen={this.state.configMapModalOpen}
           deploymentModalOpen={this.state.deploymentModalOpen} />
+        <DaemonSetOverviewPage 
+          daemonSetOverviews={this.props.daemonSetOverviews} 
+          toggleModalType={this.toggleModalType}
+          conditionsModalOpen={this.state.specModalOpen}
+          configMapModalOpen={this.state.configMapModalOpen}
+          deploymentModalOpen={this.state.deploymentModalOpen} />
         <PodOverviewPage podOverview={this.props.podOverview} />
-        <ErrorModal
-          show={this.props.isError}
-          handleClose={this.closeErrorModal}
-          error={this.props.appOverviewError} />
+        <APIErrorModal
+          open={this.props.error.apiOpen}
+          handleClose={this.props.closeErrorModal}
+          status={this.props.error.status}
+          statusText={this.props.error.statusText}
+          message={this.props.error.message} />
 
       </div>
     );
   }
 }
 
-export const mapStateToProps = ({ appsState, authState, clustersState }: IGlobalState) => {
-  const isError = !_.isEmpty(appsState.appOverviewError) ? true : false;
-
+export const mapStateToProps = ({ appsState, authState, clustersState, errorState }: IGlobalState) => {
   let serviceOverviews,
+    daemonSetOverviews,
     podOverview;
 
   if (appsState.appOverview && appsState.appOverview.serviceOverviews) {
     serviceOverviews = appsState.appOverview.serviceOverviews;
+  }
+
+  if (appsState.appOverview && appsState.appOverview.daemonSetOverviews) {
+    daemonSetOverviews = appsState.appOverview.daemonSetOverviews;
   }
 
   if (appsState.appOverview && appsState.appOverview.podOverviews) {
@@ -157,11 +168,11 @@ export const mapStateToProps = ({ appsState, authState, clustersState }: IGlobal
     cluster: clustersState.cluster,
     identityToken: authState.identityToken,
     serviceOverviews: serviceOverviews,
+    daemonSetOverviews: daemonSetOverviews,
     podOverview: podOverview,
-    appOverviewError: appsState.appOverviewError,
-    isError: isError,
     selectedAppName: appsState.selectedAppName,
-    appOverviewRequested: appsState.appOverviewRequested
+    appOverviewRequested: appsState.appOverviewRequested,
+    error: errorState
   };
 };
 
@@ -169,7 +180,7 @@ export const mapActionsToProps = (dispatch) => {
   return {
     getAppOverview: (appname: string, queryString: string, cluster: string, jwt: string) => dispatch(getAppOverview(appname, queryString, cluster, jwt)),
     setSelectedAppName: (value: string) => dispatch(setSelectedAppName(value)),
-    clearAppsErrors: () => dispatch(clearAppsErrors())
+    closeErrorModal: () => dispatch(closeErrorModal())
   };
 };
 

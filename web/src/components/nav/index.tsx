@@ -86,7 +86,7 @@ class NavBar extends Component<NavBarProps, NavBarState> {
         <a id="logo" href="/">
           {this.props.isLoading
             ? <LogoSpinner />
-            : <img height={50} src={logo} alt="Logo" />
+            : <img height={50} src={logo} alt="Kubelens Logo" />
           }
         </a>
         <div id="navbar-right">

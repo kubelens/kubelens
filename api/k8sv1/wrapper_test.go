@@ -132,6 +132,24 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		},
 	})
 
+	daemonset := make(chan *appsv1.DaemonSet, 1)
+	dsInformer := informers.Apps().V1().DaemonSets().Informer()
+	dsInformer.AddEventHandler(&cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			// add a config map that matches the service
+			d := obj.(*appsv1.DaemonSet)
+			d.SetName(name + "-ds")
+			d.SetNamespace(namespace)
+			d.SetLabels(lbl)
+			d.Spec.Selector = &metav1.LabelSelector{
+				MatchLabels: lbl,
+			}
+			fmt.Printf("daemonset added: %s\n", d.Name)
+			daemonset <- d
+			cancel()
+		},
+	})
+
 	// Make sure informers are running.
 	informers.Start(ctx.Done())
 
@@ -143,7 +161,8 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			!nsInformer.HasSynced() &&
 			!svcInformer.HasSynced() &&
 			!cmInformer.HasSynced() &&
-			!dplInformer.HasSynced() {
+			!dplInformer.HasSynced() &&
+			!dsInformer.HasSynced() {
 			time.Sleep(100 * time.Millisecond)
 		}
 
@@ -188,6 +207,13 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		if err != nil {
 			return nil, err
 		}
+
+		// Inject an event into the fake client.
+		ds := &appsv1.DaemonSet{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: lbl}}
+		_, err = client.AppsV1().DaemonSets(namespace).Create(ds)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Wait and check result.
@@ -207,6 +233,9 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		return client, nil
 	case dp := <-deployment:
 		fmt.Printf("Got deployments from channel: %s/%s\n", dp.Namespace, dp.Name)
+		return client, nil
+	case dss := <-daemonset:
+		fmt.Printf("Got daemonsets from channel: %s/%s\n", dss.Namespace, dss.Name)
 		return client, nil
 	default:
 		fmt.Println("informer did not get the added pod")

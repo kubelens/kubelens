@@ -372,3 +372,57 @@ func TestHasServiceAccess_Viewers_MatchedLabelHasAccess(t *testing.T) {
 
 	assert.True(t, result)
 }
+
+func TestHasDaemonSetAccess_Viewers_MissingMatchLabels(t *testing.T) {
+	config.C.EnableRBAC = true
+	r := Role{
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{},
+		Exclusions:  []string{},
+	}
+	ra := RoleAssignment{r}
+
+	labels := make(map[string]string, 0)
+	labels["app"] = "test2"
+
+	result := ra.HasDaemonSetAccess(labels)
+
+	assert.False(t, result)
+}
+
+func TestHasDaemonSetAccess_Viewers_UnMatchedLabel(t *testing.T) {
+	config.C.EnableRBAC = true
+	r := Role{
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
+	}
+	ra := RoleAssignment{r}
+
+	labels := make(map[string]string, 0)
+	labels["app"] = "test2"
+
+	result := ra.HasDaemonSetAccess(labels)
+
+	assert.True(t, result)
+}
+
+func TestHasDaemonSetAccess_Viewers_MatchedLabelHasAccess(t *testing.T) {
+	config.C.EnableRBAC = true
+	r := Role{
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
+	}
+	ra := RoleAssignment{r}
+
+	labels := make(map[string]string, 0)
+	labels["app"] = "test"
+
+	result := ra.HasDaemonSetAccess(labels)
+
+	assert.True(t, result)
+}

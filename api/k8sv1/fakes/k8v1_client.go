@@ -23,18 +23,18 @@ func (m *K8V1) SanityCheck() (apiErr *errs.APIError) {
 }
 
 // Apps .
-func (m *K8V1) Apps(options k8sv1.AppOptions) (apps []*k8sv1.App, apiErr *errs.APIError) {
+func (m *K8V1) Apps(options k8sv1.AppOptions) (apps []k8sv1.App, apiErr *errs.APIError) {
 	if m.fail != nil && *m.fail {
 		return nil, errs.InternalServerError("Apps Test Error")
 	}
 
-	return []*k8sv1.App{
-		&k8sv1.App{
+	return []k8sv1.App{
+		k8sv1.App{
 			Name:      "test-service",
 			Namespace: "default",
 			Kind:      "Service",
 		},
-		&k8sv1.App{
+		k8sv1.App{
 			Name:      "test-daemonset",
 			Namespace: "default",
 			Kind:      "DaemonSet",
@@ -130,6 +130,19 @@ func (m *K8V1) ServiceOverviews(options k8sv1.ServiceOptions) (svco []k8sv1.Serv
 	}, nil
 }
 
+// ServiceAppInfos .
+func (m *K8V1) ServiceAppInfos(options k8sv1.ServiceOptions) (info []k8sv1.AppInfo, apiErr *errs.APIError) {
+	if options.Namespace == "bad" {
+		return nil, errs.InternalServerError("ServiceAppInfos Test Error")
+	}
+
+	return []k8sv1.AppInfo{
+		k8sv1.AppInfo{
+			Name: "service-name",
+		},
+	}, nil
+}
+
 // DeploymentOverviews .
 func (m *K8V1) DeploymentOverviews(options k8sv1.DeploymentOptions) (deployments []k8sv1.DeploymentOverview, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
@@ -139,6 +152,32 @@ func (m *K8V1) DeploymentOverviews(options k8sv1.DeploymentOptions) (deployments
 	return []k8sv1.DeploymentOverview{
 		k8sv1.DeploymentOverview{
 			Name: "service-name",
+		},
+	}, nil
+}
+
+// DaemonSetOverviews .
+func (m *K8V1) DaemonSetOverviews(options k8sv1.DaemonSetOptions) (daemonsets []k8sv1.DaemonSetOverview, apiErr *errs.APIError) {
+	if options.Namespace == "bad" {
+		return nil, errs.InternalServerError("DaemonSetOverviews Test Error")
+	}
+
+	return []k8sv1.DaemonSetOverview{
+		k8sv1.DaemonSetOverview{
+			Name: "daemonset-name",
+		},
+	}, nil
+}
+
+// DaemonSetAppInfos .
+func (m *K8V1) DaemonSetAppInfos(options k8sv1.DaemonSetOptions) (info []k8sv1.AppInfo, apiErr *errs.APIError) {
+	if options.Namespace == "bad" {
+		return nil, errs.InternalServerError("DaemonSetOverviews Test Error")
+	}
+
+	return []k8sv1.AppInfo{
+		k8sv1.AppInfo{
+			Name: "daemonset-name",
 		},
 	}, nil
 }

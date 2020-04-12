@@ -2,10 +2,12 @@ package fakes
 
 import "github.com/kubelens/kubelens/api/auth/rbac"
 
+// RoleAssignment .
 type RoleAssignment struct {
 	Fail bool
 }
 
+// Matches .
 func (ra RoleAssignment) Matches(labels map[string]string, appname *string) bool {
 	if ra.Fail {
 		return false
@@ -13,6 +15,7 @@ func (ra RoleAssignment) Matches(labels map[string]string, appname *string) bool
 	return true
 }
 
+// CompareLabels .
 func (ra RoleAssignment) CompareLabels(labels map[string]string, exact bool) bool {
 	if ra.Fail {
 		return false
@@ -20,6 +23,7 @@ func (ra RoleAssignment) CompareLabels(labels map[string]string, exact bool) boo
 	return true
 }
 
+// InExclusions .
 func (ra RoleAssignment) InExclusions(value string) bool {
 	if ra.Fail {
 		return false
@@ -27,6 +31,7 @@ func (ra RoleAssignment) InExclusions(value string) bool {
 	return false
 }
 
+// GetMatchLabels .
 func (ra RoleAssignment) GetMatchLabels() []string {
 	if ra.Fail {
 		return []string{"app", "test", "component", "default"}
@@ -35,6 +40,7 @@ func (ra RoleAssignment) GetMatchLabels() []string {
 	return []string{}
 }
 
+// HasApplicationAccess .
 func (ra RoleAssignment) HasApplicationAccess() bool {
 	if ra.Fail {
 		return false
@@ -98,6 +104,15 @@ func (ra RoleAssignment) HasServiceAccess(labels map[string]string) bool {
 	return true
 }
 
+// HasDaemonSetAccess returns whether or not a user has access to view daemon set detail by label selectors
+func (ra RoleAssignment) HasDaemonSetAccess(labels map[string]string) bool {
+	if ra.Fail {
+		return false
+	}
+	return true
+}
+
+// GetRole .
 func (ra RoleAssignment) GetRole() rbac.Role {
 	return rbac.Role{}
 }

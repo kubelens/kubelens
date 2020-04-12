@@ -7,7 +7,7 @@ import (
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 )
 
-func appsResponse(inApps []*k8sv1.App) (apps []App) {
+func appsResponse(inApps []k8sv1.App) (apps []App) {
 	apps = []App{}
 	for _, item := range inApps {
 		apps = append(apps, App{

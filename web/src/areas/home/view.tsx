@@ -92,6 +92,9 @@ const HomePage = (props: HomeViewProps) => {
                               <div className="app-list-text-root">
                                 <small>Namespace: <strong>{svc.namespace}</strong></small>
                               </div>
+                              <div className="app-list-text-root">
+                                <small>Kind: <strong>{svc.kind}</strong></small>
+                              </div>
                               <div className="app-list-text-secondary">
                                 <small>
                                   {

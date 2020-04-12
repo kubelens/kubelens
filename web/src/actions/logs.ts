@@ -26,6 +26,7 @@ import { ThunkAction } from 'redux-thunk';
 import { Log } from '../types';
 import { ILogsState } from '../reducers/logs';
 import adapter from './adapter';
+import { ErrorActionTypes } from './error';
 /* 
 Combine the action types with a union (we assume there are more)
 example: export type CharacterActions = IGetAllAction | IGetOneAction ... 
@@ -69,10 +70,10 @@ export const getLogs: ActionCreator<
       });
     } catch (err) {
       dispatch({
-        type: LogsActionTypes.GET_LOGS,
-        logs: null,
-        logsRequested: false,
-        logsError: err
+        type: ErrorActionTypes.OPEN_API_ERROR_MODAL,
+        status: err.response.status,
+        statusText: err.response.statusText,
+        message: err.response.data
       });
     }
   };

@@ -27,12 +27,20 @@ import { connect } from 'react-redux';
 import { setIdentityToken } from '../actions/auth';
 import { IGlobalState } from 'store';
 import config from '../config';
-import { AuthClient } from 'auth/authClient';
+import { AuthClient } from '../auth/authClient';
+import { closeErrorModal } from '../actions/error';
+import { IErrorState } from '../reducers/error';
+import APIErrorModal from './error-modal';
+import unauthorized from '../assets/access-denied.png';
+import logo from '../assets/kubelens-logo-inverse.png';
+import { Col, Row } from 'reactstrap';
 
 export interface AuthProps {
   authClient?: AuthClient,
   identityToken?: string,
   setIdentityToken(identityToken?: string): void
+  closeErrorModal(): void,
+  error: IErrorState
 }
 
 class AuthenticationWrapper extends Component<AuthProps, any> {
@@ -71,22 +79,41 @@ class AuthenticationWrapper extends Component<AuthProps, any> {
     }
 
     if (error) {
-      return <div><p>Unauthorized</p></div>;
+      return (
+        <div>
+          <div className="kubelens-navbar" >
+            <img height={50} src={logo} alt="Kubelens Logo" />
+          </div>
+          <Row className="text-center">
+            <Col sx={{size: 10, offset: 6}}>
+                <img className="text-center" src={unauthorized} alt="Unauthorized"/>
+            </Col>
+          </Row>
+          <APIErrorModal
+            open={this.props.error.apiOpen}
+            handleClose={this.props.closeErrorModal}
+            status={this.props.error.status}
+            statusText={this.props.error.statusText}
+            message={this.props.error.message} />
+        </div>
+      )
     }
 
     return <div className='ns-icon ns-loading' />;
   }
 }
 
-export const mapStateToProps = ({ authState }: IGlobalState) => {
+export const mapStateToProps = ({ authState, errorState }: IGlobalState) => {
   return {
-    identityToken: authState.identityToken
+    identityToken: authState.identityToken,
+    error: errorState
   };
 };
 
 export const mapActionsToProps = (dispatch) => {
   return {
     setIdentityToken: (identityToken?: string) => dispatch(setIdentityToken(identityToken)),
+    closeErrorModal: () => dispatch(closeErrorModal())
   };
 };
 

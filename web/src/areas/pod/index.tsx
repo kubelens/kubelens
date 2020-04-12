@@ -25,15 +25,17 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import LogSocket, { ILogSocket } from '../../io/logSocket';
 import PodPage from './view';
-import ErrorModal from '../../components/error-modal';
 import { Log, PodDetail } from '../../types';
 import _ from 'lodash';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { setSelectedAppName } from '../../actions/apps';
-import { getPod, setSelectedContainerName, clearPodsErrors, clearPod } from '../../actions/pods';
-import { getLogs, toggleLogStream, clearLogsErrors } from '../../actions/logs';
+import { getPod, setSelectedContainerName, clearPod } from '../../actions/pods';
+import { getLogs, toggleLogStream } from '../../actions/logs';
 import config from '../../config';
 import { AuthClient } from '../../auth/authClient';
+import { closeErrorModal } from '../../actions/error';
+import APIErrorModal from '../../components/error-modal';
+import { IErrorState } from '../../reducers/error';
 
 type initialState = {
   envModalOpen: boolean,
@@ -49,10 +51,7 @@ export type PodProps = {
   cluster: string,
   identityToken: string,
   pod: PodDetail,
-  podError: Error,
   logs: Log,
-  logsError: Error,
-  isError: boolean,
   envBody: {},
   selectedAppName: string,
   hasLogAccess: boolean,
@@ -61,10 +60,9 @@ export type PodProps = {
   getPod(podName: string, queryString: string): void,
   getLogs(podName: string, queryString: string): void,
   toggleLogStream(enabled: boolean): void,
-  clearPodsErrors(): void,
-  clearLogsErrors(): void,
   setSelectedContainerName(value: string): void,
-  selectedContainerName?: string
+  selectedContainerName?: string,
+  error: IErrorState
 } | RouteComponentProps<{
   appName: string,
   podName: string
@@ -194,16 +192,6 @@ class Pod extends Component<any, initialState> {
     }
   }
 
-  closeErrorModal = () => {
-    if (!_.isEmpty(this.props.podError)) {
-      this.props.clearPodsErrors();
-    }
-
-    if (!_.isEmpty(this.props.logsError)) {
-      this.props.clearLogsErrors();
-    }
-  }
-
   toggleContainerNameSelect = () => {
     this.setState({ containerNameSelectOpen: !this.state.containerNameSelectOpen });
   }
@@ -229,18 +217,18 @@ class Pod extends Component<any, initialState> {
           setSelectedContainerName={this.props.setSelectedContainerName}
           selectedContainerName={this.props.selectedContainerName} />
 
-        <ErrorModal
-          show={this.props.isError}
-          handleClose={this.closeErrorModal}
-          error={this.props.podError} />
+        <APIErrorModal
+          open={this.props.error.apiOpen}
+          handleClose={this.props.closeErrorModal}
+          status={this.props.error.status}
+          statusText={this.props.error.statusText}
+          message={this.props.error.message} />
       </div>
     )
   }
 }
 
-export const mapStateToProps = ({ appsState, podsState, logsState, authState, clustersState }) => {
-  const isError = !_.isEmpty(podsState.podError) ? true : false;
-
+export const mapStateToProps = ({ appsState, podsState, logsState, authState, clustersState, errorState }) => {
   // api returns forbidden if the user doesn't have access to view logs for the pod. 
   // check and set the message.
   const hasLogAccess = logsState.logsError && logsState.logsError.status === 403 ? false : true;
@@ -262,12 +250,11 @@ export const mapStateToProps = ({ appsState, podsState, logsState, authState, cl
     pod: podsState.pod,
     podError: podsState.podError,
     logs: logsState.logs,
-    logsError: logsState.logsError,
-    isError: isError,
     envBody: envBody,
     selectedAppName: appsState.selectedAppName,
     hasLogAccess: hasLogAccess,
-    selectedContainerName: podsState.selectedContainerName
+    selectedContainerName: podsState.selectedContainerName,
+    error: errorState
   };
 };
 
@@ -277,10 +264,9 @@ export const mapActionsToProps = (dispatch) => {
     getPod: (podName: string, queryString: string, cluster: string, jwt: string) => dispatch(getPod(podName, queryString, cluster, jwt)),
     getLogs: (podName: string, queryString: string, cluster: string, jwt: string) => dispatch(getLogs(podName, queryString, cluster, jwt)),
     toggleLogStream: (enabled: boolean) => dispatch(toggleLogStream(enabled)),
-    clearPodsErrors: () => dispatch(clearPodsErrors()),
-    clearLogsErrors: () => dispatch(clearLogsErrors()),
     setSelectedContainerName: (selectedContainerName: string) => dispatch(setSelectedContainerName(selectedContainerName)),
-    clearPod: () => dispatch(clearPod())
+    clearPod: () => dispatch(clearPod()),
+    closeErrorModal: () => dispatch(closeErrorModal())
   };
 };
 

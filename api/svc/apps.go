@@ -89,6 +89,13 @@ func (h request) AppOverview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// all apps in the cluster will be returned if this is empty
+	// so throw an error
+	if len(data.LabelSelector) == 0 {
+		http.Error(w, "missing labelSelector", http.StatusBadRequest)
+		return
+	}
+
 	overviews, apiErr := h.k8Client.AppOverview(k8sv1.AppOverviewOptions{
 		UserRole:      ra,
 		Logger:        l,

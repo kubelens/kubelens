@@ -129,6 +129,7 @@ export type Service = {
 
 export type AppOverview = {
   serviceOverviews: Service[],
+  daemonSetOverviews: DaemonSetOverview[],
   podOverviews: PodOverview
 }
 
@@ -141,7 +142,7 @@ export type DeploymentOverview = {
   updatedReplicas: number,
   readyReplicas: number,
   unavailableReplicas: number,
-  deploymentConditions: [{
+  conditions: [{
     type: string,
     status: boolean,
     lastUpdateTime: string,
@@ -149,4 +150,21 @@ export type DeploymentOverview = {
     reason: string,
     message: string
   }]
+}
+
+export type DaemonSetOverview = {
+  friendlyName: string,
+  name: string,
+  namespace: string,
+  labelSelector: {},
+  currentNumberScheduled: number,
+  desiredNumberScheduled: number,
+  numberAvailable: number,
+  numberMisscheduled: number,
+  numberReady: number,
+  numberUnavailable: number,
+  updatedNumberScheduled: number,
+  conditions: [],
+  configMaps?: [{}],
+  deploymentOverviews?: DeploymentOverview[]
 }

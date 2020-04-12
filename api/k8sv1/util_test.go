@@ -21,12 +21,6 @@ func TestGetProjectSlugMissing(t *testing.T) {
 	assert.Len(t, getProjectSlug(a1), 0)
 }
 
-func TestGetDeployerLinkOnly(t *testing.T) {
-	config.Set("../testdata/mock_config2.json")
-
-	assert.Equal(t, "https://test-deployer.com", getDeployerLink(""))
-}
-
 func TestGetDeployerLinkWithSlug(t *testing.T) {
 	config.Set("../testdata/mock_config.json")
 

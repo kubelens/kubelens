@@ -7,7 +7,7 @@
   "oAuthRequestType": "Bearer",
   "oAuthScope": "openid profile email",
   "oAuthConnection": "adfs",
-  "oAuthEnabled": true,
+  "oAuthEnabled": false,
   "availableClusters": [
     {
       "minikube": "http://api.kubelens.local"
