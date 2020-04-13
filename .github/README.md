@@ -16,6 +16,8 @@ More features to come. Any help/contributions/feedback is very much appreciated!
 
 ## Table of Contents
 
+* [Contributing](CONTRIBUTORS.md)
+* [Code of Conduct](code-of-conduct.md)
 * [Screenshots](#screenshots)
 * [Configuration](#configuration)
   * [API config.json](#api-configjson)
