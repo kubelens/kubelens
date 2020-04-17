@@ -1,3 +1,4 @@
+
 /*
 MIT License
 
@@ -21,47 +22,35 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-import { Reducer } from 'redux';
-import { ErrorActions, ErrorActionTypes } from '../actions/error';
+import { ActionCreator, Dispatch } from 'redux';
+import { ThunkAction } from 'redux-thunk';
+import { ILoadingState } from '../reducers/loading';
 
-export interface IErrorState {
-  readonly apiOpen: boolean,
-  readonly status?: number,
-  readonly statusText?: string,
-  readonly message?: string
+/* 
+Combine the action types with a union (we assume there are more)
+example: export type CharacterActions = IGetAllAction | IGetOneAction ... 
+*/
+export type LoadingActions = ILoading;
+
+// Create Action Constants
+export enum LoadingActionTypes {
+  LOADING = 'LOADING'
 }
 
-export const INITIAL_STATE: IErrorState = {
-  apiOpen: false,
-  status: undefined,
-  statusText: undefined,
-  message: undefined
+export interface ILoading {
+  type: LoadingActionTypes.LOADING,
+  loading: boolean
+}
+
+/* <Promise<Return Type>, State Interface, Type of Param, Type of Action> */
+export const setLoading: ActionCreator<
+  ThunkAction<Promise<any>, ILoadingState, null, ILoading>
+> = (loading: boolean) => {
+  return async (dispatch: Dispatch) => {
+    dispatch({
+      type: LoadingActionTypes.LOADING,
+      loading: loading
+    });
+  };
 };
 
-export const reducer: Reducer<IErrorState, ErrorActions> = (
-  state = INITIAL_STATE,
-  action
-) => {
-  switch (action.type) {
-
-    case ErrorActionTypes.OPEN_API_ERROR_MODAL: {
-      return {
-        ...state,
-        apiOpen: true,
-        status: action.status,
-        statusText: action.statusText,
-        message: action.message
-      }
-    }
-
-    case ErrorActionTypes.CLOSE_API_ERROR_MODAL: {
-      return {
-        ...state,
-        apiOpen: false
-      }
-    }
-
-    default:
-      return state;
-  }
-};

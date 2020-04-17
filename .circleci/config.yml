@@ -103,7 +103,7 @@ jobs:
             cd ./web
             npm install
             echo "TODO run tests"
-            # npm run test
+            npm run test:ci
 
   web_build:
     docker: 

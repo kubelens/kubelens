@@ -54,12 +54,6 @@ export interface AuthClient<T = CustomDecodedJwt> {
   ensureAuthed: () => Promise<RenewTokenResult>
 }
 
-export interface CommonAuthConfig {
-  oAuthAudience: string
-  oAuthClientId: string
-  oAuthDomain: string
-}
-
 export default function createClient<T>(commonConfig: Config, overrides?: Partial<OAuthConfig>): AuthClient<T> {
   const badConfigOptions: string[] = [];
 

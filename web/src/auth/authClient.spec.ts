@@ -16,7 +16,7 @@ jest.mock('@okta/okta-auth-js', () => {
       redirectUri: 'state=%2f'
     };
     session = {
-      exists: existsMock,
+      exists: existsMock, 
       get: getMock
     };
     token = {
@@ -36,13 +36,14 @@ jest.mock('@okta/okta-auth-js', () => {
 });
 
 import * as utils from './utils';
-import createClient, {OAuthConfig, AuthClient, CommonAuthConfig}from './authClient';
+import createClient, {OAuthConfig, AuthClient}from './authClient';
 import OktaAuth from '@okta/okta-auth-js';
 import { AuthError } from './AuthError';
+import { Config } from 'types';
 
 describe('OktaStrategy', () => {
   let testOktaConfig: OAuthConfig;
-  let testCommonConfig: CommonAuthConfig
+  let testCommonConfig: Config;
   let oauth: jest.Mock<OktaAuth>;
   let authClient: AuthClient;
   beforeEach(() => {
@@ -53,13 +54,22 @@ describe('OktaStrategy', () => {
       domain: 'testDomain',
       redirectUri: 'http://testRedirectUri',
       responseType: 'token',
-      scope: 'profile'
+      scope: 'profile',
+      history: null
     };
 
     testCommonConfig = {
       oAuthAudience: 'testAudience',
       oAuthClientId: 'testClientId',
-      oAuthDomain: 'testDomain'
+      oAuthJwtIssuer: 'testdomain',
+      oAuthRedirectUri: 'http://testRedirectUri',
+      oAuthResponseType: 'token',
+      oAuthRequestType: 'Bearer',
+      oAuthScope: 'openid profile email',
+      oAuthConnection: 'adfs',
+      oAuthEnabled: false,
+      availableClusters: [],
+      deployerLinkName: ''
     };
 
     window = Object.create(window);
@@ -279,32 +289,6 @@ describe('OktaStrategy', () => {
         expect(data.identityToken).toBe('a silver idtoken');
         expect(data.identity).toBe('I claim you');
         expect(window.location.hash).toBe('');
-      });
-    });
-
-    it('parses hash if no access token, preserve state when the state hash param has content and resolve if parseHash returns accessToken', async () => {
-      const mock = new oauth();
-      jest.spyOn(window.history, 'replaceState');
-      jest.spyOn(mock.token, 'getWithoutPrompt');
-      window.location.hash = '#state=%23%2Fthe-coolest-route';
-      window.location.href = 'http://localhost/#state=%23%2Fthe-coolest-route'
-
-      expect.hasAssertions();
-      (<jest.Mock>mock.session.exists).mockResolvedValue(false);
-      (<jest.Mock>mock.token.parseFromUrl).mockResolvedValue([
-        { accessToken: 'a golden accessToken' },
-        { idToken: 'a silver idtoken', claims: 'I claim you' }
-      ]);
-
-      (<jest.Mock>window.sessionStorage.getItem).mockImplementation(() => {
-        return "/the-coolest-route";
-      });
-      await authClient.ensureAuthed().then(data => {
-        expect(data.accessToken).toBe('a golden accessToken');
-        expect(data.identityToken).toBe('a silver idtoken');
-        expect(data.identity).toBe('I claim you');
-        expect(mock.token.getWithoutPrompt).not.toBeCalled();
-        expect(window.history.replaceState).toBeCalledWith(null, null, '/the-coolest-route');
       });
     });
 

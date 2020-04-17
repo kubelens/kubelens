@@ -22,42 +22,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 import { Reducer } from 'redux';
-import { ErrorActions, ErrorActionTypes } from '../actions/error';
+import { LoadingActions, LoadingActionTypes } from '../actions/loading';
 
-export interface IErrorState {
-  readonly apiOpen: boolean,
-  readonly status?: number,
-  readonly statusText?: string,
-  readonly message?: string
+export interface ILoadingState {
+  readonly loading: boolean
 }
 
-export const INITIAL_STATE: IErrorState = {
-  apiOpen: false,
-  status: undefined,
-  statusText: undefined,
-  message: undefined
+export const INITIAL_STATE: ILoadingState = {
+  loading: false
 };
 
-export const reducer: Reducer<IErrorState, ErrorActions> = (
+export const reducer: Reducer<ILoadingState, LoadingActions> = (
   state = INITIAL_STATE,
   action
 ) => {
   switch (action.type) {
 
-    case ErrorActionTypes.OPEN_API_ERROR_MODAL: {
+    case LoadingActionTypes.LOADING: {
       return {
         ...state,
-        apiOpen: true,
-        status: action.status,
-        statusText: action.statusText,
-        message: action.message
-      }
-    }
-
-    case ErrorActionTypes.CLOSE_API_ERROR_MODAL: {
-      return {
-        ...state,
-        apiOpen: false
+        loading: action.loading
       }
     }
 

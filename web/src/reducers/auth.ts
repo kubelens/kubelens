@@ -28,11 +28,11 @@ export interface IAuthState {
   readonly identityToken?: string
 }
 
-const INITIAL_STATE: IAuthState = {
+export const INITIAL_STATE: IAuthState = {
   identityToken: undefined
 };
 
-export const podsReducer: Reducer<IAuthState, AuthActions> = (
+export const reducer: Reducer<IAuthState, AuthActions> = (
   state = INITIAL_STATE,
   action
 ) => {

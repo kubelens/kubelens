@@ -43,6 +43,7 @@ import * as pods from './reducers/pods';
 import * as auth from './reducers/auth';
 import * as cluster from './reducers/cluster';
 import * as errors from './reducers/error';
+import * as loading from './reducers/loading';
 
 export const history = createBrowserHistory();
 
@@ -54,17 +55,19 @@ export interface IGlobalState {
   authState: auth.IAuthState,
   clustersState: cluster.IClustersState,
   errorState: errors.IErrorState,
+  loadingState: loading.ILoadingState,
   router: any
 }
 
 // Create the root reducer
 const rootReducer = combineReducers<IGlobalState>({
-  appsState: apps.appsReducer,
-  logsState: logs.logsReducer,
-  podsState: pods.podsReducer,
-  authState: auth.podsReducer,
-  clustersState: cluster.clustersReducer,
-  errorState: errors.errorReducer,
+  appsState: apps.reducer,
+  logsState: logs.reducer,
+  podsState: pods.reducer,
+  authState: auth.reducer,
+  clustersState: cluster.reducer,
+  errorState: errors.reducer,
+  loadingState: loading.reducer,
   router: connectRouter(history),
 });
 

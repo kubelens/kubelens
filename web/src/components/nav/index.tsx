@@ -116,19 +116,9 @@ class NavBar extends Component<NavBarProps, NavBarState> {
   }
 }
 
-export const mapStateToProps = ({ appsState, podsState, logsState, clustersState, authState }: IGlobalState) => {
-  const isLoading = (
-    appsState.appsRequested ||
-    appsState.appOverviewRequested ||
-    podsState.podRequested ||
-    logsState.logsRequested ||
-    logsState.logStreamEnabled
-  )
-    ? true
-    : false;
-
+export const mapStateToProps = ({ loadingState, clustersState, authState }: IGlobalState) => {
   return {
-    isLoading,
+    isLoading: loadingState.loading,
     selectedCluster: clustersState.cluster,
     identityToken: authState.identityToken
   };

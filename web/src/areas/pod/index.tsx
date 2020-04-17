@@ -248,7 +248,6 @@ export const mapStateToProps = ({ appsState, podsState, logsState, authState, cl
     cluster: clustersState.cluster,
     identityToken: identityToken,
     pod: podsState.pod,
-    podError: podsState.podError,
     logs: logsState.logs,
     envBody: envBody,
     selectedAppName: appsState.selectedAppName,

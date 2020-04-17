@@ -40,7 +40,6 @@ export type HomeViewProps =
     onFilterChanged: Function,
     onViewApp(appname: string, labelSelector: string),
     filteredApps: App[],
-    appsRequested: boolean,
     selectedAppName: string
   }
 

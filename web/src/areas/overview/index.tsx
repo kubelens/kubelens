@@ -49,10 +49,10 @@ export type OverviewProps = {
   serviceOverviews: Service[],
   podOverview: PodOverview,
   selectedAppName: string,
-  appOverviewRequested: boolean,
   getAppOverview(appname: string, queryString: string): void,
   setSelectedAppName(value: string): void,
-  error: IErrorState
+  error: IErrorState,
+  overviewsEmpty: boolean,
 } | RouteComponentProps<{
   appName?: string
 }>;
@@ -71,31 +71,18 @@ class Overview extends Component<OverviewProps, initialState> {
     const { match: { params }, location: { search } } = this.props;
     const query = new URLSearchParams(search);
 
-    let queryString = query.get('labelKey');
-    if (!queryString) {
-      queryString = 'app';
-    }
-
-    let appname = '';
     if (params.appName) {
-      appname = params.appName;
-    }
+      let appName = params.appName;
+      if (_.isEmpty(this.props.selectedAppName)) {
+        this.props.setSelectedAppName(params.appName);
+      } else {
+        appName = this.props.selectedAppName;
+      }
 
-    if (_.isEmpty(this.props.selectedAppName)) {
-      this.props.setSelectedAppName(appname);
-    }
-
-    if (!this.props.appOverviewRequested
-      && (_.isEmpty(this.props.podOverview)
-        || _.isEmpty(this.props.serviceOverviews
-          || params.appName !== this.props.selectedAppName))) {
-      this.props.appActions &&
-        this.props.getAppOverview(
-          appname,
-          queryString,
-          this.props.cluster,
-          this.props.identityToken
-        );
+      const labelSelector = query.get('labelSelector');
+      if (!this.props.isLoading && !_.isEmpty(labelSelector) && this.props.overviewsEmpty) {
+        this.props.getAppOverview(appName, labelSelector, this.props.cluster, this.props.identityToken);
+      }
     }
   }
 
@@ -164,6 +151,9 @@ export const mapStateToProps = ({ appsState, authState, clustersState, errorStat
     podOverview = appsState.appOverview.podOverviews;
   }
 
+  const overviewsEmpty = _.isEmpty(podOverview) && 
+    (_.isEmpty(serviceOverviews) || _.isEmpty(daemonSetOverviews));
+
   return {
     cluster: clustersState.cluster,
     identityToken: authState.identityToken,
@@ -171,14 +161,14 @@ export const mapStateToProps = ({ appsState, authState, clustersState, errorStat
     daemonSetOverviews: daemonSetOverviews,
     podOverview: podOverview,
     selectedAppName: appsState.selectedAppName,
-    appOverviewRequested: appsState.appOverviewRequested,
-    error: errorState
+    error: errorState,
+    overviewsEmpty: overviewsEmpty
   };
 };
 
 export const mapActionsToProps = (dispatch) => {
   return {
-    getAppOverview: (appname: string, queryString: string, cluster: string, jwt: string) => dispatch(getAppOverview(appname, queryString, cluster, jwt)),
+    getAppOverview: (appname: string, labelSelector: string, cluster: string, jwt: string) => dispatch(getAppOverview(appname, labelSelector, cluster, jwt)),
     setSelectedAppName: (value: string) => dispatch(setSelectedAppName(value)),
     closeErrorModal: () => dispatch(closeErrorModal())
   };
