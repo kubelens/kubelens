@@ -4,7 +4,6 @@ import { deepEqual, fail } from 'assert';
 
 import adapter from './adapter';
 import { AppsActionTypes, getApps, getAppOverview, setSelectedAppName, filterApps } from './apps';
-import { IAppsState } from '../reducers';
 
 import configureMockStore from "redux-mock-store";
 import thunk from "redux-thunk";
