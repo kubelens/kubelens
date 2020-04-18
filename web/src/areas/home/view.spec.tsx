@@ -36,5 +36,6 @@ describe('home view should', () => {
 
     expect(wrapper.find('Input').length).toBe(1);
     expect(wrapper.find('Card').length).toBe(2);
+    expect(wrapper.find('Route').length).toBe(3);
   })
 })

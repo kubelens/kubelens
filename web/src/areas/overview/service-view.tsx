@@ -30,7 +30,7 @@ import DeploymentOverviews from '../../components/deployment-overviews';
 import _ from 'lodash';
 
 export type ServiceOverviewProps = {
-  serviceOverviews: Service[],
+  serviceOverviews?: Service[],
   toggleModalType: (type: string) => void,
   specModalOpen: boolean,
   statusModalOpen: boolean,
