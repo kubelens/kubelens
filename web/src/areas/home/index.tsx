@@ -52,7 +52,7 @@ export type HomeProps = {
   appName?: string
 }>;
 
-class Home extends Component<HomeProps, initialState> {
+export class Home extends Component<HomeProps, initialState> {
   constructor(props) {
     super(props);
 

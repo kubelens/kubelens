@@ -48,7 +48,7 @@ export interface NavBarProps extends
   getApps(cluster: string, jwt: string): void
 }
 
-class NavBar extends Component<NavBarProps, NavBarState> {
+export class NavBar extends Component<NavBarProps, NavBarState> {
   public state: NavBarState = {
     clusterSelectOpen: false,
     availableClusters: []
