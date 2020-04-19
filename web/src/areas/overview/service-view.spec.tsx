@@ -58,7 +58,7 @@ const setup = () => {
   }
 }
 
-describe('service view should', () => {
+describe('service overview should', () => {
   test('render with serviceOverviews', () => {
     const { wrapper } = setup();
 

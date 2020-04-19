@@ -39,7 +39,7 @@ const setup = () => {
   }
 }
 
-describe('pod view should', () => {
+describe('pod overview should', () => {
   test('render with a podOverview', () => {
     const { wrapper } = setup();
 

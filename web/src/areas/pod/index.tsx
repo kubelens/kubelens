@@ -68,7 +68,7 @@ export type PodProps = {
   podName: string
 }>;
 
-class Pod extends Component<any, initialState> {
+export class Pod extends Component<any, initialState> {
   // flag to determine if state can be updated in
   // an async function
   _isMounted = false;

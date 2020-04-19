@@ -57,7 +57,7 @@ const setup = () => {
   }
 }
 
-describe('daemon set view should', () => {
+describe('daemon set overview should', () => {
   test('render with a daemonsetOverviews', () => {
     const { wrapper } = setup();
 
@@ -100,4 +100,9 @@ describe('daemon set view should', () => {
     expect(wrapper.find('CardFooter').length).toBe(1);
   })
 
+  test('have JsonViewModals defined', () => {
+    const { wrapper } = setup();
+
+    expect(wrapper.find('JsonViewModal').length).toBe(3);
+  })
 })

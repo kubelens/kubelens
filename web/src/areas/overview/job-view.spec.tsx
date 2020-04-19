@@ -55,7 +55,7 @@ const setup = () => {
   }
 }
 
-describe('job view should', () => {
+describe('job overview should', () => {
   test('render with a jobOverviews', () => {
     const { wrapper } = setup();
 
@@ -97,4 +97,9 @@ describe('job view should', () => {
     expect(wrapper.find('CardFooter').length).toBe(1);
   })
 
+  test('have JsonViewModals defined', () => {
+    const { wrapper } = setup();
+
+    expect(wrapper.find('JsonViewModal').length).toBe(3);
+  })
 })
