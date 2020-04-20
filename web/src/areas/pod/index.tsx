@@ -68,7 +68,7 @@ export type PodProps = {
   podName: string
 }>;
 
-class Pod extends Component<any, initialState> {
+export class Pod extends Component<any, initialState> {
   // flag to determine if state can be updated in
   // an async function
   _isMounted = false;
@@ -248,7 +248,6 @@ export const mapStateToProps = ({ appsState, podsState, logsState, authState, cl
     cluster: clustersState.cluster,
     identityToken: identityToken,
     pod: podsState.pod,
-    podError: podsState.podError,
     logs: logsState.logs,
     envBody: envBody,
     selectedAppName: appsState.selectedAppName,

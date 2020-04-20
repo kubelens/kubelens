@@ -28,11 +28,11 @@ export interface IClustersState {
   readonly cluster: string
 }
 
-const INITIAL_STATE: IClustersState = {
+export const INITIAL_STATE: IClustersState = {
   cluster: ''
 };
 
-export const clustersReducer: Reducer<IClustersState, ClustersActions> = (
+export const reducer: Reducer<IClustersState, ClustersActions> = (
   state = INITIAL_STATE,
   action
 ) => {

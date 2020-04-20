@@ -92,15 +92,15 @@ const DaemonSetView = ({
                   <Row>
                     <Col sm={6}>
                       {!_.isEmpty(overview.conditions)
-                      ? <Button outline color="info" onClick={() => toggleModalType('condition')} block>Conditions</Button>
+                      ? <Button outline color="info" onClick={() => toggleModalType('ds-condition')} block>Conditions</Button>
                       : null}
                     </Col>
                     <Col sm={6}>
                       {!_.isEmpty(overview.deploymentOverviews)
-                      ? <Button outline color="info" onClick={() => toggleModalType('deployment')} block>Deployments</Button>
+                      ? <Button outline color="info" onClick={() => toggleModalType('ds-deployment')} block>Deployments</Button>
                       : null}
                       {!_.isEmpty(overview.configMaps)
-                      ? <Button outline color="info" onClick={() => toggleModalType('configMap')} block>ConfigMaps</Button>
+                      ? <Button outline color="info" onClick={() => toggleModalType('ds-configMap')} block>ConfigMaps</Button>
                       : null}
                     </Col>
                   </Row>
@@ -122,7 +122,7 @@ const DaemonSetView = ({
           show={conditionsModalOpen}
           body={overview.conditions}
           handleClose={() => {
-            toggleModalType('status');
+            toggleModalType('ds-condition');
           }} />
     
         <JsonViewModal
@@ -130,7 +130,7 @@ const DaemonSetView = ({
           show={configMapModalOpen}
           body={overview.configMaps}
           handleClose={() => {
-            toggleModalType('configMap');
+            toggleModalType('ds-configMap');
           }} />
 
         <JsonViewModal
@@ -138,7 +138,7 @@ const DaemonSetView = ({
           show={deploymentModalOpen}
           body={overview.deploymentOverviews}
           handleClose={() => {
-            toggleModalType('deployment');
+            toggleModalType('ds-deployment');
           }} />
       </div>
     )})}

@@ -27,27 +27,25 @@ import { PodDetail } from '../types';
 import { IPodState } from '../reducers/pods';
 import adapter from './adapter';
 import { ErrorActionTypes } from './error';
+import { LoadingActionTypes } from './loading';
 
 /* 
 Combine the action types with a union (we assume there are more)
 example: export type CharacterActions = IGetAllAction | IGetOneAction ... 
 */
-export type PodActions = IGetPod | ISetSelectedPodName | ISetSelectedContainerName | IClearPodsErrors | IClearPod;
+export type PodActions = IGetPod | ISetSelectedPodName | ISetSelectedContainerName | IClearPod;
 
 // Create Action Constants
 export enum PodActionTypes {
   GET_POD = 'GET_POD',
   CLEAR_POD = 'CLEAR_POD',
-  CLEAR_ERRORS = 'CLEAR_ERRORS',
   SET_SELECTED_POD_NAME = 'SET_SELECTED_POD_NAME',
   SET_SELECTED_CONTAINER_NAME = 'SET_SELECTED_CONTAINER_NAME'
 }
 
 export interface IGetPod {
   type: PodActionTypes.GET_POD,
-  pod?: PodDetail,
-  podRequested: boolean,
-  podError?: Error,
+  pod?: PodDetail
 }
 
 /* Clear errors
@@ -58,54 +56,31 @@ export const getPod: ActionCreator<
   return async (dispatch: Dispatch) => {
     try {
       dispatch({
-        type: PodActionTypes.GET_POD,
-        podRequested: true
+        type: LoadingActionTypes.LOADING,
+        loading: true,
       });
 
       const response = await adapter.get(`/pods/${podname}${queryString}`, cluster, jwt);
 
       dispatch({
         type: PodActionTypes.GET_POD,
-        pod: response.data,
-        podRequested: false,
-        podError: null
+        pod: response.data
       });
     } catch (err) {
       dispatch({
-        type: PodActionTypes.CLEAR_POD,
-        pod: null,
-        podRequested: false
+        type: LoadingActionTypes.LOADING,
+        loading: true,
       });
 
       dispatch({
         type: ErrorActionTypes.OPEN_API_ERROR_MODAL,
-        status: err.response.status,
-        statusText: err.response.statusText,
-        message: err.response.data
+        status: err.response ? err.response.status : 500,
+        statusText: err.response ? err.response.statusText : 'Internal Server Error',
+        message: err.response ? err.response.data : err
       });
     }
   };
 };
-
-// IClearPodsErrors interface .
-export interface IClearPodsErrors {
-  type: PodActionTypes.CLEAR_ERRORS,
-  podError?: Error
-}
-
-/* Clear errors
-<Promise<Return Type>, State Interface, Type of Param, Type of Action> */
-export const clearPodsErrors: ActionCreator<
-  ThunkAction<Promise<any>, IPodState, null, IClearPodsErrors>
-> = () => {
-  return async (dispatch: Dispatch) => {
-    dispatch({
-      type: PodActionTypes.CLEAR_ERRORS,
-      podError: null
-    });
-  };
-};
-
 
 export interface ISetSelectedPodName {
   type: PodActionTypes.SET_SELECTED_POD_NAME,

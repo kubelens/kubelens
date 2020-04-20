@@ -29,7 +29,7 @@ export type APIErrorModalProps = {
   open: boolean,
   status?: number,
   statusText?: string,
-  message?: string
+  message?: any
 };
 
 const APIErrorModal = (props: APIErrorModalProps) => {
@@ -37,7 +37,7 @@ const APIErrorModal = (props: APIErrorModalProps) => {
     <Modal isOpen={props.open} toggle={props.handleClose}>
       <ModalHeader toggle={props.handleClose}>{props.status} - {props.statusText}</ModalHeader>
       <ModalBody>
-        {props.message}
+        {JSON.stringify(props.message)}
       </ModalBody>
       <ModalFooter>
         <Button color="primary" onClick={props.handleClose}>Close</Button>

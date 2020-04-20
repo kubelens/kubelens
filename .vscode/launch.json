@@ -18,13 +18,17 @@
       "showLog": true
     },
     {
-      "name": "Launch",
-      "type": "go",
+      "name": "debug tests kubelens/web",
+      "type": "node",
       "request": "launch",
-      "mode": "auto",
-      "program": "${fileDirname}",
-      "env": {},
-      "args": []
+      "runtimeExecutable": "${workspaceRoot}/web/node_modules/.bin/react-scripts",
+      "args": ["test", "--runInBand", "--no-cache", "--watchAll=false"],
+      "cwd": "${workspaceRoot}/web",
+      "protocol": "inspector",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": { "CI": "true" },
+      "disableOptimisticBPs": true
     }
   ]
 }
