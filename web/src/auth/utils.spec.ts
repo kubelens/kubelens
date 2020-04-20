@@ -66,11 +66,11 @@ describe('utils', () => {
     })
   });
   describe('removeStateSession', () => {
-    xit('removes session', () => {
+    it('removes session', () => {
       const path = '/path/12345';
       const key = setStateSession(path);
       removeStateSession(key);
-      expect(getStateSession(key)).toBe(undefined);
+      expect(getStateSession(key)).toBe(null);
     })
   });
   describe('parseState', () => {
