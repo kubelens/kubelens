@@ -30,7 +30,7 @@ import DeploymentOverviews from '../../components/deployment-overviews';
 import _ from 'lodash';
 
 export type ServiceOverviewProps = {
-  serviceOverviews?: Service[],
+  serviceOverviews: Service[],
   toggleModalType: (type: string) => void,
   specModalOpen: boolean,
   statusModalOpen: boolean,
@@ -46,9 +46,6 @@ const ServiceOverview = ({
   configMapModalOpen,
   deploymentModalOpen
 }: ServiceOverviewProps) => {
-  // There should only ever be 1 overview for a service, kept as an array for ease.
-  // const overview:Service = !_.isEmpty(serviceOverviews) ? serviceOverviews[0] : {} as Service;
-
   return (
     <div>
       {!_.isEmpty(serviceOverviews) &&
