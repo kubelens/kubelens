@@ -196,7 +196,7 @@ export const mapStateToProps = ({ appsState, authState, clustersState, errorStat
   }
 
   const overviewsEmpty = _.isEmpty(podOverview) && 
-    (_.isEmpty(serviceOverviews) || _.isEmpty(daemonSetOverviews));
+    (_.isEmpty(serviceOverviews) || _.isEmpty(daemonSetOverviews) || _.isEmpty(jobOverviews));
 
   return {
     cluster: clustersState.cluster,
