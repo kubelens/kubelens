@@ -32,7 +32,8 @@ describe('getApps should', () => {
     const store = mockStore(res);
     const expectedActions = [ 
         LoadingActionTypes.LOADING,
-        AppsActionTypes.GET_APPS
+        AppsActionTypes.GET_APPS,
+        LoadingActionTypes.LOADING
     ];
     sinon.stub(adapter, 'get').resolves({data: res});
   
@@ -88,7 +89,8 @@ describe('getAppOverviews should', () => {
     const store = mockStore();
     const expectedActions = [ 
         LoadingActionTypes.LOADING,
-        AppsActionTypes.GET_APP_OVERVIEW
+        AppsActionTypes.GET_APP_OVERVIEW,
+        LoadingActionTypes.LOADING
     ];
     sinon.stub(adapter, 'get').resolves(successResponse);
   

@@ -31,7 +31,8 @@ describe('getLogs should', () => {
     const store = mockStore();
     const expectedActions = [ 
         LoadingActionTypes.LOADING,
-        LogsActionTypes.GET_LOGS
+        LogsActionTypes.GET_LOGS,
+        LoadingActionTypes.LOADING
     ];
     sinon.stub(adapter, 'get').resolves(successResponse);
   
@@ -87,7 +88,8 @@ describe('non-api calls actions should', () => {
   test('toggleLogStream', async () => {
     const store = mockStore();
     const expectedActions = [ 
-      LogsActionTypes.TOGGLE_LOG_STREAM
+      LogsActionTypes.TOGGLE_LOG_STREAM,
+      LoadingActionTypes.LOADING
     ];
     return store.dispatch(toggleLogStream('testapp'))
       .then(() => {

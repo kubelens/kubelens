@@ -67,6 +67,12 @@ export const getLogs: ActionCreator<
         logs: response.data,
         logsError: null
       });
+
+      dispatch({
+        type: LoadingActionTypes.LOADING,
+        loading: false,
+      });
+
     } catch (err) {
       dispatch({
         type: LoadingActionTypes.LOADING,
@@ -102,6 +108,10 @@ export const toggleLogStream: ActionCreator<
     dispatch({
       type: LogsActionTypes.TOGGLE_LOG_STREAM,
       logStreamEnabled: logStreamEnabled
+    });
+    dispatch({
+      type: LoadingActionTypes.LOADING,
+      loading: logStreamEnabled,
     });
   };
 };

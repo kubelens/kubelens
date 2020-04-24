@@ -66,6 +66,12 @@ export const getPod: ActionCreator<
         type: PodActionTypes.GET_POD,
         pod: response.data
       });
+
+      dispatch({
+        type: LoadingActionTypes.LOADING,
+        loading: false,
+      });
+      
     } catch (err) {
       dispatch({
         type: LoadingActionTypes.LOADING,

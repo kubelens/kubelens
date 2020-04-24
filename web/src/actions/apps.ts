@@ -68,6 +68,11 @@ export const getAppOverview: ActionCreator<
         type: AppsActionTypes.GET_APP_OVERVIEW,
         appOverview: response.data
       });
+
+      dispatch({
+        type: LoadingActionTypes.LOADING,
+        loading: false,
+      });
     } catch (err) {
       dispatch({
         type: LoadingActionTypes.LOADING,
@@ -111,6 +116,11 @@ export const getApps: ActionCreator<
         type: AppsActionTypes.GET_APPS,
         apps: apps,
         filteredApps: apps
+      });
+      
+      dispatch({
+        type: LoadingActionTypes.LOADING,
+        loading: false,
       });
     } catch (err) {
       dispatch({

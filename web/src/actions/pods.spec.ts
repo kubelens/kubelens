@@ -31,7 +31,8 @@ describe('getLogs should', () => {
     const store = mockStore();
     const expectedActions = [ 
         LoadingActionTypes.LOADING,
-        PodActionTypes.GET_POD
+        PodActionTypes.GET_POD,
+        LoadingActionTypes.LOADING
     ];
     sinon.stub(adapter, 'get').resolves(successResponse);
   
