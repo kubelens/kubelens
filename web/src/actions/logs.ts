@@ -27,6 +27,7 @@ import { Log } from '../types';
 import { ILogsState } from '../reducers/logs';
 import adapter from './adapter';
 import { ErrorActionTypes } from './error';
+import { LoadingActionTypes } from './loading';
 /* 
 Combine the action types with a union (we assume there are more)
 example: export type CharacterActions = IGetAllAction | IGetOneAction ... 
@@ -44,7 +45,6 @@ export enum LogsActionTypes {
 export interface IGetLogs {
   type: LogsActionTypes.GET_LOGS,
   logs?: Log,
-  logsRequested: boolean,
   logsError?: Error
 }
 
@@ -56,8 +56,8 @@ export const getLogs: ActionCreator<
   return async (dispatch: Dispatch) => {
     try {
       dispatch({
-        type: LogsActionTypes.GET_LOGS,
-        logsRequested: true
+        type: LoadingActionTypes.LOADING,
+        loading: true,
       });
 
       const response = await adapter.get(`/logs/${podname}${queryString}`, cluster, jwt);
@@ -65,15 +65,30 @@ export const getLogs: ActionCreator<
       dispatch({
         type: LogsActionTypes.GET_LOGS,
         logs: response.data,
-        logsRequested: true,
         logsError: null
       });
+
+      dispatch({
+        type: LoadingActionTypes.LOADING,
+        loading: false,
+      });
+
     } catch (err) {
       dispatch({
+        type: LoadingActionTypes.LOADING,
+        loading: false,
+      });
+
+      dispatch({
+        type: LogsActionTypes.GET_LOGS,
+        logsError: err
+      });
+
+      dispatch({
         type: ErrorActionTypes.OPEN_API_ERROR_MODAL,
-        status: err.response.status,
-        statusText: err.response.statusText,
-        message: err.response.data
+        status: err.response ? err.response.status : 500,
+        statusText: err.response ? err.response.statusText : 'Internal Server Error',
+        message: err.response ? err.response.data : err
       });
     }
   };
@@ -93,6 +108,10 @@ export const toggleLogStream: ActionCreator<
     dispatch({
       type: LogsActionTypes.TOGGLE_LOG_STREAM,
       logStreamEnabled: logStreamEnabled
+    });
+    dispatch({
+      type: LoadingActionTypes.LOADING,
+      loading: logStreamEnabled,
     });
   };
 };

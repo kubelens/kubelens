@@ -26,28 +26,20 @@ import { AppsActions, AppsActionTypes } from '../actions/apps';
 import { AppOverview, App } from '../types';
 
 export interface IAppsState {
-  readonly appOverviewRequested: boolean,
-  readonly appOverviewError?: Error,
   readonly appOverview?: AppOverview,
-  readonly appsRequested: boolean,
-  readonly appsError?: Error,
   readonly apps?: App[],
   readonly selectedAppName?: string,
   readonly filteredApps?: App[]
 }
 
-const INITIAL_STATE: IAppsState = {
-  appOverviewRequested: false,
-  appOverviewError: undefined,
+export const INITIAL_STATE: IAppsState = {
   appOverview: undefined,
-  appsRequested: false,
-  appsError: undefined,
   apps: undefined,
   selectedAppName: undefined,
   filteredApps: undefined
 };
 
-export const appsReducer: Reducer<IAppsState, AppsActions> = (
+export const reducer: Reducer<IAppsState, AppsActions> = (
   state = INITIAL_STATE,
   action
 ) => {
@@ -55,9 +47,7 @@ export const appsReducer: Reducer<IAppsState, AppsActions> = (
     case AppsActionTypes.GET_APP_OVERVIEW: {
       return {
         ...state,
-        appOverview: action.appOverview,
-        appOverviewError: action.appOverviewError,
-        appOverviewRequested: action.appOverviewRequested
+        appOverview: action.appOverview
       };
     }
 
@@ -65,9 +55,7 @@ export const appsReducer: Reducer<IAppsState, AppsActions> = (
       return {
         ...state,
         apps: action.apps,
-        filteredApps: action.apps,
-        appsRequested: action.appsRequested,
-        appsError: action.appsError
+        filteredApps: action.apps
       }
     }
 
@@ -82,13 +70,6 @@ export const appsReducer: Reducer<IAppsState, AppsActions> = (
       return {
         ...state,
         filteredApps: action.filteredApps
-      }
-    }
-
-    case AppsActionTypes.CLEAR_ERRORS: {
-      return {
-        ...state,
-        appsError: undefined
       }
     }
 

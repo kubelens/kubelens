@@ -26,20 +26,18 @@ import { LogsActions, LogsActionTypes } from '../actions/logs';
 import { Log } from '../types';
 
 export interface ILogsState {
-  readonly logsRequested: boolean,
   readonly logsError?: Error,
   readonly logs?: Log,
   readonly logStreamEnabled: boolean,
 }
 
-const INITIAL_STATE: ILogsState = {
-  logsRequested: false,
+export const INITIAL_STATE: ILogsState = {
   logsError: undefined,
   logs: undefined,
   logStreamEnabled: false
 };
 
-export const logsReducer: Reducer<ILogsState, LogsActions> = (
+export const reducer: Reducer<ILogsState, LogsActions> = (
   state = INITIAL_STATE,
   action
 ) => {
@@ -48,8 +46,7 @@ export const logsReducer: Reducer<ILogsState, LogsActions> = (
     case LogsActionTypes.GET_LOGS: {
       return {
         ...state,
-        logs: action.logs,
-        logsRequested: false
+        logs: action.logs
       }
     }
 

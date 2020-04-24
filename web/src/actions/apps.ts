@@ -28,18 +28,18 @@ import { AppOverview, App, Apps } from "../types";
 import adapter from './adapter';
 import _ from 'lodash';
 import { ErrorActionTypes } from './error';
+import { LoadingActionTypes } from './loading';
 
 /* 
 Combine the action types with a union (we assume there are more)
 example: export type CharacterActions = IGetAllAction | IGetOneAction ... 
 */
-export type AppsActions = IGetAppOverview | IGetApps | ISetSelectedAppName | IFilterApps | IClearAppsErrors;
+export type AppsActions = IGetAppOverview | IGetApps | ISetSelectedAppName | IFilterApps;
 
 // Create Action Constants
 export enum AppsActionTypes {
   GET_APP_OVERVIEW = 'GET_APP_OVERVIEW',
   GET_APPS = 'GET_APPS',
-  CLEAR_ERRORS = 'CLEAR_ERRORS',
   SET_SELECTED_APP_NAME = 'SET_SELECTED_APP_NAME',
   FILTER_APPS = 'FILTER_APPS'
 }
@@ -47,9 +47,7 @@ export enum AppsActionTypes {
 // IGetAppOverview interface .
 export interface IGetAppOverview {
   type: AppsActionTypes.GET_APP_OVERVIEW,
-  appOverview?: AppOverview,
-  appOverviewRequested: boolean,
-  appOverviewError?: Error
+  appOverview?: AppOverview
 }
 
 /* Get App Overviews
@@ -60,30 +58,32 @@ export const getAppOverview: ActionCreator<
   return async (dispatch: Dispatch) => {
     try {
       dispatch({
-        type: AppsActionTypes.GET_APP_OVERVIEW,
-        appOverviewRequested: true,
+        type: LoadingActionTypes.LOADING,
+        loading: true,
       });
 
       const response = await adapter.get(`/apps/${appname}?labelSelector=${encodeURIComponent(labelSelector)}&detailed=true`, cluster, jwt);
 
       dispatch({
         type: AppsActionTypes.GET_APP_OVERVIEW,
-        appOverview: response.data,
-        appOverviewRequested: false,
-        appOverviewError: null
+        appOverview: response.data
+      });
+
+      dispatch({
+        type: LoadingActionTypes.LOADING,
+        loading: false,
       });
     } catch (err) {
       dispatch({
-        type: AppsActionTypes.GET_APP_OVERVIEW,
-        appOverview: null,
-        appOverviewRequested: false
+        type: LoadingActionTypes.LOADING,
+        loading: false,
       });
 
       dispatch({
         type: ErrorActionTypes.OPEN_API_ERROR_MODAL,
-        status: err.response.status,
-        statusText: err.response.statusText,
-        message: err.response.data
+        status: err.response ? err.response.status : 500,
+        statusText: err.response ? err.response.statusText : 'Internal Server Error',
+        message: err.response ? err.response.data : err
       });
     }
   };
@@ -93,8 +93,6 @@ export const getAppOverview: ActionCreator<
 export interface IGetApps {
   type: AppsActionTypes.GET_APPS,
   apps?: App[],
-  appsRequested: boolean,
-  appsError?: Error,
   filteredApps?: App[]
 }
 
@@ -106,8 +104,8 @@ export const getApps: ActionCreator<
   return async (dispatch: Dispatch) => {
     try {
       dispatch({
-        type: AppsActionTypes.GET_APPS,
-        appsRequested: true
+        type: LoadingActionTypes.LOADING,
+        loading: true,
       });
 
       const response = await adapter.get('/apps', cluster, jwt);
@@ -117,49 +115,28 @@ export const getApps: ActionCreator<
       dispatch({
         type: AppsActionTypes.GET_APPS,
         apps: apps,
-        filteredApps: apps,
-        appsRequested: false,
-        appsError: null
+        filteredApps: apps
+      });
+      
+      dispatch({
+        type: LoadingActionTypes.LOADING,
+        loading: false,
       });
     } catch (err) {
       dispatch({
-        type: AppsActionTypes.GET_APPS,
-        apps: null,
-        appsRequested: false
+        type: LoadingActionTypes.LOADING,
+        loading: false,
       });
 
       dispatch({
         type: ErrorActionTypes.OPEN_API_ERROR_MODAL,
-        status: err.response.status,
-        statusText: err.response.statusText,
-        message: err.response.data
+        status: err.response ? err.response.status : 500,
+        statusText: err.response ? err.response.statusText : 'Internal Server Error',
+        message: err.response ? err.response.data : err
       });
     }
   };
 };
-
-// IClearAppsErrors interface .
-export interface IClearAppsErrors {
-  type: AppsActionTypes.CLEAR_ERRORS,
-  appsError?: Error,
-  appOverviewError?: Error
-}
-
-/* Clear errors
-<Promise<Return Type>, State Interface, Type of Param, Type of Action> */
-export const clearAppsErrors: ActionCreator<
-  ThunkAction<Promise<any>, IAppsState, null, IGetApps>
-> = () => {
-  return async (dispatch: Dispatch) => {
-    dispatch({
-      type: AppsActionTypes.GET_APP_OVERVIEW,
-      appOverviewError: null,
-      appsError: null
-    });
-  };
-};
-
-
 
 // ISetSelectedAppName interface .
 export interface ISetSelectedAppName {
@@ -167,8 +144,7 @@ export interface ISetSelectedAppName {
   selectedAppName: string
 }
 
-/* Clear errors
-<Promise<Return Type>, State Interface, Type of Param, Type of Action> */
+/* <Promise<Return Type>, State Interface, Type of Param, Type of Action> */
 export const setSelectedAppName: ActionCreator<
   ThunkAction<Promise<any>, IAppsState, null, IGetApps>
 > = (selectedAppName: string) => {
@@ -186,8 +162,7 @@ export interface IFilterApps {
   filteredApps: App[]
 }
 
-/* Clear errors
-<Promise<Return Type>, State Interface, Type of Param, Type of Action> */
+/* <Promise<Return Type>, State Interface, Type of Param, Type of Action> */
 export const filterApps: ActionCreator<
   ThunkAction<Promise<any>, IAppsState, null, IGetApps>
 > = (value: string, apps: App[]) => {

@@ -102,8 +102,11 @@ jobs:
           command: | 
             cd ./web
             npm install
-            echo "TODO run tests"
-            # npm run test
+      - run: 
+          name: Run Tests & Coverage
+          command: |
+            cd ./web
+            npm run test:ci
 
   web_build:
     docker: 
@@ -134,7 +137,7 @@ jobs:
             if ${WEB_CHANGED}; then
               cd ./web 
               echo "TODO run tests"
-              # npm run test
+              npm run test:ci
             fi
       - run:
           name: Application Build

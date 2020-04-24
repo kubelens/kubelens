@@ -39,7 +39,6 @@ type initialState = {};
 export type HomeProps = {
   cluster: string,
   identityToken?: string,
-  appsRequested: boolean,
   selectedAppName: string,
   filteredApps: App[],
   apps: App[],
@@ -47,12 +46,13 @@ export type HomeProps = {
   getAppOverview(appname: string, queryString: string, cluster: string, jwt: string): void,
   setSelectedAppName(value: string): void,
   filterApps(value: string, apps: App[]): void,
-  error: IErrorState
+  error: IErrorState,
+  isLoading: boolean
 } | RouteComponentProps<{
   appName?: string
 }>;
 
-class Home extends Component<HomeProps, initialState> {
+export class Home extends Component<HomeProps, initialState> {
   constructor(props) {
     super(props);
 
@@ -67,7 +67,7 @@ class Home extends Component<HomeProps, initialState> {
       this.props.setSelectedAppName(params.appName);
     }
 
-    if (!this.props.appsRequested) {
+    if (!this.props.isLoading && _.isEmpty(this.props.apps)) {
       this.props.getApps(this.props.cluster, this.props.identityToken);
     }
   }
@@ -75,7 +75,7 @@ class Home extends Component<HomeProps, initialState> {
   public shouldComponentUpdate(nextProps: HomeProps) {
     if (!this.props.selectedAppName
       || nextProps.selectedAppName !== this.props.selectedAppName
-      || nextProps.appsRequested !== this.props.appsRequested
+      || nextProps.isLoading !== this.props.isLoading
       || !_.isEqual(nextProps.filteredApps, this.props.filteredApps)) {
       return true;
     }
@@ -114,15 +114,15 @@ class Home extends Component<HomeProps, initialState> {
   }
 }
 
-export const mapStateToProps = ({ appsState, authState, clustersState, errorState }: IGlobalState) => {
+export const mapStateToProps = ({ loadingState, appsState, authState, clustersState, errorState }: IGlobalState) => {
   return {
     cluster: clustersState.cluster,
     identityToken: authState.identityToken,
     apps: appsState.apps,
     filteredApps: appsState.filteredApps || appsState.apps,
-    appsRequested: appsState.appsRequested,
     selectedAppName: appsState.selectedAppName,
-    error: errorState
+    error: errorState,
+    isLoading: loadingState.loading
   };
 };
 

@@ -34,7 +34,7 @@ export type LogoState = {
 
 export type LogoProps = {}
 
-class Logo extends Component<LogoProps, LogoState> {
+export class Logo extends Component<LogoProps, LogoState> {
   private mounted: boolean = false;
   public state: LogoState = {
     spinner: ''

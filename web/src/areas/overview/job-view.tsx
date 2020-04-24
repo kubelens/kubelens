@@ -89,15 +89,15 @@ const JobView = ({
                   <Row>
                     <Col sm={6}>
                       {!_.isEmpty(overview.conditions)
-                      ? <Button outline color="info" onClick={() => toggleModalType('condition')} block>Conditions</Button>
+                      ? <Button outline color="info" onClick={() => toggleModalType('job-condition')} block>Conditions</Button>
                       : null}
                     </Col>
                     <Col sm={6}>
                       {!_.isEmpty(overview.deploymentOverviews)
-                      ? <Button outline color="info" onClick={() => toggleModalType('deployment')} block>Deployments</Button>
+                      ? <Button outline color="info" onClick={() => toggleModalType('job-deployment')} block>Deployments</Button>
                       : null}
                       {!_.isEmpty(overview.configMaps)
-                      ? <Button outline color="info" onClick={() => toggleModalType('configMap')} block>ConfigMaps</Button>
+                      ? <Button outline color="info" onClick={() => toggleModalType('job-configMap')} block>ConfigMaps</Button>
                       : null}
                     </Col>
                   </Row>
@@ -119,7 +119,7 @@ const JobView = ({
           show={conditionsModalOpen}
           body={overview.conditions}
           handleClose={() => {
-            toggleModalType('status');
+            toggleModalType('job-condition');
           }} />
     
         <JsonViewModal
@@ -127,7 +127,7 @@ const JobView = ({
           show={configMapModalOpen}
           body={overview.configMaps}
           handleClose={() => {
-            toggleModalType('configMap');
+            toggleModalType('job-configMap');
           }} />
 
         <JsonViewModal
@@ -135,7 +135,7 @@ const JobView = ({
           show={deploymentModalOpen}
           body={overview.deploymentOverviews}
           handleClose={() => {
-            toggleModalType('deployment');
+            toggleModalType('job-deployment');
           }} />
       </div>
     )})}

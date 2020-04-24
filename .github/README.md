@@ -46,6 +46,8 @@ More features to come. Any help/contributions/feedback is very much appreciated!
 
 The nice thing is that when Kubelens is deployed, it will be available to view within its own UI!
 
+__Note:__ Kubelens is heavily dependent on [Labels and Selectors](https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/) to retrieve the [Kubernetes Objects](https://kubernetes.io/docs/concepts/#kubernetes-objects) deployed for applications. These labels and selectors are how the API searches for all objects and associated objects.
+
 The Helm charts located in the .helm-charts directory can be used as examples. They are fully functional charts that can be used to deploy immediately (no auth) to get Kubelens working up and running. If deploying to a live K8s cluster (including minikube), you'll only need to configure the `availableClusters` values in the web's config.json.  
 
 ### API config.json

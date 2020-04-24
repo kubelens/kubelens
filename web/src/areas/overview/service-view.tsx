@@ -46,9 +46,6 @@ const ServiceOverview = ({
   configMapModalOpen,
   deploymentModalOpen
 }: ServiceOverviewProps) => {
-  // There should only ever be 1 overview for a service, kept as an array for ease.
-  // const overview:Service = !_.isEmpty(serviceOverviews) ? serviceOverviews[0] : {} as Service;
-
   return (
     <div>
       {!_.isEmpty(serviceOverviews) &&

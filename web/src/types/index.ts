@@ -58,6 +58,7 @@ export type Apps = App[];
 export type AppOverview = {
   serviceOverviews: Service[],
   daemonSetOverviews: DaemonSetOverview[],
+  jobOverviews: JobOverview[],
   podOverviews: PodOverview
 }
 

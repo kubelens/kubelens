@@ -31,14 +31,14 @@ export interface IErrorState {
   readonly message?: string
 }
 
-const INITIAL_STATE: IErrorState = {
+export const INITIAL_STATE: IErrorState = {
   apiOpen: false,
   status: undefined,
   statusText: undefined,
   message: undefined
 };
 
-export const errorReducer: Reducer<IErrorState, ErrorActions> = (
+export const reducer: Reducer<IErrorState, ErrorActions> = (
   state = INITIAL_STATE,
   action
 ) => {

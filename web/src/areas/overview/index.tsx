@@ -26,7 +26,8 @@ import { connect } from 'react-redux';
 import ServiceOverviewPage from './service-view';
 import PodOverviewPage from './pod-view';
 import DaemonSetOverviewPage from './daemonset-view';
-import { Service, PodOverview } from "../../types";
+import JobOverviewPage from './job-view';
+import { Service, PodOverview, DaemonSetOverview, JobOverview } from "../../types";
 import { RouteComponentProps, withRouter } from 'react-router';
 import _ from 'lodash';
 import { IGlobalState } from '../../store';
@@ -41,61 +42,58 @@ type initialState = {
   configMapModalOpen: boolean,
   deploymentModalOpen: boolean,
   dsConfigMapModalOpen: boolean,
-  dsDeploymentModalOpen: boolean
+  dsDeploymentModalOpen: boolean,
+  dsConditionModalOpen: boolean,
+  jobConfigMapModalOpen: boolean,
+  jobDeploymentModalOpen: boolean,
+  jobConditionModalOpen: boolean
 };
 
 export type OverviewProps = {
   identityToken?: string,
-  serviceOverviews: Service[],
+  serviceOverviews?: Service[],
   podOverview: PodOverview,
+  daemonsetOverviews?: DaemonSetOverview[],
+  jobOverviews?: JobOverview[],
   selectedAppName: string,
-  appOverviewRequested: boolean,
   getAppOverview(appname: string, queryString: string): void,
   setSelectedAppName(value: string): void,
-  error: IErrorState
+  error: IErrorState,
+  overviewsEmpty: boolean,
 } | RouteComponentProps<{
   appName?: string
 }>;
 
-class Overview extends Component<OverviewProps, initialState> {
+export class Overview extends Component<OverviewProps, initialState> {
   state: initialState = {
     specModalOpen: false,
     statusModalOpen: false,
     configMapModalOpen: false,
     deploymentModalOpen: false,
     dsConfigMapModalOpen: false,
-    dsDeploymentModalOpen: false
+    dsDeploymentModalOpen: false,
+    dsConditionModalOpen: false,
+    jobConfigMapModalOpen: false,
+    jobDeploymentModalOpen: false,
+    jobConditionModalOpen: false
   }
 
   async componentDidMount() {
     const { match: { params }, location: { search } } = this.props;
     const query = new URLSearchParams(search);
 
-    let queryString = query.get('labelKey');
-    if (!queryString) {
-      queryString = 'app';
-    }
-
-    let appname = '';
     if (params.appName) {
-      appname = params.appName;
-    }
+      let appName = params.appName;
+      if (_.isEmpty(this.props.selectedAppName)) {
+        this.props.setSelectedAppName(params.appName);
+      } else {
+        appName = this.props.selectedAppName;
+      }
 
-    if (_.isEmpty(this.props.selectedAppName)) {
-      this.props.setSelectedAppName(appname);
-    }
-
-    if (!this.props.appOverviewRequested
-      && (_.isEmpty(this.props.podOverview)
-        || _.isEmpty(this.props.serviceOverviews
-          || params.appName !== this.props.selectedAppName))) {
-      this.props.appActions &&
-        this.props.getAppOverview(
-          appname,
-          queryString,
-          this.props.cluster,
-          this.props.identityToken
-        );
+      const labelSelector = query.get('labelSelector');
+      if (!this.props.isLoading && !_.isEmpty(labelSelector) && this.props.overviewsEmpty) {
+        this.props.getAppOverview(appName, labelSelector, this.props.cluster, this.props.identityToken);
+      }
     }
   }
 
@@ -113,6 +111,24 @@ class Overview extends Component<OverviewProps, initialState> {
       case 'deployment':
         this.setState({ deploymentModalOpen: !this.state.deploymentModalOpen});
         break;
+      case 'ds-condition':
+        this.setState({ dsConditionModalOpen: !this.state.dsConditionModalOpen});
+        break;
+      case 'ds-deployment':
+        this.setState({ dsDeploymentModalOpen: !this.state.dsDeploymentModalOpen});
+        break;
+      case 'ds-configmap':
+        this.setState({ dsConfigMapModalOpen: !this.state.dsConfigMapModalOpen});
+        break;
+      case 'job-condition':
+        this.setState({ jobConditionModalOpen: !this.state.jobConditionModalOpen});
+        break;
+      case 'job-deployment':
+        this.setState({ jobDeploymentModalOpen: !this.state.jobDeploymentModalOpen});
+        break;
+      case 'job-configmap':
+        this.setState({ jobConfigMapModalOpen: !this.state.jobConfigMapModalOpen});
+        break;
       default:
         break;
     }
@@ -128,13 +144,23 @@ class Overview extends Component<OverviewProps, initialState> {
           statusModalOpen={this.state.statusModalOpen}
           configMapModalOpen={this.state.configMapModalOpen}
           deploymentModalOpen={this.state.deploymentModalOpen} />
+
         <DaemonSetOverviewPage 
           daemonSetOverviews={this.props.daemonSetOverviews} 
           toggleModalType={this.toggleModalType}
-          conditionsModalOpen={this.state.specModalOpen}
-          configMapModalOpen={this.state.configMapModalOpen}
-          deploymentModalOpen={this.state.deploymentModalOpen} />
+          conditionsModalOpen={this.state.dsConfigMapModalOpen}
+          configMapModalOpen={this.state.dsConfigMapModalOpen}
+          deploymentModalOpen={this.state.dsDeploymentModalOpen} />
+
+        <JobOverviewPage 
+          jobOverviews={this.props.jobOverviews} 
+          toggleModalType={this.toggleModalType}
+          conditionsModalOpen={this.state.jobConditionModalOpen}
+          configMapModalOpen={this.state.jobConfigMapModalOpen}
+          deploymentModalOpen={this.state.jobDeploymentModalOpen} />
+
         <PodOverviewPage podOverview={this.props.podOverview} />
+
         <APIErrorModal
           open={this.props.error.apiOpen}
           handleClose={this.props.closeErrorModal}
@@ -150,6 +176,7 @@ class Overview extends Component<OverviewProps, initialState> {
 export const mapStateToProps = ({ appsState, authState, clustersState, errorState }: IGlobalState) => {
   let serviceOverviews,
     daemonSetOverviews,
+    jobOverviews,
     podOverview;
 
   if (appsState.appOverview && appsState.appOverview.serviceOverviews) {
@@ -160,25 +187,33 @@ export const mapStateToProps = ({ appsState, authState, clustersState, errorStat
     daemonSetOverviews = appsState.appOverview.daemonSetOverviews;
   }
 
+  if (appsState.appOverview && appsState.appOverview.jobOverviews) {
+    jobOverviews = appsState.appOverview.jobOverviews;
+  }
+
   if (appsState.appOverview && appsState.appOverview.podOverviews) {
     podOverview = appsState.appOverview.podOverviews;
   }
+
+  const overviewsEmpty = _.isEmpty(podOverview) && 
+    (_.isEmpty(serviceOverviews) || _.isEmpty(daemonSetOverviews) || _.isEmpty(jobOverviews));
 
   return {
     cluster: clustersState.cluster,
     identityToken: authState.identityToken,
     serviceOverviews: serviceOverviews,
     daemonSetOverviews: daemonSetOverviews,
+    jobOverviews: jobOverviews,
     podOverview: podOverview,
     selectedAppName: appsState.selectedAppName,
-    appOverviewRequested: appsState.appOverviewRequested,
-    error: errorState
+    error: errorState,
+    overviewsEmpty: overviewsEmpty
   };
 };
 
 export const mapActionsToProps = (dispatch) => {
   return {
-    getAppOverview: (appname: string, queryString: string, cluster: string, jwt: string) => dispatch(getAppOverview(appname, queryString, cluster, jwt)),
+    getAppOverview: (appname: string, labelSelector: string, cluster: string, jwt: string) => dispatch(getAppOverview(appname, labelSelector, cluster, jwt)),
     setSelectedAppName: (value: string) => dispatch(setSelectedAppName(value)),
     closeErrorModal: () => dispatch(closeErrorModal())
   };

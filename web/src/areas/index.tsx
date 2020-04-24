@@ -33,7 +33,7 @@ const Home = lazy(() => import('./home'));
 
 type initialState = {};
 
-class Cluster extends Component<any, initialState> {
+export class Cluster extends Component<any, initialState> {
   public render() {
     // make sure we have the selected cluster before rendering the home page
     return (
