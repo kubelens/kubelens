@@ -269,6 +269,8 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 
 		// Inject an event into the fake client.
 		rs := &appsv1.ReplicaSet{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: lbl}}
+		specReplicas := int32(1)
+		rs.Spec.Replicas = &specReplicas
 		_, err = client.AppsV1().ReplicaSets(namespace).Create(rs)
 		if err != nil {
 			return nil, err

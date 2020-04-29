@@ -1,6 +1,7 @@
 package k8sv1
 
 import (
+	"strings"
 	"sync"
 
 	"github.com/kubelens/kubelens/api/auth/rbac"
@@ -163,7 +164,14 @@ func (k *Client) ReplicaSetOverviews(options ReplicaSetOptions) (replicasets []R
 		wg.Wait()
 	}
 
-	return replicasets, nil
+	ret := []ReplicaSetOverview{}
+	for _, rs := range replicasets {
+		if !strings.EqualFold(rs.Name, "") {
+			ret = append(ret, rs)
+		}
+	}
+
+	return ret, nil
 }
 
 // ReplicaSetAppInfos returns basic info for all replica sets found for a given namespace.
@@ -226,5 +234,13 @@ func (k *Client) ReplicaSetAppInfos(options ReplicaSetOptions) (info []AppInfo, 
 		return info, errs.ListToInternalServerError(errors)
 	}
 
-	return info, nil
+	// remove blanks
+	ret := []AppInfo{}
+	for _, app := range info {
+		if !strings.EqualFold(app.Name, "") {
+			ret = append(ret, app)
+		}
+	}
+
+	return ret, nil
 }
