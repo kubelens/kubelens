@@ -42,6 +42,8 @@ type RoleAssignmenter interface {
 	HasDaemonSetAccess(labels map[string]string) bool
 	// HasJobAccess returns whether or not a user has access to view job detail by label selectors
 	HasJobAccess(labels map[string]string) bool
+	// HasReplicaSetAccess returns whether or not a user has access to view replica set detail by label selectors
+	HasReplicaSetAccess(labels map[string]string) bool
 }
 
 /*RoleAssignment provides flags to indicate which features a user has access to.
@@ -193,8 +195,21 @@ func (ra RoleAssignment) HasDaemonSetAccess(labels map[string]string) bool {
 	return ra.CompareLabels(labels, false)
 }
 
-// HasJobAccess returns whether or not a user has access to view daemon set detail by label selectors
+// HasJobAccess returns whether or not a user has access to view job detail by label selectors
 func (ra RoleAssignment) HasJobAccess(labels map[string]string) bool {
+	if config.C.EnableRBAC {
+		if ra.Role.Viewers && !ra.Role.Operators {
+			// if not an operator, labels are required
+			if len(ra.Role.MatchLabels) == 0 {
+				return false
+			}
+		}
+	}
+	return ra.CompareLabels(labels, false)
+}
+
+// HasReplicaSetAccess returns whether or not a user has access to view replica set detail by label selectors
+func (ra RoleAssignment) HasReplicaSetAccess(labels map[string]string) bool {
 	if config.C.EnableRBAC {
 		if ra.Role.Viewers && !ra.Role.Operators {
 			// if not an operator, labels are required

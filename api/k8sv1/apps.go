@@ -50,10 +50,11 @@ type AppOverviewOptions struct {
 
 // AppOverview .
 type AppOverview struct {
-	PodOverviews       PodOverview         `json:"podOverviews,omitempty"`
-	ServiceOverviews   []ServiceOverview   `json:"serviceOverviews,omitempty"`
-	DaemonSetOverviews []DaemonSetOverview `json:"daemonSetOverviews,omitempty"`
-	JobOverviews       []JobOverview       `json:"jobOverviews,omitempty"`
+	PodOverviews        PodOverview          `json:"podOverviews,omitempty"`
+	ServiceOverviews    []ServiceOverview    `json:"serviceOverviews,omitempty"`
+	DaemonSetOverviews  []DaemonSetOverview  `json:"daemonSetOverviews,omitempty"`
+	JobOverviews        []JobOverview        `json:"jobOverviews,omitempty"`
+	ReplicaSetOverviews []ReplicaSetOverview `json:"replicaSetOverviews,omitempty"`
 }
 
 // AppInfo .
@@ -96,8 +97,8 @@ func (k *Client) Apps(options AppOptions) (apps []App, apiErr *errs.APIError) {
 		appInfos := []*[]AppInfo{}
 
 		wg := sync.WaitGroup{}
-		// adding 3x since we are using 3 go routines per iteration
-		wg.Add(len(namespaces.Items) * 3)
+		// adding 3x since we are using 4 go routines per iteration
+		wg.Add(len(namespaces.Items) * 4)
 
 		errors := []*errs.APIError{}
 
@@ -145,6 +146,20 @@ func (k *Client) Apps(options AppOptions) (apps []App, apiErr *errs.APIError) {
 
 				appInfos = append(appInfos, &jobInfos)
 			}(i, ns)
+
+			// get replicasets
+			go func(index int, namespace string) {
+				defer wg.Done()
+
+				jobInfos, err := k.ReplicaSetAppInfos(ReplicaSetOptions{Namespace: namespace})
+
+				if err != nil {
+					klog.Trace()
+					errors = append(errors, err)
+				}
+
+				appInfos = append(appInfos, &jobInfos)
+			}(i, ns)
 		}
 
 		wg.Wait()
@@ -174,11 +189,13 @@ func (k *Client) AppOverview(options AppOverviewOptions) (ao *AppOverview, apiEr
 	var po *PodOverview
 	var sos []ServiceOverview
 	var dsos []DaemonSetOverview
+	var jsos []JobOverview
+	var rsos []ReplicaSetOverview
 	errors := []*errs.APIError{}
 
 	wg := sync.WaitGroup{}
 
-	wg.Add(3)
+	wg.Add(5)
 
 	go func() {
 		defer wg.Done()
@@ -224,6 +241,34 @@ func (k *Client) AppOverview(options AppOverviewOptions) (ao *AppOverview, apiEr
 		}
 	}()
 
+	go func() {
+		defer wg.Done()
+		var err *errs.APIError
+		jsos, err = k.JobOverviews(JobOptions{
+			Namespace:     options.Namespace,
+			LabelSelector: options.LabelSelector,
+			UserRole:      options.UserRole,
+			Logger:        options.Logger,
+		})
+		if err != nil {
+			errors = append(errors, err)
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		var err *errs.APIError
+		rsos, err = k.ReplicaSetOverviews(ReplicaSetOptions{
+			Namespace:     options.Namespace,
+			LabelSelector: options.LabelSelector,
+			UserRole:      options.UserRole,
+			Logger:        options.Logger,
+		})
+		if err != nil {
+			errors = append(errors, err)
+		}
+	}()
+
 	wg.Wait()
 
 	if len(errors) > 0 {
@@ -231,8 +276,10 @@ func (k *Client) AppOverview(options AppOverviewOptions) (ao *AppOverview, apiEr
 	}
 
 	return &AppOverview{
-		PodOverviews:       *po,
-		ServiceOverviews:   sos,
-		DaemonSetOverviews: dsos,
+		PodOverviews:        *po,
+		ServiceOverviews:    sos,
+		DaemonSetOverviews:  dsos,
+		JobOverviews:        jsos,
+		ReplicaSetOverviews: rsos,
 	}, nil
 }

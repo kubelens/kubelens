@@ -8,13 +8,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDaemonSetOverviewsDefaultSuccess(t *testing.T) {
+func TestReplicaSetOverviewsDefaultSuccess(t *testing.T) {
 	c := setupClient("testns", "test", false, false)
 
 	ls := map[string]string{}
 	ls[AppNameLabel] = FriendlyAppName
 
-	d, err := c.DaemonSetOverviews(DaemonSetOptions{
+	d, err := c.ReplicaSetOverviews(ReplicaSetOptions{
 		UserRole:      &rbacfakes.RoleAssignment{},
 		Logger:        &logfakes.Logger{},
 		Namespace:     "testns",
@@ -26,10 +26,10 @@ func TestDaemonSetOverviewsDefaultSuccess(t *testing.T) {
 	assert.Equal(t, d[0].Namespace, "testns")
 }
 
-func TestGetDaemonSetOverviewsDefaultFail(t *testing.T) {
+func TestGetReplicaSetOverviewsDefaultFail(t *testing.T) {
 	c := setupClient("testns", "test", true, true)
 
-	_, err := c.DaemonSetOverviews(DaemonSetOptions{
+	_, err := c.ReplicaSetOverviews(ReplicaSetOptions{
 		UserRole:      &rbacfakes.RoleAssignment{},
 		Logger:        &logfakes.Logger{},
 		Namespace:     "testns",
@@ -39,13 +39,13 @@ func TestGetDaemonSetOverviewsDefaultFail(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestDaemonSetAppInfosDefaultSuccess(t *testing.T) {
+func TestReplicaSetAppInfosDefaultSuccess(t *testing.T) {
 	c := setupClient("testns", "test", false, false)
 
 	ls := map[string]string{}
 	ls[AppNameLabel] = FriendlyAppName
 
-	d, err := c.DaemonSetAppInfos(DaemonSetOptions{
+	d, err := c.ReplicaSetAppInfos(ReplicaSetOptions{
 		UserRole:  &rbacfakes.RoleAssignment{},
 		Logger:    &logfakes.Logger{},
 		Namespace: "testns",
@@ -56,10 +56,10 @@ func TestDaemonSetAppInfosDefaultSuccess(t *testing.T) {
 	assert.Equal(t, d[0].Namespace, "testns")
 }
 
-func TestGetDaemonSetAppInfosDefaultFail(t *testing.T) {
+func TestGetReplicaSetAppInfosDefaultFail(t *testing.T) {
 	c := setupClient("testns", "test", true, true)
 
-	_, err := c.DaemonSetAppInfos(DaemonSetOptions{
+	_, err := c.ReplicaSetAppInfos(ReplicaSetOptions{
 		UserRole:  &rbacfakes.RoleAssignment{},
 		Logger:    &logfakes.Logger{},
 		Namespace: "testns",

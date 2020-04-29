@@ -1,17 +1,18 @@
 {
-  "oAuthJwtIssuer": "https://YOUR_DOMAIN.oktapreview.com/oauth2/YOUR_TENANT",
-  "oAuthAudience": "auth://YOUR_DOMAIN.com",
-  "oAuthClientId": "CLIENT_ID",
-  "oAuthRedirectUri": "http://localhost:3000",
-  "oAuthResponseType": "id_token token",
-  "oAuthRequestType": "Bearer",
-  "oAuthScope": "openid profile email",
-  "oAuthConnection": "adfs",
-  "oAuthEnabled": false,
   "availableClusters": [
     {
-      "minikube": "http://api.kubelens.local"
+      "NonProd2 - CentralUS": "http://kubelens-api.kubelens.centralus-ds-aks-np2.centralus.chrazure.cloud"
     }
   ],
-  "deployerLinkName": "Octopus Link"
+  "oAuthJwtIssuer": "",
+  "oAuthAudience": "",
+  "oAuthClientId": "",
+  "oAuthRedirectUri": "",
+  "oAuthResponseType": "",
+  "oAuthRequestType": "",
+  "oAuthScope": "",
+  "oAuthProvider": "",
+  "oAuthConnection": "",
+  "oAuthEnabled": false,
+  "deployerLinkName": ""
 }
