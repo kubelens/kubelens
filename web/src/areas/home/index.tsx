@@ -43,7 +43,7 @@ export type HomeProps = {
   filteredApps: App[],
   apps: App[],
   getApps(cluster: string, jwt: string): void,
-  getAppOverview(appname: string, queryString: string, cluster: string, jwt: string): void,
+  getAppOverview(appname: string, namespace: string, queryString: string, cluster: string, jwt: string): void,
   setSelectedAppName(value: string): void,
   filterApps(value: string, apps: App[]): void,
   error: IErrorState,
@@ -86,12 +86,12 @@ export class Home extends Component<HomeProps, initialState> {
     this.props.filterApps(event.target.value, this.props.apps);
   }
 
-  private onViewApp(appname: string, labelSelector: string) {
+  private onViewApp(appname: string, namespace: string, labelSelector: string) {
     this.props.setSelectedAppName(labelSelector);
 
-    this.props.getAppOverview(appname, labelSelector, this.props.cluster, this.props.identityToken);
+    this.props.getAppOverview(appname, namespace, labelSelector, this.props.cluster, this.props.identityToken);
 
-    this.props.history.push(`/${appname}?labelSelector=${encodeURIComponent(labelSelector)}`);
+    this.props.history.push(`/${appname}?namespace=${namespace}&labelSelector=${encodeURIComponent(labelSelector)}`);
   }
 
   public render() {
@@ -129,7 +129,7 @@ export const mapStateToProps = ({ loadingState, appsState, authState, clustersSt
 export const mapActionsToProps = (dispatch) => {
   return {
     getApps: (cluster: string, jwt: string) => dispatch(getApps(cluster, jwt)),
-    getAppOverview: (appname: string, queryString: string, cluster: string, jwt: string) => dispatch(getAppOverview(appname, queryString, cluster, jwt)),
+    getAppOverview: (appname: string, namespace: string, queryString: string, cluster: string, jwt: string) => dispatch(getAppOverview(appname, namespace, queryString, cluster, jwt)),
     setSelectedAppName: (value: string) => dispatch(setSelectedAppName(value)),
     filterApps: (value: string, apps: App[]) => dispatch(filterApps(value, apps)),
     closeErrorModal: () => dispatch(closeErrorModal())

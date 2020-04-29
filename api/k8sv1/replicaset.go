@@ -1,6 +1,7 @@
 package k8sv1
 
 import (
+	"strings"
 	"sync"
 
 	"github.com/kubelens/kubelens/api/auth/rbac"
@@ -90,69 +91,72 @@ func (k *Client) ReplicaSetOverviews(options ReplicaSetOptions) (replicasets []R
 				go func(index int, rs appsv1.ReplicaSet) {
 					defer wg.Done()
 
-					var labelSelector map[string]string
-					// this shouldn't be null, but default to regular labels if it is.
-					if rs.Spec.Selector != nil {
-						labelSelector = rs.Spec.Selector.MatchLabels
-					} else if len(options.LabelSelector) > 0 {
-						labelSelector = options.LabelSelector
-					} else {
-						labelSelector = rs.GetLabels()
-					}
-
-					name := getFriendlyAppName(
-						rs.GetLabels(),
-						rs.GetName(),
-					)
-
-					rso := ReplicaSetOverview{
-						FriendlyName:         name,
-						Name:                 rs.GetName(),
-						Namespace:            rs.GetNamespace(),
-						LabelSelector:        labelSelector,
-						AvailableReplicas:    int(rs.Status.AvailableReplicas),
-						FullyLabeledReplicas: int(rs.Status.FullyLabeledReplicas),
-						ReadyReplicas:        int(rs.Status.ReadyReplicas),
-						Replicas:             int(rs.Status.Replicas),
-						Conditions:           rs.Status.Conditions,
-					}
-
-					// add deployments per daemon set for ease of display by client since deployments are really
-					// specific to certian K8s kinds.
-					if options.UserRole.HasDeploymentAccess(rs.GetLabels()) {
-						deployments, err := k.DeploymentOverviews(DeploymentOptions{
-							LabelSelector: labelSelector,
-							Namespace:     rs.GetNamespace(),
-							UserRole:      options.UserRole,
-							Logger:        options.Logger,
-						})
-						// just trace the error and move on, shouldn't be critical.
-						if err != nil {
-							klog.Trace()
+					// only return > 0 desired replicas
+					if rs.Spec.Replicas != nil && *rs.Spec.Replicas > 0 {
+						var labelSelector map[string]string
+						// this shouldn't be null, but default to regular labels if it is.
+						if rs.Spec.Selector != nil {
+							labelSelector = rs.Spec.Selector.MatchLabels
+						} else if len(options.LabelSelector) > 0 {
+							labelSelector = options.LabelSelector
+						} else {
+							labelSelector = rs.GetLabels()
 						}
 
-						if len(deployments) > 0 {
-							rso.AddDeploymentOverviews(&deployments)
+						name := getFriendlyAppName(
+							rs.GetLabels(),
+							rs.GetName(),
+						)
+
+						rso := ReplicaSetOverview{
+							FriendlyName:         name,
+							Name:                 rs.GetName(),
+							Namespace:            rs.GetNamespace(),
+							LabelSelector:        labelSelector,
+							AvailableReplicas:    int(rs.Status.AvailableReplicas),
+							FullyLabeledReplicas: int(rs.Status.FullyLabeledReplicas),
+							ReadyReplicas:        int(rs.Status.ReadyReplicas),
+							Replicas:             int(rs.Status.Replicas),
+							Conditions:           rs.Status.Conditions,
 						}
+
+						// add deployments per daemon set for ease of display by client since deployments are really
+						// specific to certian K8s kinds.
+						if options.UserRole.HasDeploymentAccess(rs.GetLabels()) {
+							deployments, err := k.DeploymentOverviews(DeploymentOptions{
+								LabelSelector: labelSelector,
+								Namespace:     rs.GetNamespace(),
+								UserRole:      options.UserRole,
+								Logger:        options.Logger,
+							})
+							// just trace the error and move on, shouldn't be critical.
+							if err != nil {
+								klog.Trace()
+							}
+
+							if len(deployments) > 0 {
+								rso.AddDeploymentOverviews(&deployments)
+							}
+						}
+
+						if options.UserRole.HasConfigMapAccess(item.GetLabels()) {
+							cms, err := k.ConfigMaps(ConfigMapOptions{
+								Namespace:     rs.GetNamespace(),
+								LabelSelector: labelSelector,
+							})
+
+							// just trace the error and move on, shouldn't be critical.
+							if err != nil {
+								klog.Trace()
+							}
+
+							if len(cms) > 0 {
+								rso.AddConfigMaps(&cms)
+							}
+						}
+
+						replicasets[index] = rso
 					}
-
-					if options.UserRole.HasConfigMapAccess(item.GetLabels()) {
-						cms, err := k.ConfigMaps(ConfigMapOptions{
-							Namespace:     rs.GetNamespace(),
-							LabelSelector: labelSelector,
-						})
-
-						// just trace the error and move on, shouldn't be critical.
-						if err != nil {
-							klog.Trace()
-						}
-
-						if len(cms) > 0 {
-							rso.AddConfigMaps(&cms)
-						}
-					}
-
-					replicasets[index] = rso
 				}(i, item)
 			}
 		}
@@ -160,7 +164,14 @@ func (k *Client) ReplicaSetOverviews(options ReplicaSetOptions) (replicasets []R
 		wg.Wait()
 	}
 
-	return replicasets, nil
+	ret := []ReplicaSetOverview{}
+	for _, rs := range replicasets {
+		if !strings.EqualFold(rs.Name, "") {
+			ret = append(ret, rs)
+		}
+	}
+
+	return ret, nil
 }
 
 // ReplicaSetAppInfos returns basic info for all replica sets found for a given namespace.
@@ -190,30 +201,29 @@ func (k *Client) ReplicaSetAppInfos(options ReplicaSetOptions) (info []AppInfo, 
 		for i, item := range list.Items {
 			go func(index int, rs appsv1.ReplicaSet) {
 				defer wg.Done()
-				if err != nil {
-					klog.Trace()
-					errors = append(errors, errs.InternalServerError(err.Error()))
-				}
+				// only return > 0 desired replicas
+				if rs.Spec.Replicas != nil && *rs.Spec.Replicas > 0 {
 
-				var labelSelector map[string]string
-				// this shouldn't be null, but default to regular labels if it is.
-				if rs.Spec.Selector != nil {
-					labelSelector = rs.Spec.Selector.MatchLabels
-				} else {
-					labelSelector = rs.GetLabels()
-				}
+					var labelSelector map[string]string
+					// this shouldn't be null, but default to regular labels if it is.
+					if rs.Spec.Selector != nil {
+						labelSelector = rs.Spec.Selector.MatchLabels
+					} else {
+						labelSelector = rs.GetLabels()
+					}
 
-				name := getFriendlyAppName(
-					rs.GetLabels(),
-					rs.GetName(),
-				)
+					name := getFriendlyAppName(
+						rs.GetLabels(),
+						rs.GetName(),
+					)
 
-				info[index] = AppInfo{
-					FriendlyName:  name,
-					Name:          rs.GetName(),
-					Namespace:     rs.GetNamespace(),
-					Kind:          "ReplicaSet",
-					LabelSelector: labelSelector,
+					info[index] = AppInfo{
+						FriendlyName:  name,
+						Name:          rs.GetName(),
+						Namespace:     rs.GetNamespace(),
+						Kind:          "ReplicaSet",
+						LabelSelector: labelSelector,
+					}
 				}
 			}(i, item)
 		}
@@ -224,5 +234,13 @@ func (k *Client) ReplicaSetAppInfos(options ReplicaSetOptions) (info []AppInfo, 
 		return info, errs.ListToInternalServerError(errors)
 	}
 
-	return info, nil
+	// remove blanks
+	ret := []AppInfo{}
+	for _, app := range info {
+		if !strings.EqualFold(app.Name, "") {
+			ret = append(ret, app)
+		}
+	}
+
+	return ret, nil
 }

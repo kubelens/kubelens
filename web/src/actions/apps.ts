@@ -54,7 +54,7 @@ export interface IGetAppOverview {
 <Promise<Return Type>, State Interface, Type of Param, Type of Action> */
 export const getAppOverview: ActionCreator<
   ThunkAction<Promise<any>, IAppsState, null, IGetAppOverview>
-> = (appname: string, labelSelector: string, cluster: string, jwt: string) => {
+> = (appname: string, namespace: string, labelSelector: string, cluster: string, jwt: string) => {
   return async (dispatch: Dispatch) => {
     try {
       dispatch({
@@ -62,7 +62,7 @@ export const getAppOverview: ActionCreator<
         loading: true,
       });
 
-      const response = await adapter.get(`/apps/${appname}?labelSelector=${encodeURIComponent(labelSelector)}&detailed=true`, cluster, jwt);
+      const response = await adapter.get(`/apps/${appname}?namespace=${namespace}&labelSelector=${encodeURIComponent(labelSelector)}&detailed=true`, cluster, jwt);
 
       dispatch({
         type: AppsActionTypes.GET_APP_OVERVIEW,

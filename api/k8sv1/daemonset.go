@@ -196,10 +196,6 @@ func (k *Client) DaemonSetAppInfos(options DaemonSetOptions) (info []AppInfo, ap
 		for i, item := range list.Items {
 			go func(index int, ds appsv1.DaemonSet) {
 				defer wg.Done()
-				if err != nil {
-					klog.Trace()
-					errors = append(errors, errs.InternalServerError(err.Error()))
-				}
 
 				var labelSelector map[string]string
 				// this shouldn't be null, but default to regular labels if it is.
