@@ -64,6 +64,10 @@ type Clienter interface {
 	JobOverviews(options JobOptions) (jobs []JobOverview, apiErr *errs.APIError)
 	// JobAppInfos returns basic info for all jobs found for a given namespace.
 	JobAppInfos(options JobOptions) (info []AppInfo, apiErr *errs.APIError)
+	// ReplicaSetOverviews returns a list of replica sets given filter options
+	ReplicaSetOverviews(options ReplicaSetOptions) (replicasets []ReplicaSetOverview, apiErr *errs.APIError)
+	// ReplicaSetAppInfos returns basic info for all replica sets found for a given namespace.
+	ReplicaSetAppInfos(options ReplicaSetOptions) (info []AppInfo, apiErr *errs.APIError)
 }
 
 // Client is the wrapper for kubernetes go client commands

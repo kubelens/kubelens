@@ -27,7 +27,8 @@ import ServiceOverviewPage from './service-view';
 import PodOverviewPage from './pod-view';
 import DaemonSetOverviewPage from './daemonset-view';
 import JobOverviewPage from './job-view';
-import { Service, PodOverview, DaemonSetOverview, JobOverview } from "../../types";
+import ReplicaSetOverviewPage from './replicaset-view';
+import { Service, PodOverview, DaemonSetOverview, JobOverview, ReplicaSetOverview } from "../../types";
 import { RouteComponentProps, withRouter } from 'react-router';
 import _ from 'lodash';
 import { IGlobalState } from '../../store';
@@ -46,7 +47,10 @@ type initialState = {
   dsConditionModalOpen: boolean,
   jobConfigMapModalOpen: boolean,
   jobDeploymentModalOpen: boolean,
-  jobConditionModalOpen: boolean
+  jobConditionModalOpen: boolean,
+  rsConfigMapModalOpen: boolean,
+  rsDeploymentModalOpen: boolean,
+  rsConditionModalOpen: boolean
 };
 
 export type OverviewProps = {
@@ -55,6 +59,7 @@ export type OverviewProps = {
   podOverview: PodOverview,
   daemonsetOverviews?: DaemonSetOverview[],
   jobOverviews?: JobOverview[],
+  replicasetOverviews?: ReplicaSetOverview[],
   selectedAppName: string,
   getAppOverview(appname: string, queryString: string): void,
   setSelectedAppName(value: string): void,
@@ -75,7 +80,10 @@ export class Overview extends Component<OverviewProps, initialState> {
     dsConditionModalOpen: false,
     jobConfigMapModalOpen: false,
     jobDeploymentModalOpen: false,
-    jobConditionModalOpen: false
+    jobConditionModalOpen: false,
+    rsConfigMapModalOpen: false,
+    rsDeploymentModalOpen: false,
+    rsConditionModalOpen: false
   }
 
   async componentDidMount() {
@@ -129,6 +137,15 @@ export class Overview extends Component<OverviewProps, initialState> {
       case 'job-configmap':
         this.setState({ jobConfigMapModalOpen: !this.state.jobConfigMapModalOpen});
         break;
+      case 'rs-condition':
+        this.setState({ rsConditionModalOpen: !this.state.rsConditionModalOpen});
+        break;
+      case 'rs-deployment':
+        this.setState({ rsDeploymentModalOpen: !this.state.rsDeploymentModalOpen});
+        break;
+      case 'rs-configmap':
+        this.setState({ rsConfigMapModalOpen: !this.state.rsConfigMapModalOpen});
+        break;
       default:
         break;
     }
@@ -159,6 +176,13 @@ export class Overview extends Component<OverviewProps, initialState> {
           configMapModalOpen={this.state.jobConfigMapModalOpen}
           deploymentModalOpen={this.state.jobDeploymentModalOpen} />
 
+        <ReplicaSetOverviewPage 
+          replicaSetOverviews={this.props.replicaSetOverviews} 
+          toggleModalType={this.toggleModalType}
+          conditionsModalOpen={this.state.rsConfigMapModalOpen}
+          configMapModalOpen={this.state.rsConfigMapModalOpen}
+          deploymentModalOpen={this.state.rsDeploymentModalOpen} />
+
         <PodOverviewPage podOverview={this.props.podOverview} />
 
         <APIErrorModal
@@ -177,7 +201,8 @@ export const mapStateToProps = ({ appsState, authState, clustersState, errorStat
   let serviceOverviews,
     daemonSetOverviews,
     jobOverviews,
-    podOverview;
+    podOverview,
+    replicaSetOverviews;
 
   if (appsState.appOverview && appsState.appOverview.serviceOverviews) {
     serviceOverviews = appsState.appOverview.serviceOverviews;
@@ -195,6 +220,10 @@ export const mapStateToProps = ({ appsState, authState, clustersState, errorStat
     podOverview = appsState.appOverview.podOverviews;
   }
 
+  if (appsState.appOverview && appsState.appOverview.replicaSetOverviews) {
+    replicaSetOverviews = appsState.appOverview.replicaSetOverviews;
+  }
+
   const overviewsEmpty = _.isEmpty(podOverview) && 
     (_.isEmpty(serviceOverviews) || _.isEmpty(daemonSetOverviews) || _.isEmpty(jobOverviews));
 
@@ -205,6 +234,7 @@ export const mapStateToProps = ({ appsState, authState, clustersState, errorStat
     daemonSetOverviews: daemonSetOverviews,
     jobOverviews: jobOverviews,
     podOverview: podOverview,
+    replicaSetOverviews: replicaSetOverviews,
     selectedAppName: appsState.selectedAppName,
     error: errorState,
     overviewsEmpty: overviewsEmpty

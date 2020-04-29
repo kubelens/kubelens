@@ -207,3 +207,29 @@ func (m *K8V1) JobAppInfos(options k8sv1.JobOptions) (info []k8sv1.AppInfo, apiE
 		},
 	}, nil
 }
+
+// ReplicaSetOverviews .
+func (m *K8V1) ReplicaSetOverviews(options k8sv1.ReplicaSetOptions) (replicasets []k8sv1.ReplicaSetOverview, apiErr *errs.APIError) {
+	if options.Namespace == "bad" {
+		return nil, errs.InternalServerError("JobOverviews Test Error")
+	}
+
+	return []k8sv1.ReplicaSetOverview{
+		k8sv1.ReplicaSetOverview{
+			Name: "job-name",
+		},
+	}, nil
+}
+
+// ReplicaSetAppInfos .
+func (m *K8V1) ReplicaSetAppInfos(options k8sv1.ReplicaSetOptions) (info []k8sv1.AppInfo, apiErr *errs.APIError) {
+	if options.Namespace == "bad" {
+		return nil, errs.InternalServerError("JobAppInfos Test Error")
+	}
+
+	return []k8sv1.AppInfo{
+		k8sv1.AppInfo{
+			Name: "rs-name",
+		},
+	}, nil
+}

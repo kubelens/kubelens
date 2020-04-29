@@ -87,7 +87,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 	svcInformer.AddEventHandler(&cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			svc := obj.(*v1.Service)
-			svc.SetName(name + "-svc")
+			svc.SetName(name)
 			svc.SetNamespace(namespace)
 			svc.SetLabels(lbl)
 			svc.Spec = v1.ServiceSpec{
@@ -121,7 +121,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		AddFunc: func(obj interface{}) {
 			// add a config map that matches the service
 			d := obj.(*appsv1.Deployment)
-			d.SetName(name + "-dpl")
+			d.SetName(name)
 			d.SetNamespace(namespace)
 			d.SetLabels(lbl)
 			d.Spec.Selector = &metav1.LabelSelector{
@@ -139,7 +139,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		AddFunc: func(obj interface{}) {
 			// add a config map that matches the service
 			d := obj.(*appsv1.DaemonSet)
-			d.SetName(name + "-ds")
+			d.SetName(name)
 			d.SetNamespace(namespace)
 			d.SetLabels(lbl)
 			d.Spec.Selector = &metav1.LabelSelector{
@@ -157,7 +157,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		AddFunc: func(obj interface{}) {
 			// add a config map that matches the service
 			j := obj.(*batchv1.Job)
-			j.SetName(name + "-job")
+			j.SetName(name)
 			j.SetNamespace(namespace)
 			j.SetLabels(lbl)
 			j.Spec.Selector = &metav1.LabelSelector{
@@ -169,6 +169,24 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			}
 			fmt.Printf("job added: %s\n", j.Name)
 			job <- j
+			cancel()
+		},
+	})
+
+	replicaset := make(chan *appsv1.ReplicaSet, 1)
+	rsInformer := informers.Apps().V1().ReplicaSets().Informer()
+	rsInformer.AddEventHandler(&cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			// add a config map that matches the service
+			s := obj.(*appsv1.ReplicaSet)
+			s.SetName(name)
+			s.SetNamespace(namespace)
+			s.SetLabels(lbl)
+			s.Spec.Selector = &metav1.LabelSelector{
+				MatchLabels: lbl,
+			}
+			fmt.Printf("replicaset added: %s\n", s.Name)
+			replicaset <- s
 			cancel()
 		},
 	})
@@ -186,7 +204,8 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			!cmInformer.HasSynced() &&
 			!dplInformer.HasSynced() &&
 			!dsInformer.HasSynced() &&
-			!jobInformer.HasSynced() {
+			!jobInformer.HasSynced() &&
+			!rsInformer.HasSynced() {
 			time.Sleep(100 * time.Millisecond)
 		}
 
@@ -245,6 +264,13 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		if err != nil {
 			return nil, err
 		}
+
+		// Inject an event into the fake client.
+		rs := &appsv1.ReplicaSet{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: lbl}}
+		_, err = client.AppsV1().ReplicaSets(namespace).Create(rs)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Wait and check result.
@@ -270,6 +296,9 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		return client, nil
 	case jb := <-job:
 		fmt.Printf("Got jobs from channel: %s/%s\n", jb.Namespace, jb.Name)
+		return client, nil
+	case rss := <-replicaset:
+		fmt.Printf("Got replicasets from channel: %s/%s\n", rss.Namespace, rss.Name)
 		return client, nil
 	default:
 		fmt.Println("informer did not get the added pod")

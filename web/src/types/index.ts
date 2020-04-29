@@ -58,6 +58,7 @@ export type Apps = App[];
 export type AppOverview = {
   serviceOverviews: Service[],
   daemonSetOverviews: DaemonSetOverview[],
+  replicaSetOverviews: ReplicaSetOverview[],
   jobOverviews: JobOverview[],
   podOverviews: PodOverview
 }
@@ -180,6 +181,20 @@ export type JobOverview = {
 	active: number,
 	succeeded: number,
 	failed: number,
+  conditions: [],
+  configMaps?: [{}],
+  deploymentOverviews?: DeploymentOverview[]
+}
+
+export type ReplicaSetOverview = {
+  friendlyName: string,
+  name: string,
+  namespace: string,
+  labelSelector: {},
+  availableReplicas: number,
+  fullyLabeledReplicas: number,
+  readyReplicas: number,
+  replicas: number,
   conditions: [],
   configMaps?: [{}],
   deploymentOverviews?: DeploymentOverview[]
