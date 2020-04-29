@@ -57,9 +57,9 @@ export type OverviewProps = {
   identityToken?: string,
   serviceOverviews?: Service[],
   podOverview: PodOverview,
-  daemonsetOverviews?: DaemonSetOverview[],
+  daemonSetOverviews?: DaemonSetOverview[],
   jobOverviews?: JobOverview[],
-  replicasetOverviews?: ReplicaSetOverview[],
+  replicaSetOverviews?: ReplicaSetOverview[],
   selectedAppName: string,
   getAppOverview(appname: string, queryString: string): void,
   setSelectedAppName(value: string): void,
@@ -225,7 +225,7 @@ export const mapStateToProps = ({ appsState, authState, clustersState, errorStat
   }
 
   const overviewsEmpty = _.isEmpty(podOverview) && 
-    (_.isEmpty(serviceOverviews) || _.isEmpty(daemonSetOverviews) || _.isEmpty(jobOverviews));
+    (_.isEmpty(serviceOverviews) || _.isEmpty(daemonSetOverviews) || _.isEmpty(jobOverviews) || _.isEmpty(replicaSetOverviews));
 
   return {
     cluster: clustersState.cluster,

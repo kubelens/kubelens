@@ -150,3 +150,21 @@ func TestHasJobAccess_Operators_HasAccess(t *testing.T) {
 
 	assert.True(t, result)
 }
+
+func TestHasReplicaSetAccess_Operators_HasAccess(t *testing.T) {
+	config.C.EnableRBAC = true
+	r := Role{
+		Operators:   true,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
+	}
+	ra := RoleAssignment{r}
+
+	labels := make(map[string]string, 0)
+	labels["app"] = "test2"
+
+	result := ra.HasReplicaSetAccess(labels)
+
+	assert.True(t, result)
+}

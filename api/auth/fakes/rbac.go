@@ -112,8 +112,16 @@ func (ra RoleAssignment) HasDaemonSetAccess(labels map[string]string) bool {
 	return true
 }
 
-// HasJobAccess returns whether or not a user has access to view daemon set detail by label selectors
+// HasJobAccess returns whether or not a user has access to view job detail by label selectors
 func (ra RoleAssignment) HasJobAccess(labels map[string]string) bool {
+	if ra.Fail {
+		return false
+	}
+	return true
+}
+
+// HasReplicaSetAccess returns whether or not a user has access to view replica set detail by label selectors
+func (ra RoleAssignment) HasReplicaSetAccess(labels map[string]string) bool {
 	if ra.Fail {
 		return false
 	}

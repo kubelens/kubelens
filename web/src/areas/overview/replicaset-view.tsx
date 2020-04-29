@@ -37,7 +37,7 @@ export type ReplicaSetOverviewProps = {
   deploymentModalOpen: boolean
 };
 
-const DaemonSetView = ({
+const ReplicaSetView = ({
   replicaSetOverviews,
   toggleModalType,
   conditionsModalOpen,
@@ -48,7 +48,7 @@ const DaemonSetView = ({
     <div>
       {!_.isEmpty(replicaSetOverviews) &&
         <span>
-          <h4>DaemonSet</h4>
+          <h4>ReplicaSet</h4>
           <hr />
         </span>
       }
@@ -80,15 +80,15 @@ const DaemonSetView = ({
                   <Row>
                     <Col sm={6}>
                       {!_.isEmpty(overview.conditions)
-                      ? <Button outline color="info" onClick={() => toggleModalType('ds-condition')} block>Conditions</Button>
+                      ? <Button outline color="info" onClick={() => toggleModalType('rs-condition')} block>Conditions</Button>
                       : null}
                     </Col>
                     <Col sm={6}>
                       {!_.isEmpty(overview.deploymentOverviews)
-                      ? <Button outline color="info" onClick={() => toggleModalType('ds-deployment')} block>Deployments</Button>
+                      ? <Button outline color="info" onClick={() => toggleModalType('rs-deployment')} block>Deployments</Button>
                       : null}
                       {!_.isEmpty(overview.configMaps)
-                      ? <Button outline color="info" onClick={() => toggleModalType('ds-configMap')} block>ConfigMaps</Button>
+                      ? <Button outline color="info" onClick={() => toggleModalType('rs-configMap')} block>ConfigMaps</Button>
                       : null}
                     </Col>
                   </Row>
@@ -110,7 +110,7 @@ const DaemonSetView = ({
           show={conditionsModalOpen}
           body={overview.conditions}
           handleClose={() => {
-            toggleModalType('ds-condition');
+            toggleModalType('rs-condition');
           }} />
     
         <JsonViewModal
@@ -118,7 +118,7 @@ const DaemonSetView = ({
           show={configMapModalOpen}
           body={overview.configMaps}
           handleClose={() => {
-            toggleModalType('ds-configMap');
+            toggleModalType('rs-configMap');
           }} />
 
         <JsonViewModal
@@ -126,7 +126,7 @@ const DaemonSetView = ({
           show={deploymentModalOpen}
           body={overview.deploymentOverviews}
           handleClose={() => {
-            toggleModalType('ds-deployment');
+            toggleModalType('rs-deployment');
           }} />
       </div>
     )})}
@@ -134,4 +134,4 @@ const DaemonSetView = ({
   );
 };
 
-export default DaemonSetView;
+export default ReplicaSetView;

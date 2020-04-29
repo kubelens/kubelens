@@ -480,3 +480,57 @@ func TestHasJobAccess_Viewers_MatchedLabelHasAccess(t *testing.T) {
 
 	assert.True(t, result)
 }
+
+func TestHasReplicaSetAccess_Viewers_MissingMatchLabels(t *testing.T) {
+	config.C.EnableRBAC = true
+	r := Role{
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{},
+		Exclusions:  []string{},
+	}
+	ra := RoleAssignment{r}
+
+	labels := make(map[string]string, 0)
+	labels["app"] = "test2"
+
+	result := ra.HasReplicaSetAccess(labels)
+
+	assert.False(t, result)
+}
+
+func TestHasReplicaSetAccess_Viewers_UnMatchedLabel(t *testing.T) {
+	config.C.EnableRBAC = true
+	r := Role{
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
+	}
+	ra := RoleAssignment{r}
+
+	labels := make(map[string]string, 0)
+	labels["app"] = "test2"
+
+	result := ra.HasReplicaSetAccess(labels)
+
+	assert.True(t, result)
+}
+
+func TestHasReplicaSetAccess_Viewers_MatchedLabelHasAccess(t *testing.T) {
+	config.C.EnableRBAC = true
+	r := Role{
+		Operators:   false,
+		Viewers:     true,
+		MatchLabels: []string{"app=test"},
+		Exclusions:  []string{},
+	}
+	ra := RoleAssignment{r}
+
+	labels := make(map[string]string, 0)
+	labels["app"] = "test"
+
+	result := ra.HasReplicaSetAccess(labels)
+
+	assert.True(t, result)
+}

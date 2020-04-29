@@ -43,7 +43,7 @@ func (a *PodOverviewOptions) GetLimit() int64 {
 	if a.Limit > 0 {
 		return a.Limit
 	}
-	return 32
+	return 100
 }
 
 // UserCanAccess validates the user has access

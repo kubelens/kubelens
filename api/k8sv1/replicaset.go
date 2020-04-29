@@ -86,7 +86,7 @@ func (k *Client) ReplicaSetOverviews(options ReplicaSetOptions) (replicasets []R
 		wg.Add(len(list.Items))
 
 		for i, item := range list.Items {
-			if options.UserRole.HasDaemonSetAccess(item.GetLabels()) {
+			if options.UserRole.HasReplicaSetAccess(item.GetLabels()) {
 				go func(index int, rs appsv1.ReplicaSet) {
 					defer wg.Done()
 
