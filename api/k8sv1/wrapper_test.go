@@ -185,6 +185,8 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			s.Spec.Selector = &metav1.LabelSelector{
 				MatchLabels: lbl,
 			}
+			replicas := int32(1)
+			s.Spec.Replicas = &replicas
 			fmt.Printf("replicaset added: %s\n", s.Name)
 			replicaset <- s
 			cancel()

@@ -38,7 +38,7 @@ export type HomeViewProps =
     appName?: string
   }>> & {
     onFilterChanged: Function,
-    onViewApp(appname: string, labelSelector: string),
+    onViewApp(appname: string, namespace: string, labelSelector: string),
     filteredApps: App[],
     selectedAppName: string
   }
@@ -65,9 +65,9 @@ const HomePage = (props: HomeViewProps) => {
           {/* I don't understand css enough to get this to work without inline style, moving on. */}
           <div dir="rtl" style={{ maxHeight: '76vh', overflow: 'scroll', marginRight: -40, paddingRight: 40 }}>
             {filteredApps && filteredApps.map((value: any, index: number) => {
-              const svc = value as App;
+              const app = value as App;
               const viewApp = () => {
-                return onViewApp(svc.name, svc.labelSelector);
+                return onViewApp(app.name, app.namespace, app.labelSelector);
               };
               // if from a link, grab the name of the app so we can mark which one is being viewed.
               const selected =
@@ -76,12 +76,12 @@ const HomePage = (props: HomeViewProps) => {
                   : selectedAppName;
 
               return (
-                <div key={`${svc.name}-${index}`} id="anti-shadow-div">
+                <div key={`${app.name}-${index}`} id="anti-shadow-div">
                   <div id="shadow-div" >
-                    <Card dir="ltr" style={{ marginRight: (svc.labelSelector === selected) ? -40 : 0, marginBottom: '10px', border: '3px solid #4D5061' }}>
+                    <Card dir="ltr" style={{ marginRight: (app.labelSelector === selected) ? -40 : 0, marginBottom: '10px', border: '3px solid #4D5061' }}>
                       <CardHeader className="text-center" style={{ backgroundColor: 'white' }}>
                         <strong>
-                          {svc.name}
+                          {app.name}
                         </strong>
                       </CardHeader>
                       <CardBody>
@@ -89,16 +89,16 @@ const HomePage = (props: HomeViewProps) => {
                           <Col sm={10}>
                             <div>
                               <div className="app-list-text-root">
-                                <small>Namespace: <strong>{svc.namespace}</strong></small>
+                                <small>Namespace: <strong>{app.namespace}</strong></small>
                               </div>
                               <div className="app-list-text-root">
-                                <small>Kind: <strong>{svc.kind}</strong></small>
+                                <small>Kind: <strong>{app.kind}</strong></small>
                               </div>
                               <div className="app-list-text-secondary">
                                 <small>
                                   {
-                                    svc.deployerLink
-                                      ? <a href={svc.deployerLink} target="_blank" rel="noopener noreferrer"><strong>Deployer Link</strong></a>
+                                    app.deployerLink
+                                      ? <a href={app.deployerLink} target="_blank" rel="noopener noreferrer"><strong>Deployer Link</strong></a>
                                       : <em>No Deployer Link</em>
                                   }
                                 </small>
