@@ -48,3 +48,69 @@ func TestGetFriendlyAppNameMatchedt(t *testing.T) {
 	n := getFriendlyAppName(l, "auto-generated-name-1234")
 	assert.Equal(t, "real-app-name", n)
 }
+
+func TestLabelsContainSelectorTrue(t *testing.T) {
+	selector := map[string]string{
+		"app":          "app-name",
+		"pod-template": "1234adsf1A",
+	}
+	labels := map[string]string{
+		"app": "app-name",
+	}
+
+	match := labelsContainSelector(selector, labels)
+
+	assert.True(t, match)
+}
+
+func TestLabelsContainSelectorFalse(t *testing.T) {
+	selector := map[string]string{
+		"app":          "app-name2",
+		"pod-template": "1234adsf1A",
+	}
+	labels := map[string]string{
+		"app": "app-name",
+	}
+
+	match := labelsContainSelector(selector, labels)
+
+	assert.False(t, match)
+}
+
+func TestLabelsContainSelectorNilLabels(t *testing.T) {
+	selector := map[string]string{
+		"app":          "app-name",
+		"pod-template": "1234adsf1A",
+	}
+
+	match := labelsContainSelector(selector, nil)
+
+	assert.False(t, match)
+}
+
+func TestLabelsContainSelectorDeepEqualTrue(t *testing.T) {
+	selector := map[string]string{
+		"app":          "app-name",
+		"pod-template": "1234adsf1A",
+	}
+
+	labels := map[string]string{
+		"app":          "app-name",
+		"pod-template": "1234adsf1A",
+	}
+
+	match := labelsContainSelector(selector, labels)
+
+	assert.True(t, match)
+}
+
+func TestLabelsContainSelectorNoSelector(t *testing.T) {
+	labels := map[string]string{
+		"app":          "app-name",
+		"pod-template": "1234adsf1B",
+	}
+
+	match := labelsContainSelector(nil, labels)
+
+	assert.True(t, match)
+}

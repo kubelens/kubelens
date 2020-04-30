@@ -132,37 +132,35 @@ func (k *Client) JobOverviews(options JobOptions) (jobs []JobOverview, apiErr *e
 
 					// add deployments per daemon set for ease of display by client since deployments are really
 					// specific to certian K8s kinds.
-					if options.UserRole.HasDeploymentAccess(j.GetLabels()) {
-						deployments, err := k.DeploymentOverviews(DeploymentOptions{
-							LabelSelector: labelSelector,
-							Namespace:     j.GetNamespace(),
-							UserRole:      options.UserRole,
-							Logger:        options.Logger,
-						})
-						// just trace the error and move on, shouldn't be critical.
-						if err != nil {
-							klog.Trace()
-						}
-
-						if len(deployments) > 0 {
-							jo.AddDeploymentOverviews(&deployments)
-						}
+					deployments, err := k.DeploymentOverviews(DeploymentOptions{
+						LabelSelector: labelSelector,
+						Namespace:     j.GetNamespace(),
+						UserRole:      options.UserRole,
+						Logger:        options.Logger,
+					})
+					// just trace the error and move on, shouldn't be critical.
+					if err != nil {
+						klog.Trace()
 					}
 
-					if options.UserRole.HasConfigMapAccess(item.GetLabels()) {
-						cms, err := k.ConfigMaps(ConfigMapOptions{
-							Namespace:     j.GetNamespace(),
-							LabelSelector: labelSelector,
-						})
+					if len(deployments) > 0 {
+						jo.AddDeploymentOverviews(&deployments)
+					}
 
-						// just trace the error and move on, shouldn't be critical.
-						if err != nil {
-							klog.Trace()
-						}
+					cms, err := k.ConfigMaps(ConfigMapOptions{
+						Namespace:     j.GetNamespace(),
+						LabelSelector: labelSelector,
+						Logger:        options.Logger,
+						UserRole:      options.UserRole,
+					})
 
-						if len(cms) > 0 {
-							jo.AddConfigMaps(&cms)
-						}
+					// just trace the error and move on, shouldn't be critical.
+					if err != nil {
+						klog.Trace()
+					}
+
+					if len(cms) > 0 {
+						jo.AddConfigMaps(&cms)
 					}
 
 					jobs[index] = jo
@@ -173,7 +171,14 @@ func (k *Client) JobOverviews(options JobOptions) (jobs []JobOverview, apiErr *e
 		wg.Wait()
 	}
 
-	return jobs, nil
+	ret := []JobOverview{}
+	for _, item := range jobs {
+		if len(item.Name) > 0 {
+			ret = append(ret, item)
+		}
+	}
+
+	return ret, nil
 }
 
 // JobAppInfos returns basic info for all jobs found for a given namespace.

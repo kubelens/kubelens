@@ -122,37 +122,35 @@ func (k *Client) ReplicaSetOverviews(options ReplicaSetOptions) (replicasets []R
 
 						// add deployments per daemon set for ease of display by client since deployments are really
 						// specific to certian K8s kinds.
-						if options.UserRole.HasDeploymentAccess(rs.GetLabels()) {
-							deployments, err := k.DeploymentOverviews(DeploymentOptions{
-								LabelSelector: labelSelector,
-								Namespace:     rs.GetNamespace(),
-								UserRole:      options.UserRole,
-								Logger:        options.Logger,
-							})
-							// just trace the error and move on, shouldn't be critical.
-							if err != nil {
-								klog.Trace()
-							}
-
-							if len(deployments) > 0 {
-								rso.AddDeploymentOverviews(&deployments)
-							}
+						deployments, err := k.DeploymentOverviews(DeploymentOptions{
+							LabelSelector: labelSelector,
+							Namespace:     rs.GetNamespace(),
+							UserRole:      options.UserRole,
+							Logger:        options.Logger,
+						})
+						// just trace the error and move on, shouldn't be critical.
+						if err != nil {
+							klog.Trace()
 						}
 
-						if options.UserRole.HasConfigMapAccess(item.GetLabels()) {
-							cms, err := k.ConfigMaps(ConfigMapOptions{
-								Namespace:     rs.GetNamespace(),
-								LabelSelector: labelSelector,
-							})
+						if len(deployments) > 0 {
+							rso.AddDeploymentOverviews(&deployments)
+						}
 
-							// just trace the error and move on, shouldn't be critical.
-							if err != nil {
-								klog.Trace()
-							}
+						cms, err := k.ConfigMaps(ConfigMapOptions{
+							Namespace:     rs.GetNamespace(),
+							LabelSelector: labelSelector,
+							Logger:        options.Logger,
+							UserRole:      options.UserRole,
+						})
 
-							if len(cms) > 0 {
-								rso.AddConfigMaps(&cms)
-							}
+						// just trace the error and move on, shouldn't be critical.
+						if err != nil {
+							klog.Trace()
+						}
+
+						if len(cms) > 0 {
+							rso.AddConfigMaps(&cms)
 						}
 
 						replicasets[index] = rso
@@ -165,9 +163,9 @@ func (k *Client) ReplicaSetOverviews(options ReplicaSetOptions) (replicasets []R
 	}
 
 	ret := []ReplicaSetOverview{}
-	for _, rs := range replicasets {
-		if !strings.EqualFold(rs.Name, "") {
-			ret = append(ret, rs)
+	for _, item := range replicasets {
+		if len(item.Name) > 0 {
+			ret = append(ret, item)
 		}
 	}
 

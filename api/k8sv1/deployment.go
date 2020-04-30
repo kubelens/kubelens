@@ -61,10 +61,6 @@ func (k *Client) DeploymentOverviews(options DeploymentOptions) (deployments []D
 		IncludeUninitialized: true,
 	}
 
-	if len(options.LabelSelector) > 0 {
-		lo.LabelSelector = toLabelSelectorString(options.LabelSelector)
-	}
-
 	list, err := clientset.AppsV1().Deployments(options.Namespace).List(lo)
 
 	if err != nil {
@@ -74,7 +70,9 @@ func (k *Client) DeploymentOverviews(options DeploymentOptions) (deployments []D
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			if options.UserRole.HasDeploymentAccess(item.GetLabels()) {
+			deploymentLabels := item.GetLabels()
+
+			if options.UserRole.HasDeploymentAccess(deploymentLabels) && labelsContainSelector(options.LabelSelector, deploymentLabels) {
 				var labelSelector map[string]string
 				// this shouldn't be null, but default to regular labels if it is.
 				if item.Spec.Selector != nil {
@@ -82,11 +80,11 @@ func (k *Client) DeploymentOverviews(options DeploymentOptions) (deployments []D
 				} else if len(options.LabelSelector) > 0 {
 					labelSelector = options.LabelSelector
 				} else {
-					labelSelector = item.GetLabels()
+					labelSelector = deploymentLabels
 				}
 
 				name := getFriendlyAppName(
-					item.GetLabels(),
+					deploymentLabels,
 					item.GetName(),
 				)
 

@@ -26,6 +26,7 @@ package k8sv1
 
 import (
 	"fmt"
+	"reflect"
 	"regexp"
 	"strings"
 
@@ -71,4 +72,27 @@ func toLabelSelectorString(labelSelector map[string]string) (labelSelectorString
 		labelSelectorString += fmt.Sprintf("%s=%s,", k, v)
 	}
 	return strings.TrimSuffix(labelSelectorString, ",")
+}
+
+func labelsContainSelector(selector map[string]string, labels map[string]string) bool {
+	if len(labels) == 0 {
+		return false
+	}
+
+	// shortcut if exact
+	if reflect.DeepEqual(selector, labels) {
+		return true
+	}
+
+	if len(selector) > 0 {
+		for labelKey, labelValue := range labels {
+			if len(selector[labelKey]) > 0 && strings.EqualFold(selector[labelKey], labelValue) {
+				return true
+			}
+		}
+		return false
+	}
+	
+	// default to true if no labels are provided to allow all
+	return true
 }

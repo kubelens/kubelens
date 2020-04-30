@@ -125,37 +125,35 @@ func (k *Client) DaemonSetOverviews(options DaemonSetOptions) (daemonsets []Daem
 
 					// add deployments per daemon set for ease of display by client since deployments are really
 					// specific to certian K8s kinds.
-					if options.UserRole.HasDeploymentAccess(ds.GetLabels()) {
-						deployments, err := k.DeploymentOverviews(DeploymentOptions{
-							LabelSelector: labelSelector,
-							Namespace:     ds.GetNamespace(),
-							UserRole:      options.UserRole,
-							Logger:        options.Logger,
-						})
-						// just trace the error and move on, shouldn't be critical.
-						if err != nil {
-							klog.Trace()
-						}
-
-						if len(deployments) > 0 {
-							dso.AddDeploymentOverviews(&deployments)
-						}
+					deployments, err := k.DeploymentOverviews(DeploymentOptions{
+						LabelSelector: labelSelector,
+						Namespace:     ds.GetNamespace(),
+						UserRole:      options.UserRole,
+						Logger:        options.Logger,
+					})
+					// just trace the error and move on, shouldn't be critical.
+					if err != nil {
+						klog.Trace()
 					}
 
-					if options.UserRole.HasConfigMapAccess(item.GetLabels()) {
-						cms, err := k.ConfigMaps(ConfigMapOptions{
-							Namespace:     ds.GetNamespace(),
-							LabelSelector: labelSelector,
-						})
+					if len(deployments) > 0 {
+						dso.AddDeploymentOverviews(&deployments)
+					}
 
-						// just trace the error and move on, shouldn't be critical.
-						if err != nil {
-							klog.Trace()
-						}
+					cms, err := k.ConfigMaps(ConfigMapOptions{
+						Namespace:     ds.GetNamespace(),
+						LabelSelector: labelSelector,
+						Logger:        options.Logger,
+						UserRole:      options.UserRole,
+					})
 
-						if len(cms) > 0 {
-							dso.AddConfigMaps(&cms)
-						}
+					// just trace the error and move on, shouldn't be critical.
+					if err != nil {
+						klog.Trace()
+					}
+
+					if len(cms) > 0 {
+						dso.AddConfigMaps(&cms)
 					}
 
 					daemonsets[index] = dso
@@ -166,7 +164,14 @@ func (k *Client) DaemonSetOverviews(options DaemonSetOptions) (daemonsets []Daem
 		wg.Wait()
 	}
 
-	return daemonsets, nil
+	ret := []DaemonSetOverview{}
+	for _, item := range daemonsets {
+		if len(item.Name) > 0 {
+			ret = append(ret, item)
+		}
+	}
+
+	return ret, nil
 }
 
 // DaemonSetAppInfos returns basic info for all daemon sets found for a given namespace.
