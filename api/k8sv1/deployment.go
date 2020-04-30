@@ -72,7 +72,7 @@ func (k *Client) DeploymentOverviews(options DeploymentOptions) (deployments []D
 		for _, item := range list.Items {
 			deploymentLabels := item.GetLabels()
 
-			if options.UserRole.HasDeploymentAccess(deploymentLabels) && labelsContainSelector(options.LabelSelector, deploymentLabels) {
+			if options.UserRole.HasDeploymentAccess(deploymentLabels) {
 				var labelSelector map[string]string
 				// this shouldn't be null, but default to regular labels if it is.
 				if item.Spec.Selector != nil {
@@ -83,24 +83,26 @@ func (k *Client) DeploymentOverviews(options DeploymentOptions) (deployments []D
 					labelSelector = deploymentLabels
 				}
 
-				name := getFriendlyAppName(
-					deploymentLabels,
-					item.GetName(),
-				)
+				if labelsContainSelector(options.LabelSelector, labelSelector) {
+					name := getFriendlyAppName(
+						deploymentLabels,
+						item.GetName(),
+					)
 
-				deployments = append(deployments, DeploymentOverview{
-					FriendlyName:         name,
-					Name:                 item.GetName(),
-					Namespace:            item.GetNamespace(),
-					LabelSelector:        labelSelector,
-					ResourceVersion:      item.GetResourceVersion(),
-					AvailableReplicas:    int(item.Status.AvailableReplicas),
-					ReadyReplicas:        int(item.Status.ReadyReplicas),
-					Replicas:             int(item.Status.Replicas),
-					UnavailableReplicas:  int(item.Status.UnavailableReplicas),
-					UpdatedReplicas:      int(item.Status.UnavailableReplicas),
-					DeploymentConditions: item.Status.Conditions,
-				})
+					deployments = append(deployments, DeploymentOverview{
+						FriendlyName:         name,
+						Name:                 item.GetName(),
+						Namespace:            item.GetNamespace(),
+						LabelSelector:        labelSelector,
+						ResourceVersion:      item.GetResourceVersion(),
+						AvailableReplicas:    int(item.Status.AvailableReplicas),
+						ReadyReplicas:        int(item.Status.ReadyReplicas),
+						Replicas:             int(item.Status.Replicas),
+						UnavailableReplicas:  int(item.Status.UnavailableReplicas),
+						UpdatedReplicas:      int(item.Status.UnavailableReplicas),
+						DeploymentConditions: item.Status.Conditions,
+					})
+				}
 			}
 		}
 	}
