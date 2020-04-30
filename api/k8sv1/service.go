@@ -91,7 +91,7 @@ func (a *ServiceOptions) UserCanAccess(labels map[string]string) bool {
 }
 
 // ServiceOverviews returns a list of services given filter options
-func (k *Client) ServiceOverviews(options ServiceOptions) (svco []ServiceOverview, apiErr *errs.APIError) {
+func (k *Client) ServiceOverviews(options ServiceOptions) (serviceOverviews []ServiceOverview, apiErr *errs.APIError) {
 	clientset, err := k.wrapper.GetClientSet()
 
 	if err != nil {
@@ -114,74 +114,86 @@ func (k *Client) ServiceOverviews(options ServiceOptions) (svco []ServiceOvervie
 		return nil, errs.InternalServerError(err.Error())
 	}
 
-	svco = make([]ServiceOverview, len(list.Items))
-	wg := sync.WaitGroup{}
+	// this should never be null since Kubelens is deployed as a service, but check anyway.
+	if list != nil {
+		serviceOverviews = make([]ServiceOverview, len(list.Items))
+		wg := sync.WaitGroup{}
 
-	wg.Add(len(list.Items))
+		wg.Add(len(list.Items))
 
-	for i, item := range list.Items {
-		// check access at label level
-		if options.UserCanAccess(item.GetLabels()) {
-			go func(index int, service v1.Service) {
-				defer wg.Done()
+		for i, item := range list.Items {
+			// check access at label level
+			if options.UserCanAccess(item.GetLabels()) {
+				go func(index int, service v1.Service) {
+					defer wg.Done()
 
-				svc := ServiceOverview{
-					FriendlyName: getFriendlyAppName(
-						item.GetLabels(),
-						item.GetName(),
-					),
-					Selector:     service.Spec.Selector,
-					DeployerLink: getDeployerLink(service.GetName()),
-					Name:         service.GetName(),
-					Namespace:    service.GetNamespace(),
-				}
-
-				if options.Detailed {
-					svc.AddDetail(&service.Spec, &service.Status)
-				}
-
-				// add deployments per service for ease of display by client since deployments are really
-				// specific to certian K8s kinds.
-				if options.Detailed && options.UserRole.HasDeploymentAccess(item.GetLabels()) {
-					deployments, err := k.DeploymentOverviews(DeploymentOptions{
-						LabelSelector: svc.Selector,
-						Namespace:     svc.Namespace,
-						UserRole:      options.UserRole,
-						Logger:        options.Logger,
-					})
-					// just trace the error and move on, shouldn't be critical.
-					if err != nil {
-						klog.Trace()
-					}
-					svc.AddDeploymentOverviews(deployments)
-				}
-
-				if options.UserRole.HasConfigMapAccess(item.GetLabels()) {
-					cms, err := k.ConfigMaps(ConfigMapOptions{
-						Namespace:     svc.Namespace,
-						LabelSelector: svc.Selector,
-					})
-
-					// just trace the error and move on, shouldn't be critical.
-					if err != nil {
-						klog.Trace()
+					svc := ServiceOverview{
+						FriendlyName: getFriendlyAppName(
+							item.GetLabels(),
+							item.GetName(),
+						),
+						Selector:     service.Spec.Selector,
+						DeployerLink: getDeployerLink(service.GetName()),
+						Name:         service.GetName(),
+						Namespace:    service.GetNamespace(),
 					}
 
-					if len(cms) > 0 {
-						svc.AddConfigMaps(&cms)
+					if options.Detailed {
+						svc.AddDetail(&service.Spec, &service.Status)
 					}
-				}
 
-				svco[index] = svc
-			}(i, item)
-		} else {
-			wg.Done()
+					// add deployments per service for ease of display by client since deployments are really
+					// specific to certian K8s kinds.
+					if options.Detailed {
+						deployments, err := k.DeploymentOverviews(DeploymentOptions{
+							LabelSelector: svc.Selector,
+							Namespace:     svc.Namespace,
+							UserRole:      options.UserRole,
+							Logger:        options.Logger,
+						})
+						// just trace the error and move on, shouldn't be critical.
+						if err != nil {
+							klog.Trace()
+						}
+						svc.AddDeploymentOverviews(deployments)
+					}
+
+					if options.Detailed {
+						cms, err := k.ConfigMaps(ConfigMapOptions{
+							Namespace:     svc.Namespace,
+							LabelSelector: svc.Selector,
+							Logger:        options.Logger,
+							UserRole:      options.UserRole,
+						})
+
+						// just trace the error and move on, shouldn't be critical.
+						if err != nil {
+							klog.Trace()
+						}
+
+						if len(cms) > 0 {
+							svc.AddConfigMaps(&cms)
+						}
+					}
+
+					serviceOverviews[index] = svc
+				}(i, item)
+			} else {
+				wg.Done()
+			}
+		}
+
+		wg.Wait()
+	}
+
+	ret := []ServiceOverview{}
+	for _, item := range serviceOverviews {
+		if len(item.Name) > 0 {
+			ret = append(ret, item)
 		}
 	}
 
-	wg.Wait()
-
-	return svco, nil
+	return ret, nil
 }
 
 // ServiceAppInfos returns basic info for all services found for a given namespace.

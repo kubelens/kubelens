@@ -1,8 +1,6 @@
 package k8sv1
 
 import (
-	"strings"
-
 	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 	klog "github.com/kubelens/kubelens/api/log"
@@ -36,10 +34,6 @@ func (k *Client) ConfigMaps(options ConfigMapOptions) (configMaps []v1.ConfigMap
 		IncludeUninitialized: true,
 	}
 
-	if len(options.LabelSelector) > 0 {
-		lo.LabelSelector = toLabelSelectorString(options.LabelSelector)
-	}
-
 	// get this list of config maps here to ensure correct namespace. This should perform
 	// just fine, but if not, this list could be generated outsid of this routine.
 	cmList, err := clientset.CoreV1().ConfigMaps(options.Namespace).List(lo)
@@ -52,15 +46,8 @@ func (k *Client) ConfigMaps(options ConfigMapOptions) (configMaps []v1.ConfigMap
 		jConfigMaps := []v1.ConfigMap{}
 
 		for _, cm := range cmList.Items {
-			if len(options.LabelSelector) > 0 {
-				for cmLblKey, cmLblValue := range cm.GetLabels() {
-					// Only look for a match on the selector lables if provided. If one is found
-					if strings.EqualFold(options.LabelSelector[cmLblKey], cmLblValue) {
-						jConfigMaps = append(jConfigMaps, cm)
-						break
-					}
-				}
-			} else {
+			cmLabels := cm.GetLabels()
+			if options.UserRole.HasConfigMapAccess(cmLabels) && labelsContainSelector(options.LabelSelector, cmLabels) {
 				jConfigMaps = append(jConfigMaps, cm)
 			}
 		}
