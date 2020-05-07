@@ -97,8 +97,10 @@ func (r Role) CompareLabels(labels map[string]string, exact bool) bool {
 				lblParts := strings.Split(mlbl, "=")
 				// find a matching label and return found to grant access
 				if value, ok := labels[lblParts[0]]; ok && !r.InExclusions(value) {
-					// if exact, must match the label value as well (application name typically).
-					if exact {
+					// if exact, must match the label value as well (application name typically),
+					// if the value is null, allow access as it's assumed that the match pattern
+					// would be more generic, e.g. "app" vs "app=*".
+					if exact && len(lblParts) > 1 {
 						if strings.EqualFold(value, lblParts[1]) {
 							canAccess = true
 						}
