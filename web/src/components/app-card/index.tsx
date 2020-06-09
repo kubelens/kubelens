@@ -87,7 +87,7 @@ const AppCard = (props: AppCardProps) => {
           </CardBody>
         </Card>
       </div>
-    </div>
+    </div> 
   );
 }
 
