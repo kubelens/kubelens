@@ -35,7 +35,7 @@ describe('home view should', () => {
     const { wrapper } = setup();
 
     expect(wrapper.find('Input').length).toBe(1);
-    expect(wrapper.find('Card').length).toBe(2);
+    expect(wrapper.find('ReactList').length).toBe(1);
     expect(wrapper.find('Route').length).toBe(3);
   })
 })

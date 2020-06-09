@@ -23,10 +23,11 @@ SOFTWARE.
 */
 import React, { lazy } from 'react';
 import { Route } from 'react-router-dom';
-import { Input, Card, CardHeader, CardBody, Row, Col } from 'reactstrap';
+import { Input } from 'reactstrap';
 import { App } from '../../types';
 import { RouteChildrenProps } from 'react-router';
-import RightArrowInverse from '../../assets/right-arrow-yellow-inverse.png';
+import ReactList from 'react-list';
+import AppCard from '../../components/app-card';
 import _ from 'lodash';
 import './home.css';
 
@@ -64,59 +65,22 @@ const HomePage = (props: HomeViewProps) => {
           {/* applications list */}
           {/* I don't understand css enough to get this to work without inline style, moving on. */}
           <div dir="rtl" style={{ maxHeight: '76vh', overflow: 'scroll', marginRight: -40, paddingRight: 40 }}>
-            {filteredApps && filteredApps.map((value: any, index: number) => {
-              const app = value as App;
-              const viewApp = () => {
-                return onViewApp(app.name, app.namespace, app.labelSelector);
-              };
-              // if from a link, grab the name of the app so we can mark which one is being viewed.
-              const selected =
-                (_.isEmpty(selectedAppName) && match)
-                  ? match.params.appName
-                  : selectedAppName;
-
-              return (
-                <div key={`${app.name}-${index}`} id="anti-shadow-div">
-                  <div id="shadow-div" >
-                    <Card dir="ltr" style={{ marginRight: (app.labelSelector === selected) ? -40 : 0, marginBottom: '10px', border: '3px solid #4D5061' }}>
-                      <CardHeader className="text-center" style={{ backgroundColor: 'white' }}>
-                        <strong>
-                          {app.name}
-                        </strong>
-                      </CardHeader>
-                      <CardBody>
-                        <Row>
-                          <Col sm={10}>
-                            <div>
-                              <div className="app-list-text-root">
-                                <small>Namespace: <strong>{app.namespace}</strong></small>
-                              </div>
-                              <div className="app-list-text-root">
-                                <small>Kind: <strong>{app.kind}</strong></small>
-                              </div>
-                              <div className="app-list-text-secondary">
-                                <small>
-                                  {
-                                    app.deployerLink
-                                      ? <a href={app.deployerLink} target="_blank" rel="noopener noreferrer"><strong>Deployer Link</strong></a>
-                                      : <em>No Deployer Link</em>
-                                  }
-                                </small>
-                              </div>
-                            </div>
-                          </Col>
-                          <Col sm={2} className="action-right-container" >
-                            <div onClick={viewApp}>
-                              <span aria-hidden><img height={30} src={RightArrowInverse} alt="View" /></span>
-                            </div>
-                          </Col>
-                        </Row>
-                      </CardBody>
-                    </Card>
-                  </div>
-                </div>
-              )
-            })}
+            {filteredApps
+              && <ReactList 
+                  itemRenderer={(index, key) => {
+                    return (
+                      <AppCard 
+                        key={key}
+                        app={filteredApps[index]}
+                        index={index}
+                        match={match}
+                        selectedAppName={selectedAppName}
+                        onViewApp={onViewApp}/>
+                    )
+                  }} 
+                  length={filteredApps.length} 
+                  type="uniform"/>
+              || <div>No Apps Returned.</div>}
           </div>
         </div>
         <div className="not-stuck">

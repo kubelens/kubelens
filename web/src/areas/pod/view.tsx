@@ -91,7 +91,7 @@ const PodPage = ({
     <div className="pod-container">
       {!_.isEmpty(podDetail) ?
         <div>
-          <Card className="kind-detail-container mb-4">
+          <Card className="mb-4">
             <CardHeader className="kind-detail-title text-center">
               {podDetail.name}
               {!_.isEmpty(podDetail.containerNames)

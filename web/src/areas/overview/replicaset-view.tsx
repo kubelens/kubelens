@@ -55,7 +55,7 @@ const ReplicaSetView = ({
       {!_.isEmpty(replicaSetOverviews) && replicaSetOverviews.map((overview: ReplicaSetOverview) => {
       return (
       <div key={overview.name}>
-        <Card className="kind-detail-container mb-4">
+        <Card className="mb-4">
           <CardBody>
             <small>
               <Row>
