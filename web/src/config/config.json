@@ -1,17 +1,17 @@
 {
-  "oAuthJwtIssuer": "https://chrobinson.oktapreview.com/oauth2/ausm432959XUSGBbK0h7",
-  "oAuthAudience": "auth://chrobinson.com",
-  "oAuthClientId": "0oaqqeowjdUZg3sdi0h7",
-  "oAuthRedirectUri": "http://test-kubelens.centralus-vision-aks-np.centralus.chrazure.cloud",
-  "oAuthResponseType": "id_token token",
-  "oAuthRequestType": "Bearer",
-  "oAuthScope": "openid profile email",
-  "oAuthConnection": "chradfs",
-  "oAuthEnabled": true,
+  "oAuthJwtIssuer": "",
+  "oAuthAudience": "",
+  "oAuthClientId": "",
+  "oAuthRedirectUri": "",
+  "oAuthResponseType": "",
+  "oAuthRequestType": "",
+  "oAuthScope": "",
+  "oAuthConnection": "",
+  "oAuthEnabled": false,
   "availableClusters": [
     {
-      "NonProd CentralUS": "http://test-api.kubelens.centralus-vision-aks-np.centralus.chrazure.cloud"
+      "NonProd CentralUS": "http://test-api.kubelens.localhost"
     }
   ],
-  "deployerLinkName": "Octopus Link"
+  "deployerLinkName": ""
 }
