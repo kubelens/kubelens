@@ -23,7 +23,6 @@ SOFTWARE.
 */
 import React from 'react';
 import { Row, Col } from 'reactstrap';
-import ReactList from 'react-list';
 import { PodOverview } from '../../types';
 import PodCard from '../../components/pod-card';
 import _ from 'lodash';
@@ -42,19 +41,15 @@ const Overview = ({
         <div>
           <h4>Pods</h4>
           <hr />
-          <Row className="infinite-scroll-container">
-            {!_.isEmpty(podOverview.pods)
-            && <ReactList 
-                itemRenderer={(index, key) => {
-                  return (
-                    <Col sm={6} key={key}>
-                      <PodCard key={key} name={podOverview.name} pod={podOverview.pods[index]} />
-                    </Col>
-                  );
-                }} 
-                length={podOverview.pods && podOverview.pods.length || 0} 
-                type="uniform"/>
-            || <Col sm={12}>No Pods Returned.</Col>}
+          <Row>
+            {podOverview.pods && podOverview.pods.map(pod => {
+              return (
+                <Col sm={6} key={pod.name}>
+                  <PodCard name={pod.name} pod={pod} />
+                </Col>
+              )
+            })
+            }
           </Row>
         </div>
       }

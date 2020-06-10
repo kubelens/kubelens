@@ -42,7 +42,7 @@ const PodCard = (props: PodCardProps) => {
   const { name, pod } = props;
 
   return (
-    <Card className="mb-4">
+    <Card>
       <CardHeader className="link-card-title text-center">
         <Link
           to={{ pathname: `/${name}/pods/${pod.name}?namespace=${pod.namespace}` }}>

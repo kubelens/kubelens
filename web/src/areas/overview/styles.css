@@ -1,8 +1,3 @@
 .overview-container {
   margin-left: 25px;
 }
-
-.infinite-scroll-container {
-  overflow: auto;
-  height: 80vh;
-}

@@ -65,8 +65,8 @@ const HomePage = (props: HomeViewProps) => {
           {/* applications list */}
           {/* I don't understand css enough to get this to work without inline style, moving on. */}
           <div dir="rtl" style={{ maxHeight: '76vh', overflow: 'scroll', marginRight: -40, paddingRight: 40 }}>
-            {filteredApps
-              && <ReactList 
+            {!_.isEmpty(filteredApps)
+              ? <ReactList 
                   itemRenderer={(index, key) => {
                     return (
                       <AppCard 
@@ -80,7 +80,7 @@ const HomePage = (props: HomeViewProps) => {
                   }} 
                   length={filteredApps.length} 
                   type="uniform"/>
-              || <div>No Apps Returned.</div>}
+              : <div>No Apps Returned.</div>}
           </div>
         </div>
         <div className="not-stuck">

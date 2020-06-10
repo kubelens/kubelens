@@ -43,7 +43,7 @@ describe('pod overview should', () => {
   test('render with a podOverview', () => {
     const { wrapper } = setup();
 
-    expect(wrapper.find('ReactList').length).toBe(1);
+    expect(wrapper.find('PodCard').length).toBe(1);
   })
 
 })
