@@ -1,9 +1,4 @@
 {
-  "availableClusters": [
-    {
-      "NonProd2 - CentralUS": "http://kubelens-api.kubelens.centralus-ds-aks-np2.centralus.chrazure.cloud"
-    }
-  ],
   "oAuthJwtIssuer": "",
   "oAuthAudience": "",
   "oAuthClientId": "",
@@ -11,8 +6,12 @@
   "oAuthResponseType": "",
   "oAuthRequestType": "",
   "oAuthScope": "",
-  "oAuthProvider": "",
   "oAuthConnection": "",
   "oAuthEnabled": false,
+  "availableClusters": [
+    {
+      "NonProd CentralUS": "http://test-api.kubelens.localhost"
+    }
+  ],
   "deployerLinkName": ""
 }

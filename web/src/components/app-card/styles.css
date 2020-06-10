@@ -1,0 +1,16 @@
+.app-btn-right a {
+  float: right;
+}
+
+.app-list-card
+.app-list-card-selected  {
+  margin-bottom: '10px'
+}
+
+.app-list-card-selected {
+  margin-right: -25;
+}
+
+.action-right-container {
+  position: relative;
+}
