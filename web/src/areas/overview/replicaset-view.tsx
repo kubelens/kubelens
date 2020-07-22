@@ -75,25 +75,6 @@ const ReplicaSetView = ({
                     </Col>
                   </Row>
                 </Col>
-                {!_.isEmpty(overview.conditions) || !_.isEmpty(overview.deploymentOverviews) ||!_.isEmpty(overview.configMaps)
-                ? <Col sm={5}>
-                  <Row>
-                    <Col sm={6}>
-                      {!_.isEmpty(overview.conditions)
-                      ? <Button outline color="info" onClick={() => toggleModalType('rs-condition')} block>Conditions</Button>
-                      : null}
-                    </Col>
-                    <Col sm={6}>
-                      {!_.isEmpty(overview.deploymentOverviews)
-                      ? <Button outline color="info" onClick={() => toggleModalType('rs-deployment')} block>Deployments</Button>
-                      : null}
-                      {!_.isEmpty(overview.configMaps)
-                      ? <Button outline color="info" onClick={() => toggleModalType('rs-configMap')} block>ConfigMaps</Button>
-                      : null}
-                    </Col>
-                  </Row>
-                </Col>
-                : null}
               </Row>
             </small>
           </CardBody>
@@ -104,30 +85,6 @@ const ReplicaSetView = ({
           : null
           }
         </Card>
-
-        <JsonViewModal
-          title="Conditions"
-          show={conditionsModalOpen}
-          body={overview.conditions}
-          handleClose={() => {
-            toggleModalType('rs-condition');
-          }} />
-    
-        <JsonViewModal
-          title="ConfigMaps"
-          show={configMapModalOpen}
-          body={overview.configMaps}
-          handleClose={() => {
-            toggleModalType('rs-configMap');
-          }} />
-
-        <JsonViewModal
-          title="Deployments"
-          show={deploymentModalOpen}
-          body={overview.deploymentOverviews}
-          handleClose={() => {
-            toggleModalType('rs-deployment');
-          }} />
       </div>
     )})}
   </div>
