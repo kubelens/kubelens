@@ -77,7 +77,7 @@ func (a *LogOptions) GetTailLines() int64 {
 	if a.Tail > 0 {
 		return a.Tail
 	}
-	return 100
+	return 500
 }
 
 // UserCanAccess validates the user has access
