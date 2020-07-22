@@ -70,33 +70,9 @@ describe('replica set overview should', () => {
     expect(wrapper.findWhere(n => n.prop('label') === 'Fully Labeled').length).toBe(1);
   })
 
-  test('have Deployments button displayed', () => {
-    const { wrapper } = setup();
-
-    expect(wrapper.find('Button').findWhere(n => n.text() === 'Deployments').length).toBe(1);
-  })
-
-  test('have ConfigMaps button displayed', () => {
-    const { wrapper } = setup();
-
-    expect(wrapper.find('Button').findWhere(n => n.text() === 'ConfigMaps').length).toBe(1);
-  })
-
-  test('have Conditions button displayed', () => {
-    const { wrapper } = setup();
-
-    expect(wrapper.find('Button').findWhere(n => n.text() === 'Conditions').length).toBe(1);
-  })
-
   test('have CardFooter (pod conditions) displayed', () => {
     const { wrapper } = setup();
 
     expect(wrapper.find('CardFooter').length).toBe(1);
-  })
-
-  test('have JsonViewModals defined', () => {
-    const { wrapper } = setup();
-
-    expect(wrapper.find('JsonViewModal').length).toBe(3);
   })
 })

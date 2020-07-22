@@ -97,8 +97,8 @@ func (k *Client) Apps(options AppOptions) (apps []App, apiErr *errs.APIError) {
 		appInfos := []*[]AppInfo{}
 
 		wg := sync.WaitGroup{}
-		// adding 3x since we are using 4 go routines per iteration
-		wg.Add(len(namespaces.Items) * 4)
+		// adding 3x since we are using 3 go routines per iteration
+		wg.Add(len(namespaces.Items) * 3)
 
 		errors := []*errs.APIError{}
 
@@ -138,20 +138,6 @@ func (k *Client) Apps(options AppOptions) (apps []App, apiErr *errs.APIError) {
 				defer wg.Done()
 
 				jobInfos, err := k.JobAppInfos(JobOptions{Namespace: namespace})
-
-				if err != nil {
-					klog.Trace()
-					errors = append(errors, err)
-				}
-
-				appInfos = append(appInfos, &jobInfos)
-			}(i, ns)
-
-			// get replicasets
-			go func(index int, namespace string) {
-				defer wg.Done()
-
-				jobInfos, err := k.ReplicaSetAppInfos(ReplicaSetOptions{Namespace: namespace})
 
 				if err != nil {
 					klog.Trace()
