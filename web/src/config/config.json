@@ -10,7 +10,7 @@
   "oAuthEnabled": false,
   "availableClusters": [
     {
-      "NonProd CentralUS": "http://test-api.kubelens.localhost"
+      "NonProd CentralUS": "http://kubelens-api.centralus-external-np-aks.centralus.chrazure.cloud"
     }
   ],
   "deployerLinkName": ""

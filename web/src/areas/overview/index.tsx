@@ -27,7 +27,6 @@ import ServiceOverviewPage from './service-view';
 import PodOverviewPage from './pod-view';
 import DaemonSetOverviewPage from './daemonset-view';
 import JobOverviewPage from './job-view';
-import ReplicaSetOverviewPage from './replicaset-view';
 import { Service, PodOverview, DaemonSetOverview, JobOverview, ReplicaSetOverview } from "../../types";
 import { RouteComponentProps, withRouter } from 'react-router';
 import _ from 'lodash';
@@ -137,15 +136,6 @@ export class Overview extends Component<OverviewProps, initialState> {
       case 'job-configmap':
         this.setState({ jobConfigMapModalOpen: !this.state.jobConfigMapModalOpen});
         break;
-      case 'rs-condition':
-        this.setState({ rsConditionModalOpen: !this.state.rsConditionModalOpen});
-        break;
-      case 'rs-deployment':
-        this.setState({ rsDeploymentModalOpen: !this.state.rsDeploymentModalOpen});
-        break;
-      case 'rs-configmap':
-        this.setState({ rsConfigMapModalOpen: !this.state.rsConfigMapModalOpen});
-        break;
       default:
         break;
     }
@@ -160,28 +150,24 @@ export class Overview extends Component<OverviewProps, initialState> {
           specModalOpen={this.state.specModalOpen}
           statusModalOpen={this.state.statusModalOpen}
           configMapModalOpen={this.state.configMapModalOpen}
-          deploymentModalOpen={this.state.deploymentModalOpen} />
+          deploymentModalOpen={this.state.deploymentModalOpen}
+          replicaSetOverviews={this.props.replicaSetOverviews} />
 
         <DaemonSetOverviewPage 
           daemonSetOverviews={this.props.daemonSetOverviews} 
           toggleModalType={this.toggleModalType}
           conditionsModalOpen={this.state.dsConfigMapModalOpen}
           configMapModalOpen={this.state.dsConfigMapModalOpen}
-          deploymentModalOpen={this.state.dsDeploymentModalOpen} />
+          deploymentModalOpen={this.state.dsDeploymentModalOpen}
+          replicaSetOverviews={this.props.replicaSetOverviews} />
 
         <JobOverviewPage 
           jobOverviews={this.props.jobOverviews} 
           toggleModalType={this.toggleModalType}
           conditionsModalOpen={this.state.jobConditionModalOpen}
           configMapModalOpen={this.state.jobConfigMapModalOpen}
-          deploymentModalOpen={this.state.jobDeploymentModalOpen} />
-
-        <ReplicaSetOverviewPage 
-          replicaSetOverviews={this.props.replicaSetOverviews} 
-          toggleModalType={this.toggleModalType}
-          conditionsModalOpen={this.state.rsConfigMapModalOpen}
-          configMapModalOpen={this.state.rsConfigMapModalOpen}
-          deploymentModalOpen={this.state.rsDeploymentModalOpen} />
+          deploymentModalOpen={this.state.jobDeploymentModalOpen}
+          replicaSetOverviews={this.props.replicaSetOverviews} />
 
         <PodOverviewPage podOverview={this.props.podOverview} />
 

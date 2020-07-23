@@ -41,7 +41,6 @@ describe('DeploymentOverviews should', () => {
     expect(wrapper.find('div').findWhere(n => n.text() === 'UpdatedReplicas')).toBeDefined();
     expect(wrapper.find('div').findWhere(n => n.text() === 'ReadyReplicas')).toBeDefined();
     expect(wrapper.find('div').findWhere(n => n.text() === 'UnavailableReplicas')).toBeDefined();
-    // one interation should be 8 divs
-    expect(wrapper.find('div').length).toBe(8);
+    expect(wrapper.find('div').findWhere(n => n.text() === 'Fully Labeled')).toBeDefined();
   })
 })
