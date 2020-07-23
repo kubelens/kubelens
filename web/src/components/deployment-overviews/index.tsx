@@ -23,41 +23,43 @@ SOFTWARE.
 */
 import React from 'react';
 import { Row, Col } from 'reactstrap';
-import { DeploymentOverview } from '../../types';
+import { DeploymentOverview, ReplicaSetOverview } from '../../types';
+import CardText from '../text';
+import _ from 'lodash';
 
 export type TextItemsProps = {
-  keyPrefix: string,
-  overviews?: DeploymentOverview[]
+  overviews?: DeploymentOverview[],
+  replicaSets?: ReplicaSetOverview[]
 };
 
 const TextItems = (props: TextItemsProps) => {
-  const { keyPrefix, overviews } = props;
-
+  const { overviews, replicaSets } = props;
+  const rso = replicaSets && replicaSets.length > 0 ? replicaSets[replicaSets.length - 1] : {} as ReplicaSetOverview;
+  const unavailablers = overviews && overviews.length > 0 ? overviews[overviews.length - 1].unavailableReplicas : 0;
   return (
-    <small>
-      {overviews && overviews.map((ov, index) => {
-        return(
-          <Row key={`${keyPrefix}-${index}`}>
-            <Col sm={3}>
-              <div className="text-center"><strong>Replicas</strong></div>
-              <div>{ov.replicas}</div>
-            </Col>
-            <Col sm={3}>
-              <div className="text-center"><strong>UpdatedReplicas</strong></div>
-              <div>{ov.updatedReplicas}</div>
-            </Col>
-            <Col sm={3}>
-              <div className="text-center"><strong>ReadyReplicas</strong></div>
-              <div>{ov.readyReplicas}</div>
-            </Col>
-            <Col sm={3}>
-              <div className="text-center"><strong>UnavailableReplicas</strong></div>
-              <div>{ov.unavailableReplicas}</div>
-            </Col>
-          </Row>
-        )
-      })}
-    </small>
+    !_.isEmpty(rso) ?
+      <small>
+        <h5>Replica Sets</h5>
+        <hr />
+        <Row>
+          <Col>
+            <CardText label="Total" value={rso.replicas} />
+          </Col>
+          <Col>
+            <CardText label="Ready" value={rso.readyReplicas} />
+          </Col>
+          <Col>
+            <CardText label="Available" value={rso.availableReplicas} />
+          </Col>
+          <Col>
+            <CardText label="Unavailable" value={unavailablers} />
+          </Col>
+          <Col>
+            <CardText label="Fully Labeled" value={rso.fullyLabeledReplicas} />
+          </Col>
+        </Row>
+      </small>
+    : null
   );
 }
 

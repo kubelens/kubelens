@@ -25,7 +25,7 @@ import React from 'react';
 import { Row, Col, Card, CardBody, CardFooter, Button } from 'reactstrap';
 import CardText from '../../components/text';
 import JsonViewModal from '../../components/json-view-modal';
-import { JobOverview } from '../../types';
+import { JobOverview, ReplicaSetOverview } from '../../types';
 import DeploymentOverviews from '../../components/deployment-overviews';
 import _ from 'lodash';
 
@@ -34,7 +34,8 @@ export type JobOverviewProps = {
   toggleModalType: (type: string) => void,
   conditionsModalOpen: boolean,
   configMapModalOpen: boolean,
-  deploymentModalOpen: boolean
+  deploymentModalOpen: boolean,
+  replicaSetOverviews: ReplicaSetOverview[]
 };
 
 const JobView = ({
@@ -42,7 +43,8 @@ const JobView = ({
   toggleModalType,
   conditionsModalOpen,
   configMapModalOpen,
-  deploymentModalOpen
+  deploymentModalOpen,
+  replicaSetOverviews
 }: JobOverviewProps) => {
   return (
     <div>
@@ -106,12 +108,11 @@ const JobView = ({
               </Row>
             </small>
           </CardBody>
-          {!_.isEmpty(overview.deploymentOverviews) ?
-            <CardFooter>
-              <DeploymentOverviews overviews={overview.deploymentOverviews} keyPrefix={`job-${overview.name}`} />
-            </CardFooter>
-          : null
-          }
+          <CardFooter>
+            <DeploymentOverviews 
+              overviews={overview.deploymentOverviews}
+              replicaSets={replicaSetOverviews} />
+          </CardFooter>
         </Card>
 
         <JsonViewModal
