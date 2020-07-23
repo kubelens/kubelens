@@ -22,6 +22,9 @@ type AppOptions struct {
 type App struct {
 	// name of the application
 	Name string `json:"name"`
+	// the actual name of the application, this will be the
+	// same as Name if "FriendlyName" is not used.
+	ActualName string `json:"actualName"`
 	// the namespace of the app
 	Namespace string `json:"namespace"`
 	// kind of application, e.g. Service, DaemonSet
@@ -158,6 +161,7 @@ func (k *Client) Apps(options AppOptions) (apps []App, apiErr *errs.APIError) {
 			for _, b := range *a {
 				apps = append(apps, App{
 					Name:          b.FriendlyName,
+					ActualName:    b.Name,
 					Namespace:     b.Namespace,
 					Kind:          b.Kind,
 					LabelSelector: b.LabelSelector,

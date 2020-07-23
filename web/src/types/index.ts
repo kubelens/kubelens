@@ -47,6 +47,7 @@ export type Log = {
 
 export type App = {
   name: string,
+  actualName: string,
   namespace: string,
   labelSelector: string,
   kind: string,
