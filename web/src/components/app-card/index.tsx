@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 import React from 'react';
-import { Row, Col, Card, CardHeader, CardBody } from 'reactstrap';
+import { Row, Col, Card, CardHeader, CardBody, CardFooter } from 'reactstrap';
 import { App } from '../../types/index';
 import RightArrowInverse from '../../assets/right-arrow-yellow-inverse.png';
 import _ from 'lodash';
@@ -85,6 +85,11 @@ const AppCard = (props: AppCardProps) => {
               </Col>
             </Row>
           </CardBody>
+          {!_.isEmpty(app.actualName) ?
+            <CardFooter className="text-center">
+              <small><small>{app.actualName}</small></small>
+            </CardFooter>
+          : null}
         </Card>
       </div>
     </div> 
