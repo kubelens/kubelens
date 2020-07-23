@@ -27,6 +27,7 @@ import CardText from '../../components/text';
 import JsonViewModal from '../../components/json-view-modal';
 import { Service } from '../../types';
 import DeploymentOverviews from '../../components/deployment-overviews';
+import { ReplicaSetOverview } from '../../types';
 import _ from 'lodash';
 
 export type ServiceOverviewProps = {
@@ -35,7 +36,8 @@ export type ServiceOverviewProps = {
   specModalOpen: boolean,
   statusModalOpen: boolean,
   configMapModalOpen: boolean,
-  deploymentModalOpen: boolean
+  deploymentModalOpen: boolean,
+  replicaSetOverviews: ReplicaSetOverview[]
 };
 
 const ServiceOverview = ({
@@ -44,7 +46,8 @@ const ServiceOverview = ({
   specModalOpen,
   statusModalOpen,
   configMapModalOpen,
-  deploymentModalOpen
+  deploymentModalOpen,
+  replicaSetOverviews
 }: ServiceOverviewProps) => {
   return (
     <div>
@@ -93,12 +96,11 @@ const ServiceOverview = ({
               </Row>
             </small>
           </CardBody>
-          {!_.isEmpty(overview.deploymentOverviews) ?
-            <CardFooter>
-              <DeploymentOverviews overviews={overview.deploymentOverviews} keyPrefix={`svc-${overview.name}`} />
-            </CardFooter>
-          : null
-          }
+          <CardFooter>
+            <DeploymentOverviews 
+              overviews={overview.deploymentOverviews}
+              replicaSets={replicaSetOverviews} />
+          </CardFooter>
         </Card>
 
         <JsonViewModal
