@@ -26,12 +26,7 @@
   "enableAuth": false,
   "enableRBAC": false,
   "rbacClaim": "",
-  "projectSlugRegex": "",
-  "deployerLink": "",
-  "appNameLabelKeys": [
-    "app",
-    "name"
-  ],
+  "labelKeyLink": "app",
   "viewerLabelInclusions": [
     "app"
   ],

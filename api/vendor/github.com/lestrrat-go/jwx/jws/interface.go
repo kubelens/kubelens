@@ -1,91 +1,135 @@
 package jws
 
 import (
+	"crypto/ecdsa"
+	"crypto/rsa"
+
+	"github.com/lestrrat-go/iter/mapiter"
+	"github.com/lestrrat-go/jwx/internal/iter"
 	"github.com/lestrrat-go/jwx/jwa"
-	"github.com/lestrrat-go/jwx/jwk"
 )
-
-type EncodedSignature struct {
-	Protected string          `json:"protected,omitempty"`
-	Headers   Headers `json:"header,omitempty"`
-	Signature string          `json:"signature,omitempty"`
-}
-
-type EncodedSignatureUnmarshalProxy struct {
-	Protected string           `json:"protected,omitempty"`
-	Headers   *StandardHeaders `json:"header,omitempty"`
-	Signature string           `json:"signature,omitempty"`
-}
-
-type EncodedMessage struct {
-	Payload    string              `json:"payload"`
-	Signatures []*EncodedSignature `json:"signatures,omitempty"`
-}
-
-type EncodedMessageUnmarshalProxy struct {
-	Payload    string                            `json:"payload"`
-	Signatures []*EncodedSignatureUnmarshalProxy `json:"signatures,omitempty"`
-}
-
-type FullEncodedMessage struct {
-	*EncodedSignature // embedded to pick up flattened JSON message
-	*EncodedMessage
-}
-
-type FullEncodedMessageUnmarshalProxy struct {
-	*EncodedSignatureUnmarshalProxy // embedded to pick up flattened JSON message
-	*EncodedMessageUnmarshalProxy
-}
-
-// PayloadSigner generates signature for the given payload
-type PayloadSigner interface {
-	Sign([]byte) ([]byte, error)
-	Algorithm() jwa.SignatureAlgorithm
-	ProtectedHeader() Headers
-	PublicHeader() Headers
-}
 
 // Message represents a full JWS encoded message. Flattened serialization
 // is not supported as a struct, but rather it's represented as a
 // Message struct with only one `signature` element.
 //
 // Do not expect to use the Message object to verify or construct a
-// signed payloads with. You should only use this when you want to actually
-// want to programmatically view the contents for the full JWS payload.
+// signed payload with. You should only use this when you want to actually
+// programmatically view the contents of the full JWS payload.
 //
-// To sign and verify, use the appropriate `Sign()` nad `Verify()` functions
+// As of this version, there is one big incompatibility when using Message
+// objects to convert between compact and JSON representations.
+// The protected header is sometimes encoded differently from the original
+// message and the JSON serialization that we use in Go.
+//
+// For example, the protected header `eyJ0eXAiOiJKV1QiLA0KICJhbGciOiJIUzI1NiJ9`
+// decodes to
+//
+//   {"typ":"JWT",
+//     "alg":"HS256"}
+//
+// However, when we parse this into a message, we create a jws.Header object,
+// which, when we marshal into a JSON object again, becomes
+//
+//   {"typ":"JWT","alg":"HS256"}
+//
+// Notice that serialization lacks a line break and a space between `"JWT",`
+// and `"alg"`. This causes a problem when verifying the signatures AFTER
+// a compact JWS message has been unmarshaled into a jws.Message.
+//
+// jws.Verify() doesn't go through this step, and therefore this does not
+// manifest itself. However, you may see this discrepancy when you manually
+// go through these conversions, and/or use the `jwx` tool like so:
+//
+//   jwx jws parse message.jws | jwx jws verify --key somekey.jwk --stdin
+//
+// In this scenario, the first `jwx jws parse` outputs a parsed jws.Message
+// which is marshaled into JSON. At this point the message's protected
+// headers and the signatures don't match.
+//
+// To sign and verify, use the appropriate `Sign()` and `Verify()` functions.
 type Message struct {
-	payload    []byte       `json:"payload"`
-	signatures []*Signature `json:"signatures,omitempty"`
+	payload    []byte
+	signatures []*Signature
 }
 
 type Signature struct {
-	headers   Headers `json:"header,omitempty"`    // Unprotected Headers
-	protected Headers `json:"protected,omitempty"` // Protected Headers
-	signature []byte          `json:"signature,omitempty"` // Signature
+	headers   Headers // Unprotected Headers
+	protected Headers // Protected Headers
+	signature []byte  // Signature
 }
 
-// JWKAcceptor decides which keys can be accepted
-// by functions that iterate over a JWK key set.
-type JWKAcceptor interface {
-	Accept(jwk.Key) bool
+type Visitor = iter.MapVisitor
+type VisitorFunc = iter.MapVisitorFunc
+type HeaderPair = mapiter.Pair
+type Iterator = mapiter.Iterator
+
+// Signer generates the signature for a given payload.
+type Signer interface {
+	// Sign creates a signature for the given payload.
+	// The scond argument is the key used for signing the payload, and is usually
+	// the private key type associated with the signature method. For example,
+	// for `jwa.RSXXX` and `jwa.PSXXX` types, you need to pass the
+	// `*"crypto/rsa".PrivateKey` type.
+	// Check the documentation for each signer for details
+	Sign([]byte, interface{}) ([]byte, error)
+
+	Algorithm() jwa.SignatureAlgorithm
 }
 
-// JWKAcceptFunc is an implementation of JWKAcceptor
-// using a plain function
-type JWKAcceptFunc func(jwk.Key) bool
+type rsaSignFunc func([]byte, *rsa.PrivateKey) ([]byte, error)
 
-// Accept executes the provided function to determine if the
-// given key can be used
-func (f JWKAcceptFunc) Accept(key jwk.Key) bool {
-	return f(key)
+// RSASigner uses crypto/rsa to sign the payloads.
+type RSASigner struct {
+	alg  jwa.SignatureAlgorithm
+	sign rsaSignFunc
 }
 
-// DefaultJWKAcceptor is the default acceptor that is used
-// in functions like VerifyWithJWKSet
-var DefaultJWKAcceptor = JWKAcceptFunc(func(key jwk.Key) bool {
-	if u := key.KeyUsage(); u != "" && u != "enc" && u != "sig" {
-		return false
-	}
-	return true
-})
+type ecdsaSignFunc func([]byte, *ecdsa.PrivateKey) ([]byte, error)
+
+// ECDSASigner uses crypto/ecdsa to sign the payloads.
+type ECDSASigner struct {
+	alg  jwa.SignatureAlgorithm
+	sign ecdsaSignFunc
+}
+
+type hmacSignFunc func([]byte, []byte) ([]byte, error)
+
+// HMACSigner uses crypto/hmac to sign the payloads.
+type HMACSigner struct {
+	alg  jwa.SignatureAlgorithm
+	sign hmacSignFunc
+}
+
+type EdDSASigner struct {
+}
+
+type Verifier interface {
+	// Verify checks whether the payload and signature are valid for
+	// the given key.
+	// `key` is the key used for verifying the payload, and is usually
+	// the public key associated with the signature method. For example,
+	// for `jwa.RSXXX` and `jwa.PSXXX` types, you need to pass the
+	// `*"crypto/rsa".PublicKey` type.
+	// Check the documentation for each verifier for details
+	Verify(payload []byte, signature []byte, key interface{}) error
+}
+
+type rsaVerifyFunc func([]byte, []byte, *rsa.PublicKey) error
+
+type RSAVerifier struct {
+	verify rsaVerifyFunc
+}
+
+type ecdsaVerifyFunc func([]byte, []byte, *ecdsa.PublicKey) error
+
+type ECDSAVerifier struct {
+	verify ecdsaVerifyFunc
+}
+
+type HMACVerifier struct {
+	signer Signer
+}
+
+type EdDSAVerifier struct {
+}

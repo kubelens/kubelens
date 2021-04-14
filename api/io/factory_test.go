@@ -8,13 +8,13 @@ import (
 	"testing"
 
 	"github.com/gorilla/websocket"
-	"github.com/stretchr/testify/assert"
 	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
 	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/config"
 	k8fakes "github.com/kubelens/kubelens/api/k8sv1/fakes"
 	klog "github.com/kubelens/kubelens/api/log"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFactoryWriteReadSuccess(t *testing.T) {
@@ -34,7 +34,7 @@ func TestFactoryWriteReadSuccess(t *testing.T) {
 		ctx := rbac.NewContext(r.Context(), rbacfakes.RoleAssignment{})
 		r = r.WithContext(ctx)
 
-		wsFactory.Register(&k8fakes.K8V1{}, w, r)
+		wsFactory.Register(&k8fakes.K8sV1{}, w, r)
 	}))
 
 	defer s.Close()
@@ -97,7 +97,7 @@ func TestFactoryWriteReadForbiddenHost(t *testing.T) {
 		ctx := rbac.NewContext(r.Context(), rbacfakes.RoleAssignment{})
 		r = r.WithContext(ctx)
 
-		wsFactory.Register(&k8fakes.K8V1{}, w, r)
+		wsFactory.Register(&k8fakes.K8sV1{}, w, r)
 	}))
 
 	defer s.Close()

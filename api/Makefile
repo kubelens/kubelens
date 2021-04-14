@@ -1,7 +1,7 @@
 default: test
 
 depends:
-	dep init || dep ensure
+	go mod tidy
 
 .PHONY: test
 test:

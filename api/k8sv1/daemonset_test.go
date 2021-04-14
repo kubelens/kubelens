@@ -1,6 +1,7 @@
 package k8sv1
 
 import (
+	"context"
 	"testing"
 
 	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
@@ -8,17 +9,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDaemonSetOverviewsDefaultSuccess(t *testing.T) {
-	c := setupClient("testns", "test", false, false)
+func TestDaemonSetsDefaultSuccess(t *testing.T) {
+	c := setupClient("testns", "dstest1", false, false)
 
-	ls := map[string]string{}
-	ls[AppNameLabel] = FriendlyAppName
-
-	d, err := c.DaemonSetOverviews(DaemonSetOptions{
-		UserRole:      &rbacfakes.RoleAssignment{},
-		Logger:        &logfakes.Logger{},
-		Namespace:     "testns",
-		LabelSelector: ls,
+	d, err := c.DaemonSets(DaemonSetOptions{
+		UserRole:   &rbacfakes.RoleAssignment{},
+		Logger:     &logfakes.Logger{},
+		Namespace:  "testns",
+		LinkedName: "dstest1",
+		Context:    context.Background(),
 	})
 
 	assert.Nil(t, err)
@@ -26,43 +25,47 @@ func TestDaemonSetOverviewsDefaultSuccess(t *testing.T) {
 	assert.Equal(t, d[0].Namespace, "testns")
 }
 
-func TestGetDaemonSetOverviewsDefaultFail(t *testing.T) {
-	c := setupClient("testns", "test", true, true)
+func TestGetDaemonSetsDefaultFail(t *testing.T) {
+	c := setupClient("testns", "dstest2", true, true)
 
-	_, err := c.DaemonSetOverviews(DaemonSetOptions{
-		UserRole:      &rbacfakes.RoleAssignment{},
-		Logger:        &logfakes.Logger{},
-		Namespace:     "testns",
-		LabelSelector: map[string]string{"random": "labelvalue"},
+	_, err := c.DaemonSets(DaemonSetOptions{
+		UserRole:   &rbacfakes.RoleAssignment{},
+		Logger:     &logfakes.Logger{},
+		Namespace:  "testns",
+		LinkedName: "dstest2",
+		Context:    context.Background(),
 	})
 
 	assert.NotNil(t, err)
 }
 
-func TestDaemonSetAppInfosDefaultSuccess(t *testing.T) {
-	c := setupClient("testns", "test", false, false)
+func TestDaemonSetDefaultSuccess(t *testing.T) {
+	c := setupClient("testns", "dstest3", false, false)
 
-	ls := map[string]string{}
-	ls[AppNameLabel] = FriendlyAppName
-
-	d, err := c.DaemonSetAppInfos(DaemonSetOptions{
-		UserRole:  &rbacfakes.RoleAssignment{},
-		Logger:    &logfakes.Logger{},
-		Namespace: "testns",
+	d, err := c.DaemonSet(DaemonSetOptions{
+		UserRole:   &rbacfakes.RoleAssignment{},
+		Logger:     &logfakes.Logger{},
+		Namespace:  "testns",
+		Name:       "dstest3",
+		LinkedName: "whatever",
+		Context:    context.Background(),
 	})
 
 	assert.Nil(t, err)
-	assert.Len(t, d, 1)
-	assert.Equal(t, d[0].Namespace, "testns")
+	assert.NotNil(t, d)
+	assert.Equal(t, d.Namespace, "testns")
 }
 
-func TestGetDaemonSetAppInfosDefaultFail(t *testing.T) {
-	c := setupClient("testns", "test", true, true)
+func TestGetDaemonSetDefaultFail(t *testing.T) {
+	c := setupClient("testns", "dstest4", true, true)
 
-	_, err := c.DaemonSetAppInfos(DaemonSetOptions{
-		UserRole:  &rbacfakes.RoleAssignment{},
-		Logger:    &logfakes.Logger{},
-		Namespace: "testns",
+	_, err := c.DaemonSet(DaemonSetOptions{
+		UserRole:   &rbacfakes.RoleAssignment{},
+		Logger:     &logfakes.Logger{},
+		Namespace:  "testns",
+		Name:       "dstest4",
+		LinkedName: "dstest4",
+		Context:    context.Background(),
 	})
 
 	assert.NotNil(t, err)

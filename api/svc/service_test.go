@@ -41,7 +41,7 @@ func TestGetServicesDefault(t *testing.T) {
 		return
 	}
 	assert.Equal(t, 200, resp.StatusCode)
-	assert.Equal(t, "service-name", b[0].Name)
+	assert.Equal(t, "-service", b[0].Name)
 }
 
 func TestGetServicesError(t *testing.T) {

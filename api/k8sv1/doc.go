@@ -1,4 +1,4 @@
-/*Package k8sv1 is essentially a wrapper package to interact with Kubernetes client-go.
+/*package k8sv1 is essentially a wrapper package to interact with Kubernetes client-go.
 Any container can have a pod/service/daemon name that's auto generated or passed in as a static value.
 Here's an example of what can be done with naming:
 Let's say you have names domain-projects-1234-env or domain-projects-1234-env-passive (for blue green deployments)

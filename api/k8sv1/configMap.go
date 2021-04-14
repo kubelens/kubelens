@@ -1,6 +1,9 @@
 package k8sv1
 
 import (
+	"context"
+	"strings"
+
 	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 	klog "github.com/kubelens/kubelens/api/log"
@@ -10,19 +13,36 @@ import (
 
 // ConfigMapOptions .
 type ConfigMapOptions struct {
+	/// the name (optional)
+	Name string `json:"name"`
+	// the value from the label "app=NAME", corresponds to config.LabelKeyLink
+	LinkedName string `json:"linkedName"`
 	// namespace to filter on
 	Namespace string `json:"namespace"`
-	// the label selector to match kinds
-	LabelSelector map[string]string `json:"labelSelector"`
+	// the labels to match kinds
+	Labels map[string]string `json:"labels"`
 	//users role assignemnt
 	UserRole rbac.RoleAssignmenter
 	// logger instance
 	Logger klog.Logger
+	// Context .
+	Context context.Context
 }
 
-// ConfigMaps returns a list of config maps. If LabelSelector is provided, only config map labels matching that selector
-// will be returned
-func (k *Client) ConfigMaps(options ConfigMapOptions) (configMaps []v1.ConfigMap, apiErr *errs.APIError) {
+type ConfigMapOverview struct {
+	/// the name
+	Name string `json:"name"`
+	// the value from the label "app=NAME", corresponds to config.LabelKeyLink
+	LinkedName string `json:"linkedName"`
+	// the namespace
+	Namespace string `json:"namespace"`
+	// the full configmap
+	ConfigMap *v1.ConfigMap `json:"configMap,omitempty"`
+}
+
+// ConfigMap returns a configmap given filter options
+func (k *Client) ConfigMap(options ConfigMapOptions) (overview *ConfigMapOverview, apiErr *errs.APIError) {
+
 	clientset, err := k.wrapper.GetClientSet()
 
 	if err != nil {
@@ -30,30 +50,70 @@ func (k *Client) ConfigMaps(options ConfigMapOptions) (configMaps []v1.ConfigMap
 		return nil, errs.InternalServerError(err.Error())
 	}
 
-	lo := metav1.ListOptions{
-		IncludeUninitialized: true,
-	}
+	list, err := clientset.CoreV1().ConfigMaps(options.Namespace).List(options.Context, metav1.ListOptions{})
 
-	// get this list of config maps here to ensure correct namespace. This should perform
-	// just fine, but if not, this list could be generated outsid of this routine.
-	cmList, err := clientset.CoreV1().ConfigMaps(options.Namespace).List(lo)
-	// just trace the error and move on, shouldn't be critical.
 	if err != nil {
 		klog.Trace()
+		return nil, errs.InternalServerError(err.Error())
 	}
 
-	if cmList != nil {
-		jConfigMaps := []v1.ConfigMap{}
-
-		for _, cm := range cmList.Items {
-			cmLabels := cm.GetLabels()
-			if options.UserRole.HasConfigMapAccess(cmLabels) && labelsContainSelector(options.LabelSelector, cmLabels) {
-				jConfigMaps = append(jConfigMaps, cm)
+	if list != nil && len(list.Items) > 0 {
+		for _, item := range list.Items {
+			if options.UserRole.HasConfigMapAccess(item.Labels) {
+				// first check name of deployment, then by labelSelctor
+				if strings.EqualFold(item.Name, options.Name) {
+					return &ConfigMapOverview{
+						Name:       item.Name,
+						LinkedName: getLinkedName(item.Labels),
+						Namespace:  item.Namespace,
+						ConfigMap:  &item,
+					}, nil
+				}
 			}
 		}
+	}
+	return overview, nil
+}
 
-		return jConfigMaps, nil
+// ConfigMaps returns a list ofconfigmaps given filter options
+func (k *Client) ConfigMaps(options ConfigMapOptions) (overviews []ConfigMapOverview, apiErr *errs.APIError) {
+	overviews = []ConfigMapOverview{}
+	clientset, err := k.wrapper.GetClientSet()
+
+	if err != nil {
+		klog.Trace()
+		return nil, errs.InternalServerError(err.Error())
 	}
 
-	return nil, nil
+	list, err := clientset.CoreV1().ConfigMaps(options.Namespace).List(options.Context, metav1.ListOptions{})
+
+	if err != nil {
+		klog.Trace()
+		return nil, errs.InternalServerError(err.Error())
+	}
+
+	if list != nil && len(list.Items) > 0 {
+		for _, item := range list.Items {
+			if options.UserRole.HasConfigMapAccess(item.Labels) {
+				if len(options.LinkedName) > 0 {
+					if labelsContainSelector(options.LinkedName, item.Labels) {
+						overviews = append(overviews, ConfigMapOverview{
+							Name:       item.Name,
+							LinkedName: getLinkedName(item.Labels),
+							Namespace:  item.Namespace,
+							ConfigMap:  &item,
+						})
+					}
+				} else {
+					overviews = append(overviews, ConfigMapOverview{
+						Name:       item.Name,
+						LinkedName: getLinkedName(item.Labels),
+						Namespace:  item.Namespace,
+						ConfigMap:  &item,
+					})
+				}
+			}
+		}
+	}
+	return overviews, nil
 }

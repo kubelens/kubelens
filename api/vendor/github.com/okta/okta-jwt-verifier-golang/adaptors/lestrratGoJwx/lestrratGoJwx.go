@@ -17,11 +17,37 @@
 package lestrratGoJwx
 
 import (
-	"github.com/okta/okta-jwt-verifier-golang/adaptors"
+	"context"
+	"encoding/json"
+	"sync"
+	"time"
+
 	"github.com/lestrrat-go/jwx/jwk"
 	"github.com/lestrrat-go/jwx/jws"
-	"encoding/json"
+	"github.com/okta/okta-jwt-verifier-golang/adaptors"
+	"github.com/patrickmn/go-cache"
 )
+
+var jwkSetCache *cache.Cache = cache.New(5*time.Minute, 10*time.Minute)
+var jwkSetMu = &sync.Mutex{}
+
+func getJwkSet(jwkUri string) (jwk.Set, error) {
+	jwkSetMu.Lock()
+	defer jwkSetMu.Unlock()
+
+	if x, found := jwkSetCache.Get(jwkUri); found {
+		return x.(jwk.Set), nil
+	}
+	jwkSet, err := jwk.Fetch(context.Background(), jwkUri)
+
+	if err != nil {
+		return nil, err
+	}
+
+	jwkSetCache.SetDefault(jwkUri, jwkSet)
+
+	return jwkSet, nil
+}
 
 type LestrratGoJwx struct {
 	JWKSet jwk.Set
@@ -36,8 +62,12 @@ func (lgj LestrratGoJwx) GetKey(jwkUri string) {
 }
 
 func (lgj LestrratGoJwx) Decode(jwt string, jwkUri string) (interface{}, error) {
+	jwkSet, err := getJwkSet(jwkUri)
 
-	token, err := jws.VerifyWithJKU([]byte(jwt), jwkUri)
+	if err != nil {
+		return nil, err
+	}
+	token, err := jws.VerifySet([]byte(jwt), jwkSet)
 
 	if err != nil {
 		return nil, err

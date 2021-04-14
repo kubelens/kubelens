@@ -13,13 +13,13 @@ import (
 )
 
 func getSvc() *request {
-	return &request{&fakes.K8V1{}}
+	return &request{&fakes.K8sV1{}}
 }
 
 func TestRegister(t *testing.T) {
 	rc := mux.NewRouter()
 
-	rq := New(&fakes.K8V1{})
+	rq := New(&fakes.K8sV1{})
 
 	p := func() {
 		rq.Register(rc)
@@ -32,7 +32,7 @@ func TestHealthHandler(t *testing.T) {
 	config.Set("../config/config.json")
 	rc := mux.NewRouter()
 
-	rq := New(&fakes.K8V1{})
+	rq := New(&fakes.K8sV1{})
 	rq.Register(rc)
 
 	ts := httptest.NewServer(rc)
