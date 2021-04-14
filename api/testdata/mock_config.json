@@ -27,10 +27,7 @@
   "rbacClaim": "",
   "projectSlugRegex": "projects-[0-9]+",
   "deployerLink": "https://test-deployer.com/",
-  "appNameLabelKeys": [
-    "app",
-    "name"
-  ],
+  "labelKeyLink": "app",
   "viewerLabelInclusions": [
     "app"
   ],

@@ -31,7 +31,7 @@ func TestSetMiddleware(t *testing.T) {
 		assert.Equal(t, "/io/", r.URL.Path)
 	})
 
-	mw := setMiddleware(&iofakes.SocketFactory{}, &k8fakes.K8V1{}, tmw)
+	mw := setMiddleware(&iofakes.SocketFactory{}, &k8fakes.K8sV1{}, tmw)
 
 	mw.ServeHTTP(w, req)
 }
@@ -51,6 +51,6 @@ func TestSetMiddlewareIncorrectSocketMethod(t *testing.T) {
 		assert.Equal(t, "/io/", r.URL.Path)
 	})
 
-	wsh := websocketHandler(&iofakes.SocketFactory{}, &k8fakes.K8V1{}, tmw)
+	wsh := websocketHandler(&iofakes.SocketFactory{}, &k8fakes.K8sV1{}, tmw)
 	wsh.ServeHTTP(w, req)
 }

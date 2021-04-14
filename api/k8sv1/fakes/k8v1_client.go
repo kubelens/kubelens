@@ -6,96 +6,120 @@ import (
 	"strings"
 
 	"github.com/kubelens/kubelens/api/errs"
-	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
+	"github.com/kubelens/kubelens/api/k8sv1"
 )
 
-// K8V1 .
-type K8V1 struct {
+// K8sV1 .
+type K8sV1 struct {
 	fail *bool
 }
 
 // SanityCheck .
-func (m *K8V1) SanityCheck() (apiErr *errs.APIError) {
+func (m *K8sV1) SanityCheck() (apiErr *errs.APIError) {
 	if m.fail != nil && *m.fail {
 		return errs.InternalServerError("Sanity check error")
 	}
 	return nil
 }
 
-// Apps .
-func (m *K8V1) Apps(options k8sv1.AppOptions) (apps []k8sv1.App, apiErr *errs.APIError) {
+// Overview .
+func (m *K8sV1) Overview(options k8sv1.OverviewOptions) (overview *k8sv1.Overview, apiErr *errs.APIError) {
 	if m.fail != nil && *m.fail {
-		return nil, errs.InternalServerError("Apps Test Error")
+		return nil, errs.InternalServerError("Overview Test Error")
 	}
 
-	return []k8sv1.App{
-		k8sv1.App{
-			Name:      "test-service",
-			Namespace: "default",
-			Kind:      "Service",
-		},
-		k8sv1.App{
-			Name:      "test-daemonset",
-			Namespace: "default",
-			Kind:      "DaemonSet",
-		},
-	}, nil
-}
-
-// AppOverview .
-func (m *K8V1) AppOverview(options k8sv1.AppOverviewOptions) (ao *k8sv1.AppOverview, apiErr *errs.APIError) {
-	if options.Namespace == "bad" {
-		return ao, errs.InternalServerError("AppOverview Test Error")
-	}
-
-	return &k8sv1.AppOverview{
-		PodOverviews: k8sv1.PodOverview{
-			Name:      "testpod",
-			Namespace: "default",
-			PodInfo: []*k8sv1.PodInfo{
-				&k8sv1.PodInfo{
-					Name: "testpod",
-				},
+	return &k8sv1.Overview{
+		LinkedName: options.LinkedName,
+		Namespace:  options.Namespace,
+		DaemonSets: []k8sv1.DaemonSetOverview{
+			{
+				Name:       options.LinkedName + "-daemonset",
+				LinkedName: options.LinkedName,
+				Namespace:  options.Namespace,
 			},
 		},
-		ServiceOverviews: []k8sv1.ServiceOverview{
-			k8sv1.ServiceOverview{
-				Name: "service-name",
+		Deployments: []k8sv1.DeploymentOverview{
+			{
+				Name:       options.LinkedName + "-deployment",
+				LinkedName: options.LinkedName,
+				Namespace:  options.Namespace,
+			},
+		},
+		Jobs: []k8sv1.JobOverview{
+			{
+				Name:       options.LinkedName + "-job",
+				LinkedName: options.LinkedName,
+				Namespace:  options.Namespace,
+			},
+		},
+		Pods: []k8sv1.PodOverview{
+			{
+				Name:       options.LinkedName + "-pod",
+				LinkedName: options.LinkedName,
+				Namespace:  options.Namespace,
+			},
+		},
+		ReplicaSets: []k8sv1.ReplicaSetOverview{
+			{
+				Name:       options.LinkedName + "-replicaset",
+				LinkedName: options.LinkedName,
+				Namespace:  options.Namespace,
+			},
+		},
+		Services: []k8sv1.ServiceOverview{
+			{
+				Name:       options.LinkedName + "-service",
+				LinkedName: options.LinkedName,
+				Namespace:  options.Namespace,
 			},
 		},
 	}, nil
 }
 
-// PodDetail .
-func (m *K8V1) PodDetail(options k8sv1.PodDetailOptions) (po *k8sv1.PodDetail, apiErr *errs.APIError) {
+// Overviews .
+func (m *K8sV1) Overviews(options k8sv1.OverviewOptions) (overviews []k8sv1.Overview, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
-		return po, errs.InternalServerError("PodDetail Test Error")
+		return overviews, errs.InternalServerError("Overviews Test Error")
 	}
 
-	return &k8sv1.PodDetail{
-		Name: "testpod",
+	return []k8sv1.Overview{
+		{
+			LinkedName: options.LinkedName,
+			Namespace:  options.Namespace,
+		},
 	}, nil
 }
 
-// PodOverview .
-func (m *K8V1) PodOverview(options k8sv1.PodOverviewOptions) (po *k8sv1.PodOverview, apiErr *errs.APIError) {
+// Pod .
+func (m *K8sV1) Pod(options k8sv1.PodOptions) (overview *k8sv1.PodOverview, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
-		return po, errs.InternalServerError("GetApps Test Error")
+		return overview, errs.InternalServerError("Pod Test Error")
 	}
 
 	return &k8sv1.PodOverview{
-		Name:      "test",
-		Namespace: "default",
-		PodInfo: []*k8sv1.PodInfo{
-			&k8sv1.PodInfo{
-				Name: "testpod",
-			},
+		Name:       options.Name + "-pod",
+		LinkedName: options.LinkedName,
+		Namespace:  options.Namespace,
+	}, nil
+}
+
+// Pods .
+func (m *K8sV1) Pods(options k8sv1.PodOptions) (overviews []k8sv1.PodOverview, apiErr *errs.APIError) {
+	if options.Namespace == "bad" {
+		return overviews, errs.InternalServerError("Pods Test Error")
+	}
+
+	return []k8sv1.PodOverview{
+		{
+			Name:       options.Name + "-pod",
+			LinkedName: options.LinkedName,
+			Namespace:  options.Namespace,
 		},
 	}, nil
 }
 
 // Logs .
-func (m *K8V1) Logs(options k8sv1.LogOptions) (logs k8sv1.Log, apiErr *errs.APIError) {
+func (m *K8sV1) Logs(options k8sv1.LogOptions) (logs k8sv1.Log, apiErr *errs.APIError) {
 	if options.Namespace == "bad2" {
 		logs = k8sv1.Log{
 			Pod:    options.PodName,
@@ -111,125 +135,148 @@ func (m *K8V1) Logs(options k8sv1.LogOptions) (logs k8sv1.Log, apiErr *errs.APIE
 }
 
 // ReadLogs .
-func (m *K8V1) ReadLogs(options k8sv1.LogOptions) (rc io.ReadCloser, apiErr *errs.APIError) {
+func (m *K8sV1) ReadLogs(options k8sv1.LogOptions) (rc io.ReadCloser, apiErr *errs.APIError) {
 	stringReader := strings.NewReader("message\n")
 	stringReadCloser := ioutil.NopCloser(stringReader)
 	return stringReadCloser, nil
 }
 
-// ServiceOverviews .
-func (m *K8V1) ServiceOverviews(options k8sv1.ServiceOptions) (svco []k8sv1.ServiceOverview, apiErr *errs.APIError) {
+// Service .
+func (m *K8sV1) Service(options k8sv1.ServiceOptions) (overview *k8sv1.ServiceOverview, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
-		return nil, errs.InternalServerError("ServiceOverviews Test Error")
+		return overview, errs.InternalServerError("Service Test Error")
+	}
+
+	return &k8sv1.ServiceOverview{
+		Name:       options.Name + "-service",
+		LinkedName: options.LinkedName,
+		Namespace:  options.Namespace,
+	}, nil
+}
+
+// Services .
+func (m *K8sV1) Services(options k8sv1.ServiceOptions) (overviews []k8sv1.ServiceOverview, apiErr *errs.APIError) {
+	if options.Namespace == "bad" {
+		return overviews, errs.InternalServerError("Services Test Error")
 	}
 
 	return []k8sv1.ServiceOverview{
-		k8sv1.ServiceOverview{
-			Name: "service-name",
+		{
+			Name:       options.Name + "-service",
+			LinkedName: options.LinkedName,
+			Namespace:  options.Namespace,
 		},
 	}, nil
 }
 
-// ServiceAppInfos .
-func (m *K8V1) ServiceAppInfos(options k8sv1.ServiceOptions) (info []k8sv1.AppInfo, apiErr *errs.APIError) {
+// Deployment .
+func (m *K8sV1) Deployment(options k8sv1.DeploymentOptions) (overview *k8sv1.DeploymentOverview, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
-		return nil, errs.InternalServerError("ServiceAppInfos Test Error")
+		return overview, errs.InternalServerError("Deployment Test Error")
 	}
 
-	return []k8sv1.AppInfo{
-		k8sv1.AppInfo{
-			Name: "service-name",
-		},
+	return &k8sv1.DeploymentOverview{
+		Name:       options.Name + "-deployment",
+		LinkedName: options.LinkedName,
+		Namespace:  options.Namespace,
 	}, nil
 }
 
-// DeploymentOverviews .
-func (m *K8V1) DeploymentOverviews(options k8sv1.DeploymentOptions) (deployments []k8sv1.DeploymentOverview, apiErr *errs.APIError) {
+// Deployments .
+func (m *K8sV1) Deployments(options k8sv1.DeploymentOptions) (overviews []k8sv1.DeploymentOverview, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
-		return nil, errs.InternalServerError("DeploymentOverviews Test Error")
+		return overviews, errs.InternalServerError("Deployments Test Error")
 	}
 
 	return []k8sv1.DeploymentOverview{
-		k8sv1.DeploymentOverview{
-			Name: "service-name",
+		{
+			Name:       options.Name + "-deployment",
+			LinkedName: options.LinkedName,
+			Namespace:  options.Namespace,
 		},
 	}, nil
 }
 
-// DaemonSetOverviews .
-func (m *K8V1) DaemonSetOverviews(options k8sv1.DaemonSetOptions) (daemonsets []k8sv1.DaemonSetOverview, apiErr *errs.APIError) {
+// DaemonSet .
+func (m *K8sV1) DaemonSet(options k8sv1.DaemonSetOptions) (overview *k8sv1.DaemonSetOverview, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
-		return nil, errs.InternalServerError("DaemonSetOverviews Test Error")
+		return overview, errs.InternalServerError("DaemonSet Test Error")
+	}
+
+	return &k8sv1.DaemonSetOverview{
+		Name:       options.Name + "-daemonset",
+		LinkedName: options.LinkedName,
+		Namespace:  options.Namespace,
+	}, nil
+}
+
+// DaemonSets .
+func (m *K8sV1) DaemonSets(options k8sv1.DaemonSetOptions) (overviews []k8sv1.DaemonSetOverview, apiErr *errs.APIError) {
+	if options.Namespace == "bad" {
+		return overviews, errs.InternalServerError("DaemonSets Test Error")
 	}
 
 	return []k8sv1.DaemonSetOverview{
-		k8sv1.DaemonSetOverview{
-			Name: "daemonset-name",
+		{
+			Name:       options.Name + "-daemonset",
+			LinkedName: options.LinkedName,
+			Namespace:  options.Namespace,
 		},
 	}, nil
 }
 
-// DaemonSetAppInfos .
-func (m *K8V1) DaemonSetAppInfos(options k8sv1.DaemonSetOptions) (info []k8sv1.AppInfo, apiErr *errs.APIError) {
+// Job .
+func (m *K8sV1) Job(options k8sv1.JobOptions) (overview *k8sv1.JobOverview, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
-		return nil, errs.InternalServerError("DaemonSetAppInfos Test Error")
+		return overview, errs.InternalServerError("Job Test Error")
 	}
 
-	return []k8sv1.AppInfo{
-		k8sv1.AppInfo{
-			Name: "daemonset-name",
-		},
+	return &k8sv1.JobOverview{
+		Name:       options.Name + "-job",
+		LinkedName: options.LinkedName,
+		Namespace:  options.Namespace,
 	}, nil
 }
 
-// JobOverviews .
-func (m *K8V1) JobOverviews(options k8sv1.JobOptions) (jobs []k8sv1.JobOverview, apiErr *errs.APIError) {
+// Jobs .
+func (m *K8sV1) Jobs(options k8sv1.JobOptions) (overviews []k8sv1.JobOverview, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
-		return nil, errs.InternalServerError("JobOverviews Test Error")
+		return overviews, errs.InternalServerError("DaemonSets Test Error")
 	}
 
 	return []k8sv1.JobOverview{
-		k8sv1.JobOverview{
-			Name: "job-name",
+		{
+			Name:       options.Name + "-job",
+			LinkedName: options.LinkedName,
+			Namespace:  options.Namespace,
 		},
 	}, nil
 }
 
-// JobAppInfos .
-func (m *K8V1) JobAppInfos(options k8sv1.JobOptions) (info []k8sv1.AppInfo, apiErr *errs.APIError) {
+// ReplicaSet .
+func (m *K8sV1) ReplicaSet(options k8sv1.ReplicaSetOptions) (overview *k8sv1.ReplicaSetOverview, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
-		return nil, errs.InternalServerError("JobAppInfos Test Error")
+		return overview, errs.InternalServerError("ReplicaSet Test Error")
 	}
 
-	return []k8sv1.AppInfo{
-		k8sv1.AppInfo{
-			Name: "job-name",
-		},
+	return &k8sv1.ReplicaSetOverview{
+		Name:       options.Name + "-replicaset",
+		LinkedName: options.LinkedName,
+		Namespace:  options.Namespace,
 	}, nil
 }
 
-// ReplicaSetOverviews .
-func (m *K8V1) ReplicaSetOverviews(options k8sv1.ReplicaSetOptions) (replicasets []k8sv1.ReplicaSetOverview, apiErr *errs.APIError) {
+// ReplicaSets .
+func (m *K8sV1) ReplicaSets(options k8sv1.ReplicaSetOptions) (overviews []k8sv1.ReplicaSetOverview, apiErr *errs.APIError) {
 	if options.Namespace == "bad" {
-		return nil, errs.InternalServerError("JobOverviews Test Error")
+		return overviews, errs.InternalServerError("ReplicaSet Test Error")
 	}
 
 	return []k8sv1.ReplicaSetOverview{
-		k8sv1.ReplicaSetOverview{
-			Name: "job-name",
-		},
-	}, nil
-}
-
-// ReplicaSetAppInfos .
-func (m *K8V1) ReplicaSetAppInfos(options k8sv1.ReplicaSetOptions) (info []k8sv1.AppInfo, apiErr *errs.APIError) {
-	if options.Namespace == "bad" {
-		return nil, errs.InternalServerError("JobAppInfos Test Error")
-	}
-
-	return []k8sv1.AppInfo{
-		k8sv1.AppInfo{
-			Name: "rs-name",
+		{
+			Name:       options.Name + "-replicaset",
+			LinkedName: options.LinkedName,
+			Namespace:  options.Namespace,
 		},
 	}, nil
 }

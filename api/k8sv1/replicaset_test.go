@@ -1,6 +1,7 @@
 package k8sv1
 
 import (
+	"context"
 	"testing"
 
 	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
@@ -8,17 +9,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestReplicaSetOverviewsDefaultSuccess(t *testing.T) {
-	c := setupClient("testns", "test", false, false)
+func TestReplicaSetsDefaultSuccess(t *testing.T) {
+	c := setupClient("testns", "rs1", false, false)
 
-	ls := map[string]string{}
-	ls[AppNameLabel] = FriendlyAppName
-
-	d, err := c.ReplicaSetOverviews(ReplicaSetOptions{
-		UserRole:      &rbacfakes.RoleAssignment{},
-		Logger:        &logfakes.Logger{},
-		Namespace:     "testns",
-		LabelSelector: ls,
+	d, err := c.ReplicaSets(ReplicaSetOptions{
+		UserRole:   &rbacfakes.RoleAssignment{},
+		Logger:     &logfakes.Logger{},
+		Namespace:  "testns",
+		LinkedName: "rs1",
+		Context:    context.Background(),
 	})
 
 	assert.Nil(t, err)
@@ -26,43 +25,47 @@ func TestReplicaSetOverviewsDefaultSuccess(t *testing.T) {
 	assert.Equal(t, d[0].Namespace, "testns")
 }
 
-func TestGetReplicaSetOverviewsDefaultFail(t *testing.T) {
-	c := setupClient("testns", "test", true, true)
+func TestGetReplicaSetsDefaultFail(t *testing.T) {
+	c := setupClient("testns", "rs2", true, true)
 
-	_, err := c.ReplicaSetOverviews(ReplicaSetOptions{
-		UserRole:      &rbacfakes.RoleAssignment{},
-		Logger:        &logfakes.Logger{},
-		Namespace:     "testns",
-		LabelSelector: map[string]string{"random": "labelvalue"},
+	_, err := c.ReplicaSets(ReplicaSetOptions{
+		UserRole:   &rbacfakes.RoleAssignment{},
+		Logger:     &logfakes.Logger{},
+		Namespace:  "testns",
+		LinkedName: "rs2",
+		Context:    context.Background(),
 	})
 
 	assert.NotNil(t, err)
 }
 
-func TestReplicaSetAppInfosDefaultSuccess(t *testing.T) {
-	c := setupClient("testns", "test", false, false)
+func TestReplicaSetDefaultSuccess(t *testing.T) {
+	c := setupClient("testns", "rs3", false, false)
 
-	ls := map[string]string{}
-	ls[AppNameLabel] = FriendlyAppName
-
-	d, err := c.ReplicaSetAppInfos(ReplicaSetOptions{
-		UserRole:  &rbacfakes.RoleAssignment{},
-		Logger:    &logfakes.Logger{},
-		Namespace: "testns",
+	d, err := c.ReplicaSet(ReplicaSetOptions{
+		UserRole:   &rbacfakes.RoleAssignment{},
+		Logger:     &logfakes.Logger{},
+		Namespace:  "testns",
+		Name:       "rs3",
+		LinkedName: "rs3link",
+		Context:    context.Background(),
 	})
 
 	assert.Nil(t, err)
-	assert.Len(t, d, 1)
-	assert.Equal(t, d[0].Namespace, "testns")
+	assert.NotNil(t, d)
+	assert.Equal(t, d.Namespace, "testns")
 }
 
-func TestGetReplicaSetAppInfosDefaultFail(t *testing.T) {
-	c := setupClient("testns", "test", true, true)
+func TestGetReplicaSetDefaultFail(t *testing.T) {
+	c := setupClient("testns", "rs4", true, true)
 
-	_, err := c.ReplicaSetAppInfos(ReplicaSetOptions{
-		UserRole:  &rbacfakes.RoleAssignment{},
-		Logger:    &logfakes.Logger{},
-		Namespace: "testns",
+	_, err := c.ReplicaSet(ReplicaSetOptions{
+		UserRole:   &rbacfakes.RoleAssignment{},
+		Logger:     &logfakes.Logger{},
+		Namespace:  "testns",
+		Name:       "rs4",
+		LinkedName: "rs4link",
+		Context:    context.Background(),
 	})
 
 	assert.NotNil(t, err)

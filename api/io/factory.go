@@ -124,6 +124,7 @@ func (f *Factory) Register(k8Client k8sv1.Clienter, w http.ResponseWriter, r *ht
 		Namespace:     ns,
 		Tail:          1,
 		Follow:        true,
+		Context:       r.Context(),
 	})
 
 	if apiErr != nil {

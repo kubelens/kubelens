@@ -64,17 +64,13 @@ __NOTE:__ Any new clusters will need to be added to the `allowedOrigins` & `allo
 
 - `allowedHeaders` - (Required) The allowed list of headers from a client. Defaults are commonly used headers and those sent from the UI.
 
-- `appNameLabelKeys` (Optional) This will allow generation of "friendly" application names based on the label key(s) provided. Examples: Given a value of \["app"\], the name of the object will be the value of the label "app" the vs the actual name of the object. This can be useful for applications that have auto-generated names for length requirements.
+- `labelKeyLink` (Required) This is a required label for any object to be returned. A value of "app" would indicate that all related objects would have the label "app=SOME_NAME", which allows the API to find any related object.
 
 - `viewerLabelInclusions` (Optional) __Used when `enableRBAC` is true__ The allowed list of labels to match on K8s objects. Examples: Given a value of "app=team-unique-app1" will only return objects matching exact. This also supports "like" values, e.g. given 2 values "team-unique-app1", "team-unique-app2", a value of "app=team*" will return a match for both. If this is empty, all objects will be returned.
 
 - `viewerLabelExclusions` (Optional) __Used when `enableRBAC` is true__ The list of labels to always exclude when matching labels on K8s objects.
 
 - `adminEmails` (Optional) __Used when `enableRBAC` is true__ The list of administator/operators emails. When present, the `viewerLabelInclusions` & `viewerLabelExclusions` are ignored. This can change in the future as RBAC is simplified.
-
-- `projectSlugRegex` - (Optional) This can be used to add the project URI stem for `deployerLink` URL.
-
-- `deployerLink` - (Optional) This can be set to the link to the application that deploys applications to K8s. If `projectSlugRegx` is set, it will be appened to the end of the `deployerLink`.
 
 - `contentSecurityPolicy` - (Optional) See https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP for details.
 

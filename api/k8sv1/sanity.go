@@ -1,6 +1,8 @@
 package k8sv1
 
 import (
+	"context"
+
 	"github.com/kubelens/kubelens/api/errs"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -16,10 +18,9 @@ func (k *Client) SanityCheck() (apiErr *errs.APIError) {
 
 	var tm int64 = 5
 
-	list, err := clientset.CoreV1().Services("").List(metav1.ListOptions{
-		Limit:                1,
-		IncludeUninitialized: false,
-		TimeoutSeconds:       &tm,
+	list, err := clientset.CoreV1().Services("").List(context.Background(), metav1.ListOptions{
+		Limit:          1,
+		TimeoutSeconds: &tm,
 	})
 
 	if err != nil {

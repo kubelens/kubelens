@@ -2,6 +2,7 @@ package k8sv1
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 
@@ -37,6 +38,8 @@ type LogOptions struct {
 	UserRole rbac.RoleAssignmenter
 	// logger instance
 	Logger klog.Logger
+	// Context .
+	Context context.Context
 }
 
 // Valid validates LogOptions fields
@@ -136,7 +139,7 @@ func (k *Client) ReadLogs(options LogOptions) (rc io.ReadCloser, apiErr *errs.AP
 		Pods(options.Namespace)
 
 	// get pod for labels to check against role
-	if pd, err := list.Get(options.PodName, metav1.GetOptions{}); pd != nil {
+	if pd, err := list.Get(options.Context, options.PodName, metav1.GetOptions{}); pd != nil {
 		if err != nil {
 			klog.Trace()
 			return nil, errs.InternalServerError(err.Error())
@@ -150,7 +153,7 @@ func (k *Client) ReadLogs(options LogOptions) (rc io.ReadCloser, apiErr *errs.AP
 	}
 
 	tail := options.Tail
-	// ensure tail set to 1 line since we would be streaming
+	// ensure tail set to 1 line since we will be streaming
 	if options.Follow {
 		tail = 1
 	}
@@ -161,7 +164,7 @@ func (k *Client) ReadLogs(options LogOptions) (rc io.ReadCloser, apiErr *errs.AP
 		Follow:    options.Follow,
 	})
 
-	stream, err := req.Stream()
+	stream, err := req.Stream(options.Context)
 
 	if err != nil {
 		stream.Close()
