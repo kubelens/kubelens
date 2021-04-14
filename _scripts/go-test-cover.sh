@@ -4,8 +4,6 @@ go version
         
 # curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
-go mod tidy
-
 # make -s test
 echo "mode: count" > coverage-all.out
 
