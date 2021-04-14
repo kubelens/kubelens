@@ -97,16 +97,16 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
-      - run:
-          name: Get Dependencies
-          command: | 
-            cd ./web
-            npm install
-      - run: 
-          name: Run Tests & Coverage
-          command: |
-            cd ./web
-            npm run test:ci
+      # - run:
+      #     name: Get Dependencies
+      #     command: | 
+      #       cd ./web
+      #       npm install
+      # - run: 
+      #     name: Run Tests & Coverage
+      #     command: |
+      #       cd ./web
+      #       npm run test:ci
 
   web_build:
     docker: 
@@ -124,28 +124,28 @@ jobs:
             echo 'export WEB_CHANGED=false' >> $BASH_ENV || \
             echo 'export WEB_CHANGED=true' >> $BASH_ENV
             source $BASH_ENV
-      - run:
-          name: Get Dependencies
-          command: | 
-            if ${WEB_CHANGED}; then
-              cd ./web
-              npm install
-            fi
-      - run:
-          name: Run Test & Coverage
-          command: |
-            if ${WEB_CHANGED}; then
-              cd ./web 
-              echo "TODO run tests"
-              npm run test:ci
-            fi
-      - run:
-          name: Application Build
-          command: |
-            if ${WEB_CHANGED}; then
-              cd ./web
-              npm run build
-            fi
+      # - run:
+      #     name: Get Dependencies
+      #     command: | 
+      #       if ${WEB_CHANGED}; then
+      #         cd ./web
+      #         npm install
+      #       fi
+      # - run:
+      #     name: Run Test & Coverage
+      #     command: |
+      #       if ${WEB_CHANGED}; then
+      #         cd ./web 
+      #         echo "TODO run tests"
+      #         npm run test:ci
+      #       fi
+      # - run:
+      #     name: Application Build
+      #     command: |
+      #       if ${WEB_CHANGED}; then
+      #         cd ./web
+      #         npm run build
+      #       fi
       - run:
           name: Halt If Pull Request
           command: '[[ -v CIRCLE_PR_NUMBER ]] && circleci step halt || true'
