@@ -12,6 +12,5 @@
     {
       "NonProd CentralUS": "http://test-api.kubelens.localhost"
     }
-  ],
-  "deployerLinkName": ""
+  ]
 }

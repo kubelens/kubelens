@@ -49,7 +49,12 @@ func (k *Client) DaemonSet(options DaemonSetOptions) (overview *DaemonSetOvervie
 		return nil, errs.InternalServerError(err.Error())
 	}
 
-	list, err := clientset.AppsV1().DaemonSets(options.Namespace).List(options.Context, metav1.ListOptions{})
+	dsl := clientset.AppsV1().DaemonSets(options.Namespace)
+
+	if dsl == nil {
+		return nil, nil
+	}
+	list, err := dsl.List(options.Context, metav1.ListOptions{})
 
 	if err != nil {
 		klog.Trace()
@@ -84,7 +89,12 @@ func (k *Client) DaemonSets(options DaemonSetOptions) (overviews []DaemonSetOver
 		return nil, errs.InternalServerError(err.Error())
 	}
 
-	list, err := clientset.AppsV1().DaemonSets(options.Namespace).List(options.Context, metav1.ListOptions{})
+	dsl := clientset.AppsV1().DaemonSets(options.Namespace)
+
+	if dsl == nil {
+		return nil, nil
+	}
+	list, err := dsl.List(options.Context, metav1.ListOptions{})
 
 	if err != nil {
 		klog.Trace()

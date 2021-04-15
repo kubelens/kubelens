@@ -28,7 +28,7 @@ type OverviewOptions struct {
 }
 
 type Overview struct {
-	LinkedName  string               `json:"linkedName"`
+	LinkedName  string               `json:"linkedName,omitempty"`
 	Namespace   string               `json:"namespace,omitempty"`
 	DaemonSets  []DaemonSetOverview  `json:"daemonSets,omitempty"`
 	Deployments []DeploymentOverview `json:"deployments,omitempty"`
@@ -45,31 +45,49 @@ func (k *Client) Overview(options OverviewOptions) (overview *Overview, apiErr *
 		dss, _ := k.DaemonSets(DaemonSetOptions{
 			Namespace:  options.Namespace,
 			LinkedName: options.LinkedName,
+			UserRole:   options.UserRole,
+			Logger:     options.Logger,
+			Context:    options.Context,
 		})
 		// Deployments
 		dps, _ := k.Deployments(DeploymentOptions{
 			Namespace:  options.Namespace,
 			LinkedName: options.LinkedName,
+			UserRole:   options.UserRole,
+			Logger:     options.Logger,
+			Context:    options.Context,
 		})
 		// Jobs
 		jbs, _ := k.Jobs(JobOptions{
 			Namespace:  options.Namespace,
 			LinkedName: options.LinkedName,
+			UserRole:   options.UserRole,
+			Logger:     options.Logger,
+			Context:    options.Context,
 		})
 		// Pods
 		povs, _ := k.Pods(PodOptions{
 			Namespace:  options.Namespace,
 			LinkedName: options.LinkedName,
+			UserRole:   options.UserRole,
+			Logger:     options.Logger,
+			Context:    options.Context,
 		})
 		// ReplicaSets
 		rss, _ := k.ReplicaSets(ReplicaSetOptions{
 			Namespace:  options.Namespace,
 			LinkedName: options.LinkedName,
+			UserRole:   options.UserRole,
+			Logger:     options.Logger,
+			Context:    options.Context,
 		})
 		// Services
 		svcs, _ := k.Services(ServiceOptions{
 			Namespace:  options.Namespace,
 			LinkedName: options.LinkedName,
+			UserRole:   options.UserRole,
+			Logger:     options.Logger,
+			Context:    options.Context,
 		})
 
 		overview = &Overview{
@@ -118,6 +136,9 @@ func (k *Client) Overviews(options OverviewOptions) (overviews []Overview, apiEr
 				// DaemonSets
 				dss, _ := k.DaemonSets(DaemonSetOptions{
 					Namespace: ns.Namespace,
+					UserRole:  options.UserRole,
+					Logger:    options.Logger,
+					Context:   options.Context,
 				})
 
 				for _, ds := range dss {
@@ -130,6 +151,9 @@ func (k *Client) Overviews(options OverviewOptions) (overviews []Overview, apiEr
 				// Deployments
 				dps, _ := k.Deployments(DeploymentOptions{
 					Namespace: ns.Namespace,
+					UserRole:  options.UserRole,
+					Logger:    options.Logger,
+					Context:   options.Context,
 				})
 
 				for _, dp := range dps {
@@ -142,6 +166,9 @@ func (k *Client) Overviews(options OverviewOptions) (overviews []Overview, apiEr
 				// Jobs
 				jbs, _ := k.Jobs(JobOptions{
 					Namespace: ns.Namespace,
+					UserRole:  options.UserRole,
+					Logger:    options.Logger,
+					Context:   options.Context,
 				})
 
 				for _, jb := range jbs {
@@ -154,6 +181,9 @@ func (k *Client) Overviews(options OverviewOptions) (overviews []Overview, apiEr
 				// Pods
 				povs, _ := k.Pods(PodOptions{
 					Namespace: ns.Namespace,
+					UserRole:  options.UserRole,
+					Logger:    options.Logger,
+					Context:   options.Context,
 				})
 
 				for _, pov := range povs {
@@ -166,6 +196,9 @@ func (k *Client) Overviews(options OverviewOptions) (overviews []Overview, apiEr
 				// ReplicaSets
 				rss, _ := k.ReplicaSets(ReplicaSetOptions{
 					Namespace: ns.Namespace,
+					UserRole:  options.UserRole,
+					Logger:    options.Logger,
+					Context:   options.Context,
 				})
 
 				for _, rs := range rss {
@@ -178,6 +211,9 @@ func (k *Client) Overviews(options OverviewOptions) (overviews []Overview, apiEr
 				// Services
 				svcs, _ := k.Services(ServiceOptions{
 					Namespace: ns.Namespace,
+					UserRole:  options.UserRole,
+					Logger:    options.Logger,
+					Context:   options.Context,
 				})
 
 				for _, svc := range svcs {
@@ -196,17 +232,19 @@ func (k *Client) Overviews(options OverviewOptions) (overviews []Overview, apiEr
 
 	for _, nsovs := range nsOverviews {
 		for _, nsov := range nsovs {
-			found := false
-			for _, ov := range overviews {
-				if strings.EqualFold(nsov.LinkedName, ov.LinkedName) && strings.EqualFold(nsov.Namespace, ov.Namespace) {
-					found = true
+			if len(nsov.LinkedName) > 0 {
+				found := false
+				for _, ov := range overviews {
+					if strings.EqualFold(nsov.LinkedName, ov.LinkedName) && strings.EqualFold(nsov.Namespace, ov.Namespace) {
+						found = true
+					}
 				}
-			}
-			if !found {
-				overviews = append(overviews, Overview{
-					LinkedName: nsov.LinkedName,
-					Namespace:  nsov.Namespace,
-				})
+				if !found {
+					overviews = append(overviews, Overview{
+						LinkedName: nsov.LinkedName,
+						Namespace:  nsov.Namespace,
+					})
+				}
 			}
 		}
 	}

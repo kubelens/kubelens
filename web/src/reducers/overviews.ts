@@ -22,54 +22,54 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 import { Reducer } from 'redux';
-import { AppsActions, AppsActionTypes } from '../actions/apps';
-import { AppOverview, App } from '../types';
+import { OverviewActions, OverviewActionTypes } from '../actions/overviews';
+import { Overview } from '../types';
 
-export interface IAppsState {
-  readonly appOverview?: AppOverview,
-  readonly apps?: App[],
+export interface IOverviewsState {
+  readonly overview?: Overview,
+  readonly overviews?: Overview[],
   readonly selectedAppName?: string,
-  readonly filteredApps?: App[]
+  readonly filteredOverviews?: Overview[]
 }
 
-export const INITIAL_STATE: IAppsState = {
-  appOverview: undefined,
-  apps: undefined,
+export const INITIAL_STATE: IOverviewsState = {
+  overview: undefined,
+  overviews: undefined,
   selectedAppName: undefined,
-  filteredApps: undefined
+  filteredOverviews: undefined
 };
 
-export const reducer: Reducer<IAppsState, AppsActions> = (
+export const reducer: Reducer<IOverviewsState, OverviewActions> = (
   state = INITIAL_STATE,
   action
 ) => {
   switch (action.type) {
-    case AppsActionTypes.GET_APP_OVERVIEW: {
+    case OverviewActionTypes.GET_OVERVIEW: {
       return {
         ...state,
-        appOverview: action.appOverview
+        overview: action.overview
       };
     }
 
-    case AppsActionTypes.GET_APPS: {
+    case OverviewActionTypes.GET_OVERVIEWS: {
       return {
         ...state,
-        apps: action.apps,
-        filteredApps: action.apps
+        overviews: action.overviews,
+        filteredOverviews: action.overviews
       }
     }
 
-    case AppsActionTypes.SET_SELECTED_APP_NAME: {
+    case OverviewActionTypes.SET_SELECTED_APP_NAME: {
       return {
         ...state,
         selectedAppName: action.selectedAppName
       }
     }
 
-    case AppsActionTypes.FILTER_APPS: {
+    case OverviewActionTypes.FILTER_OVERVIEWS: {
       return {
         ...state,
-        filteredApps: action.filteredApps
+        filteredOverviews: action.filteredOverviews
       }
     }
 

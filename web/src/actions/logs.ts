@@ -52,7 +52,7 @@ export interface IGetLogs {
 <Promise<Return Type>, State Interface, Type of Param, Type of Action> */
 export const getLogs: ActionCreator<
   ThunkAction<Promise<any>, ILogsState, null, IGetLogs>
-> = (podname: string, queryString: string, cluster: string, jwt: string) => {
+> = (podname: string, namespace: string, containerName: string, tail: number, cluster: string, jwt: string) => {
   return async (dispatch: Dispatch) => {
     try {
       dispatch({
@@ -60,7 +60,7 @@ export const getLogs: ActionCreator<
         loading: true,
       });
 
-      const response = await adapter.get(`/logs/${podname}${queryString}`, cluster, jwt);
+      const response = await adapter.get(`logs/${podname}?namespace=${namespace}&containerName=${containerName}&tail=${tail || 50}`, cluster, jwt);
 
       dispatch({
         type: LogsActionTypes.GET_LOGS,

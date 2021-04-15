@@ -22,39 +22,39 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 import React from 'react';
-import { Row, Col, Card, CardHeader, CardBody, CardFooter } from 'reactstrap';
-import { App } from '../../types/index';
+import { Row, Col, Card, CardHeader, CardBody } from 'reactstrap';
+import { Overview } from '../../types/index';
 import RightArrowInverse from '../../assets/right-arrow-yellow-inverse.png';
 import _ from 'lodash';
 import './styles.css';
 
-export type AppCardProps = {
-  app: App,
+export type OverviewCardProps = {
+  overview: Overview,
   index: number,
   match: any,
   selectedAppName: string,
-  onViewApp(appname: string, namespace: string, labelSelector: string)
+  onViewOverview(linkedName: string, namespace: string)
 };
 
-const AppCard = (props: AppCardProps) => {
-  const { app, index, match, selectedAppName, onViewApp } = props;
+const OverviewCard = (props: OverviewCardProps) => {
+  const { overview, index, match, selectedAppName, onViewOverview } = props;
 
-  const viewApp = () => {
-    return onViewApp(app.name, app.namespace, app.labelSelector);
+  const viewOverview = () => {
+    return onViewOverview(overview.linkedName, overview.namespace);
   };
   // if from a link, grab the name of the app so we can mark which one is being viewed.
   const selected =
     (_.isEmpty(selectedAppName) && match)
-      ? match.params.appName
+      ? match.params.linkedName
       : selectedAppName;
 
   return (
-    <div key={`${app.name}-${index}`} id="anti-shadow-div">
+    <div key={`${overview.linkedName}-${index}`} id="anti-shadow-div">
       <div id="shadow-div" >
-        <Card dir="ltr" style={{ marginRight: (app.labelSelector === selected) ? -40 : 0, marginBottom: '10px', border: '3px solid #4D5061' }}>
+        <Card dir="ltr" style={{ marginRight: (overview.linkedName === selected) ? -40 : 0, marginBottom: '10px', border: '3px solid #4D5061' }}>
           <CardHeader className="text-center" style={{ backgroundColor: 'white' }}>
             <strong>
-              {app.name}
+              {overview.linkedName}
             </strong>
           </CardHeader>
           <CardBody>
@@ -62,38 +62,21 @@ const AppCard = (props: AppCardProps) => {
               <Col sm={10}>
                 <div>
                   <div className="app-list-text-root">
-                    <small>Namespace: <strong>{app.namespace}</strong></small>
-                  </div>
-                  <div className="app-list-text-root">
-                    <small>Kind: <strong>{app.kind}</strong></small>
-                  </div>
-                  <div className="app-list-text-secondary">
-                    <small>
-                      {
-                        app.deployerLink
-                          ? <a href={app.deployerLink} target="_blank" rel="noopener noreferrer"><strong>Deployer Link</strong></a>
-                          : <em>No Deployer Link</em>
-                      }
-                    </small>
+                    <small>Namespace: <strong>{overview.namespace}</strong></small>
                   </div>
                 </div>
               </Col>
               <Col sm={2} className="action-right-container" >
-                <div onClick={viewApp}>
+                <div onClick={viewOverview}>
                   <span aria-hidden><img height={30} src={RightArrowInverse} alt="View" /></span>
                 </div>
               </Col>
             </Row>
           </CardBody>
-          {!_.isEmpty(app.actualName) ?
-            <CardFooter className="text-center">
-              <small><small>{app.actualName}</small></small>
-            </CardFooter>
-          : null}
         </Card>
       </div>
     </div> 
   );
 }
 
-export default AppCard; 
+export default OverviewCard; 

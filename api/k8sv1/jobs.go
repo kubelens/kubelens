@@ -48,7 +48,13 @@ func (k *Client) Job(options JobOptions) (overview *JobOverview, apiErr *errs.AP
 		return nil, errs.InternalServerError(err.Error())
 	}
 
-	list, err := clientset.BatchV1().Jobs(options.Namespace).List(options.Context, metav1.ListOptions{})
+	jbs := clientset.BatchV1().Jobs(options.Namespace)
+
+	if jbs == nil {
+		return nil, nil
+	}
+
+	list, err := jbs.List(options.Context, metav1.ListOptions{})
 
 	if err != nil {
 		klog.Trace()
@@ -83,7 +89,13 @@ func (k *Client) Jobs(options JobOptions) (overviews []JobOverview, apiErr *errs
 		return nil, errs.InternalServerError(err.Error())
 	}
 
-	list, err := clientset.BatchV1().Jobs(options.Namespace).List(options.Context, metav1.ListOptions{})
+	jbs := clientset.BatchV1().Jobs(options.Namespace)
+
+	if jbs == nil {
+		return nil, nil
+	}
+
+	list, err := jbs.List(options.Context, metav1.ListOptions{})
 
 	if err != nil {
 		klog.Trace()

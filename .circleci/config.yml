@@ -44,11 +44,11 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
-      # - run:
-      #     name: Test
-      #     command: |
-      #       cd ./api 
-      #       make test
+      - run:
+          name: Test
+          command: |
+            cd ./api 
+            make test
 
   api_build:
     docker: 
@@ -68,13 +68,13 @@ jobs:
             echo 'export API_CHANGED=false' >> $BASH_ENV || \
             echo 'export API_CHANGED=true' >> $BASH_ENV
             source $BASH_ENV
-      # - run:
-      #     name: Run Test & Coverage
-      #     command: |
-      #       if ${API_CHANGED}; then
-      #         cd ./api 
-      #         make test
-      #       fi
+      - run:
+          name: Run Test & Coverage
+          command: |
+            if ${API_CHANGED}; then
+              cd ./api 
+              make test
+            fi
       - run:
           name: Halt If Pull Request
           command: '[[ -v CIRCLE_PR_NUMBER ]] && circleci step halt || true'
@@ -97,22 +97,22 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
-      # - run:
-      #     name: Get Dependencies
-      #     command: | 
-      #       cd ./web
-      #       npm install
-      # - run: 
-      #     name: Run Tests & Coverage
-      #     command: |
-      #       cd ./web
-      #       npm run test:ci
+      - run:
+          name: Get Dependencies
+          command: | 
+            cd ./web
+            npm install
+      - run: 
+          name: Run Tests & Coverage
+          command: |
+            cd ./web
+            npm run test:ci
 
   web_build:
     docker: 
       - image: circleci/node:latest
     environment:
-      VERSION: "2.0"
+      VERSION: "3.0"
     steps:
       - checkout
       - setup_remote_docker:
@@ -124,28 +124,28 @@ jobs:
             echo 'export WEB_CHANGED=false' >> $BASH_ENV || \
             echo 'export WEB_CHANGED=true' >> $BASH_ENV
             source $BASH_ENV
-      # - run:
-      #     name: Get Dependencies
-      #     command: | 
-      #       if ${WEB_CHANGED}; then
-      #         cd ./web
-      #         npm install
-      #       fi
-      # - run:
-      #     name: Run Test & Coverage
-      #     command: |
-      #       if ${WEB_CHANGED}; then
-      #         cd ./web 
-      #         echo "TODO run tests"
-      #         npm run test:ci
-      #       fi
-      # - run:
-      #     name: Application Build
-      #     command: |
-      #       if ${WEB_CHANGED}; then
-      #         cd ./web
-      #         npm run build
-      #       fi
+      - run:
+          name: Get Dependencies
+          command: | 
+            if ${WEB_CHANGED}; then
+              cd ./web
+              npm install
+            fi
+      - run:
+          name: Run Test & Coverage
+          command: |
+            if ${WEB_CHANGED}; then
+              cd ./web 
+              echo "TODO run tests"
+              npm run test:ci
+            fi
+      - run:
+          name: Application Build
+          command: |
+            if ${WEB_CHANGED}; then
+              cd ./web
+              npm run build
+            fi
       - run:
           name: Halt If Pull Request
           command: '[[ -v CIRCLE_PR_NUMBER ]] && circleci step halt || true'

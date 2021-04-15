@@ -100,8 +100,6 @@ __NOTE:__ Any new clusters will need to be added to the `allowedOrigins` & `allo
 
 - `availableClusters` - (Required) These are the allowed FQDNs for all API instances that are displayed in a dropdown within the UI. The object key is the display name, and the value is the server it will connect to. These will typically be the Ingress hosts for all instances configured to be connected to. Format: `[{ "Display Name": "Cluster specific kubelens-api instance" }]`
 
-- `deployerLinkName` - (Optional) - The friendly name to display if the deployer link is returned from the API.
-
 #### Auth Settings
 
 __NOTE:__ Okta is currently the only supported OAuth provider.

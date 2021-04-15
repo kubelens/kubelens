@@ -25,10 +25,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import LogSocket, { ILogSocket } from '../../io/logSocket';
 import PodPage from './view';
-import { Log, PodDetail } from '../../types';
+import { Log, Pod } from '../../types';
 import _ from 'lodash';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { setSelectedAppName } from '../../actions/apps';
+import { setSelectedAppName } from '../../actions/overviews';
 import { getPod, setSelectedContainerName, clearPod } from '../../actions/pods';
 import { getLogs, toggleLogStream } from '../../actions/logs';
 import config from '../../config';
@@ -36,6 +36,7 @@ import { AuthClient } from '../../auth/authClient';
 import { closeErrorModal } from '../../actions/error';
 import APIErrorModal from '../../components/error-modal';
 import { IErrorState } from '../../reducers/error';
+import qs from 'qs';
 
 type initialState = {
   envModalOpen: boolean,
@@ -50,7 +51,7 @@ type initialState = {
 export type PodProps = {
   cluster: string,
   identityToken: string,
-  pod: PodDetail,
+  podOverview: Pod,
   logs: Log,
   envBody: {},
   selectedAppName: string,
@@ -68,7 +69,7 @@ export type PodProps = {
   podName: string
 }>;
 
-export class Pod extends Component<any, initialState> {
+export class PodView extends Component<any, initialState> {
   // flag to determine if state can be updated in
   // an async function
   _isMounted = false;
@@ -84,37 +85,42 @@ export class Pod extends Component<any, initialState> {
 
   async componentDidMount() {
     this._isMounted = true;
-    const { match: { params } } = this.props;
-    const podname = params.podName.substring(0, params.podName.indexOf("?"));
-    const search = params.podName.substring(params.podName.indexOf("?"));
+    const { match: { params }, location } = this.props;
+    const podName = params.podName.substring(0, params.podName.indexOf("?"));
+    const search = location.pathname.substring(location.pathname.indexOf("?")+1);
+    // const namespace = location.pathname.substring(location.pathname.indexOf("=")+1, location.pathname.length);
+
+    const query = qs.parse(search);
 
     if (_.isEmpty(this.props.selectedAppName)) {
-      this.props.setSelectedAppName(params.appName);
+      this.props.setSelectedAppName(params.linkedName);
     }
 
-    if (_.isEmpty(this.props.selectedContainerName) && !_.isEmpty(this.props.pod)) {
-      this.props.setSelectedContainerName(this.props.pod.containerNames[0]);
+    if (_.isEmpty(this.props.selectedContainerName) && !_.isEmpty(this.props.podOverview)) {
+      this.props.setSelectedContainerName(this.props.podOverview.pod.spec.containers[0].name);
     }
 
-    if (_.isEmpty(this.props.pod)) {
-      this.props.getPod(podname, search, this.props.cluster, this.props.identityToken);
+    if (_.isEmpty(this.props.podOverview)) {
+      this.props.getPod(podName, query.namespace, this.props.cluster, this.props.identityToken);
     }
   }
 
   componentDidUpdate(prevProps) {
-    const { match: { params } } = this.props;
-    const search = params.podName.substring(params.podName.indexOf("?"))
-    const char = _.isEmpty(search) ? "" : "&"
+    const { match: { params }, location } = this.props;
+    const podName = params.podName.substring(0, params.podName.indexOf("?"));
+    const search = location.pathname.substring(location.pathname.indexOf("?")+1, location.pathname.length);
+    // const char = _.isEmpty(search) ? "" : "&"
+    const query = qs.parse(search);
 
     // will be on first load, set and return to allow for update of props.
-    if (_.isEmpty(this.props.selectedContainerName) && !_.isEmpty(this.props.pod) && (!_.isEmpty(this.props.pod.containerNames))) {
-      this.props.setSelectedContainerName(this.props.pod.containerNames[0]);
+    if (_.isEmpty(this.props.selectedContainerName) && !_.isEmpty(this.props.podOverview)) {
+      this.props.setSelectedContainerName(this.props.podOverview.pod.spec.containers[0].name);
       return;
     }
 
     // check if props updated and that it's not a fresh load
     if (prevProps.selectedContainerName !== this.props.selectedContainerName && !_.isEmpty(this.props.selectedContainerName)) {
-      this.props.getLogs(this.props.pod.name, `${search}${char}containerName=${this.props.selectedContainerName}`, this.props.cluster, this.props.identityToken);
+      this.props.getLogs(podName, query.namespace, this.props.selectedContainerName, query.tail, this.props.cluster, this.props.identityToken);
     }
   }
 
@@ -136,15 +142,15 @@ export class Pod extends Component<any, initialState> {
     let endpoint = '';
     _.forEach(cfg.availableClusters, value => {
       if (!_.isEmpty(value[this.props.cluster])) {
-        endpoint = `${value[this.props.cluster].replace('http', 'ws')}/io`;
+        endpoint = `${value[this.props.cluster].replace('http', 'ws')}io`;
       }
     })
 
     const socket = new LogSocket({
       cluster: this.props.cluster,
-      podname: this.props.pod.name,
+      podname: this.props.podOverview.pod.metadata.name,
       containerName: this.props.selectedContainerName,
-      namespace: this.props.pod.namespace,
+      namespace: this.props.podOverview.pod.metadata.namespace,
       handler: this.logStreamHandler,
       wsBase: endpoint,
       accessToken: this.props.identityToken
@@ -200,7 +206,7 @@ export class Pod extends Component<any, initialState> {
     return (
       <div>
         <PodPage
-          podDetail={this.props.pod}
+          podDetail={this.props.podOverview}
           envBody={this.props.envBody}
           logs={this.props.logs}
           showEnvModal={this.state.envModalOpen}
@@ -228,15 +234,14 @@ export class Pod extends Component<any, initialState> {
   }
 }
 
-export const mapStateToProps = ({ appsState, podsState, logsState, authState, clustersState, errorState }) => {
+export const mapStateToProps = ({ overviewsState, podsState, logsState, authState, clustersState, errorState }) => {
   // api returns forbidden if the user doesn't have access to view logs for the pod. 
   // check and set the message.
   const hasLogAccess = logsState.logsError && logsState.logsError.status === 403 ? false : true;
 
   let envBody;
-  if (!_.isEmpty(podsState.pod)) {
-    const c = _.find(podsState.pod && podsState.pod.spec && podsState.pod.spec.containers, 'env');
-    envBody = !_.isEmpty(c) ? c && c.env : '';
+  if (!_.isEmpty(podsState.podOverview) && !_.isEmpty(podsState.podOverview.pod)) {
+    envBody = podsState.podOverview.pod.spec.containers[0].env;
   }
 
   let identityToken = '';
@@ -247,10 +252,10 @@ export const mapStateToProps = ({ appsState, podsState, logsState, authState, cl
   return {
     cluster: clustersState.cluster,
     identityToken: identityToken,
-    pod: podsState.pod,
+    podOverview: podsState.podOverview,
     logs: logsState.logs,
     envBody: envBody,
-    selectedAppName: appsState.selectedAppName,
+    selectedAppName: overviewsState.selectedAppName,
     hasLogAccess: hasLogAccess,
     selectedContainerName: podsState.selectedContainerName,
     error: errorState
@@ -260,8 +265,8 @@ export const mapStateToProps = ({ appsState, podsState, logsState, authState, cl
 export const mapActionsToProps = (dispatch) => {
   return {
     setSelectedAppName: (value: string) => dispatch(setSelectedAppName(value)),
-    getPod: (podName: string, queryString: string, cluster: string, jwt: string) => dispatch(getPod(podName, queryString, cluster, jwt)),
-    getLogs: (podName: string, queryString: string, cluster: string, jwt: string) => dispatch(getLogs(podName, queryString, cluster, jwt)),
+    getPod: (podName: string, namespace: string, cluster: string, jwt: string) => dispatch(getPod(podName, namespace, cluster, jwt)),
+    getLogs: (podName: string, namespace: string, containerName: string, tail: number, cluster: string, jwt: string) => dispatch(getLogs(podName, namespace, containerName, tail, cluster, jwt)),
     toggleLogStream: (enabled: boolean) => dispatch(toggleLogStream(enabled)),
     setSelectedContainerName: (selectedContainerName: string) => dispatch(setSelectedContainerName(selectedContainerName)),
     clearPod: () => dispatch(clearPod()),
@@ -272,4 +277,4 @@ export const mapActionsToProps = (dispatch) => {
 export default withRouter(connect(
   mapStateToProps,
   mapActionsToProps
-)(Pod));
+)(PodView));

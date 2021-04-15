@@ -167,7 +167,9 @@ func (k *Client) ReadLogs(options LogOptions) (rc io.ReadCloser, apiErr *errs.AP
 	stream, err := req.Stream(options.Context)
 
 	if err != nil {
-		stream.Close()
+		if stream != nil {
+			stream.Close()
+		}
 		return nil, errs.InternalServerError(err.Error())
 	}
 

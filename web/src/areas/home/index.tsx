@@ -26,10 +26,10 @@ import { connect } from 'react-redux';
 import { withRouter, RouteComponentProps } from 'react-router';
 import NavBar from '../../components/nav';
 import View from './view';
-import { App } from "../../types";
+import { Overview } from "../../types";
 import _ from 'lodash';
 import { IGlobalState } from '../../store';
-import { getApps, getAppOverview, setSelectedAppName, filterApps } from '../../actions/apps';
+import { getOverviews, getOverview, setSelectedAppName, filterOverviews } from '../../actions/overviews';
 import { closeErrorModal } from '../../actions/error';
 import APIErrorModal from '../../components/error-modal';
 import { IErrorState } from '../../reducers/error';
@@ -40,12 +40,12 @@ export type HomeProps = {
   cluster: string,
   identityToken?: string,
   selectedAppName: string,
-  filteredApps: App[],
-  apps: App[],
-  getApps(cluster: string, jwt: string): void,
-  getAppOverview(appname: string, namespace: string, queryString: string, cluster: string, jwt: string): void,
+  filteredApps: Overview[],
+  overviews: Overview[],
+  getOverviews(cluster: string, jwt: string): void,
+  getOverview(appname: string, namespace: string, cluster: string, jwt: string): void,
   setSelectedAppName(value: string): void,
-  filterApps(value: string, apps: App[]): void,
+  filterOverviews(value: string, apps: Overview[]): void,
   error: IErrorState,
   isLoading: boolean
 } | RouteComponentProps<{
@@ -57,18 +57,18 @@ export class Home extends Component<HomeProps, initialState> {
     super(props);
 
     this.onFilterChanged = this.onFilterChanged.bind(this);
-    this.onViewApp = this.onViewApp.bind(this);
+    this.onViewOverview = this.onViewOverview.bind(this);
   }
 
   public componentDidMount() {
     const { match: { params } } = this.props;
 
-    if (_.isEmpty(this.props.selectedAppName) && !_.isEmpty(params.appName)) {
-      this.props.setSelectedAppName(params.appName);
+    if (_.isEmpty(this.props.selectedAppName) && !_.isEmpty(params.linkedName)) {
+      this.props.setSelectedAppName(params.linkedName);
     }
 
-    if (!this.props.isLoading && _.isEmpty(this.props.apps)) {
-      this.props.getApps(this.props.cluster, this.props.identityToken);
+    if (!this.props.isLoading && _.isEmpty(this.props.overviews)) {
+      this.props.getOverviews(this.props.cluster, this.props.identityToken);
     }
   }
 
@@ -83,15 +83,15 @@ export class Home extends Component<HomeProps, initialState> {
   }
 
   private onFilterChanged(event) {
-    this.props.filterApps(event.target.value, this.props.apps);
+    this.props.filterOverviews(event.target.value, this.props.overviews);
   }
 
-  private onViewApp(appname: string, namespace: string, labelSelector: string) {
-    this.props.setSelectedAppName(labelSelector);
+  private onViewOverview(linkedName: string, namespace: string) {
+    this.props.setSelectedAppName(linkedName);
 
-    this.props.getAppOverview(appname, namespace, labelSelector, this.props.cluster, this.props.identityToken);
+    this.props.getOverview(linkedName, namespace, this.props.cluster, this.props.identityToken);
 
-    this.props.history.push(`/${appname}?namespace=${namespace}&labelSelector=${encodeURIComponent(labelSelector)}`);
+    this.props.history.push(`/${linkedName}?namespace=${namespace}`);
   }
 
   public render() {
@@ -100,7 +100,7 @@ export class Home extends Component<HomeProps, initialState> {
         <NavBar {...this.props} />
         <View
           onFilterChanged={this.onFilterChanged}
-          onViewApp={this.onViewApp}
+          onViewOverview={this.onViewOverview}
           {...this.props} />
         <APIErrorModal
           open={this.props.error.apiOpen}
@@ -114,13 +114,13 @@ export class Home extends Component<HomeProps, initialState> {
   }
 }
 
-export const mapStateToProps = ({ loadingState, appsState, authState, clustersState, errorState }: IGlobalState) => {
+export const mapStateToProps = ({ loadingState, overviewsState, authState, clustersState, errorState }: IGlobalState) => {
   return {
     cluster: clustersState.cluster,
     identityToken: authState.identityToken,
-    apps: appsState.apps,
-    filteredApps: appsState.filteredApps || appsState.apps,
-    selectedAppName: appsState.selectedAppName,
+    overviews: overviewsState.overviews,
+    filteredOverviews: overviewsState.filteredOverviews || overviewsState.overviews,
+    selectedAppName: overviewsState.selectedAppName,
     error: errorState,
     isLoading: loadingState.loading
   };
@@ -128,10 +128,10 @@ export const mapStateToProps = ({ loadingState, appsState, authState, clustersSt
 
 export const mapActionsToProps = (dispatch) => {
   return {
-    getApps: (cluster: string, jwt: string) => dispatch(getApps(cluster, jwt)),
-    getAppOverview: (appname: string, namespace: string, queryString: string, cluster: string, jwt: string) => dispatch(getAppOverview(appname, namespace, queryString, cluster, jwt)),
+    getOverviews: (cluster: string, jwt: string) => dispatch(getOverviews(cluster, jwt)),
+    getOverview: (linkedName: string, namespace: string, cluster: string, jwt: string) => dispatch(getOverview(linkedName, namespace, cluster, jwt)),
     setSelectedAppName: (value: string) => dispatch(setSelectedAppName(value)),
-    filterApps: (value: string, apps: App[]) => dispatch(filterApps(value, apps)),
+    filterOverviews: (value: string, apps: Overview[]) => dispatch(filterOverviews(value, apps)),
     closeErrorModal: () => dispatch(closeErrorModal())
   };
 };

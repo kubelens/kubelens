@@ -49,7 +49,13 @@ func (k *Client) ReplicaSet(options ReplicaSetOptions) (overview *ReplicaSetOver
 		return nil, errs.InternalServerError(err.Error())
 	}
 
-	list, err := clientset.AppsV1().ReplicaSets(options.Namespace).List(options.Context, metav1.ListOptions{})
+	rsl := clientset.AppsV1().ReplicaSets(options.Namespace)
+
+	if rsl == nil {
+		return nil, nil
+	}
+
+	list, err := rsl.List(options.Context, metav1.ListOptions{})
 
 	if err != nil {
 		klog.Trace()
@@ -93,7 +99,13 @@ func (k *Client) ReplicaSets(options ReplicaSetOptions) (overviews []ReplicaSetO
 		return nil, errs.InternalServerError(err.Error())
 	}
 
-	list, err := clientset.AppsV1().ReplicaSets(options.Namespace).List(options.Context, metav1.ListOptions{})
+	rsl := clientset.AppsV1().ReplicaSets(options.Namespace)
+
+	if rsl == nil {
+		return nil, nil
+	}
+
+	list, err := rsl.List(options.Context, metav1.ListOptions{})
 
 	if err != nil {
 		klog.Trace()
@@ -104,8 +116,10 @@ func (k *Client) ReplicaSets(options ReplicaSetOptions) (overviews []ReplicaSetO
 
 	wg.Add(len(list.Items))
 
+	var ovs []ReplicaSetOverview
+
 	if list != nil && len(list.Items) > 0 {
-		overviews = make([]ReplicaSetOverview, len(list.Items))
+		ovs = make([]ReplicaSetOverview, len(list.Items))
 
 		for i, item := range list.Items {
 			go func(index int, rs appsv1.ReplicaSet) {
@@ -113,7 +127,7 @@ func (k *Client) ReplicaSets(options ReplicaSetOptions) (overviews []ReplicaSetO
 				if options.UserRole.HasReplicaSetAccess(rs.Labels) {
 					if len(options.LinkedName) > 0 {
 						if labelsContainSelector(options.LinkedName, rs.Labels) {
-							overviews[index] = ReplicaSetOverview{
+							ovs[index] = ReplicaSetOverview{
 								Name:       rs.Name,
 								LinkedName: getLinkedName(rs.Labels),
 								Namespace:  rs.Namespace,
@@ -121,7 +135,7 @@ func (k *Client) ReplicaSets(options ReplicaSetOptions) (overviews []ReplicaSetO
 							}
 						}
 					} else {
-						overviews[index] = ReplicaSetOverview{
+						ovs[index] = ReplicaSetOverview{
 							Name:       rs.Name,
 							LinkedName: getLinkedName(rs.Labels),
 							Namespace:  rs.Namespace,
@@ -134,6 +148,15 @@ func (k *Client) ReplicaSets(options ReplicaSetOptions) (overviews []ReplicaSetO
 	}
 
 	wg.Wait()
+
+	if ovs != nil && len(ovs) > 0 {
+		overviews = []ReplicaSetOverview{}
+		for _, ov := range ovs {
+			if len(ov.Name) > 0 && len(ov.LinkedName) > 0 {
+				overviews = append(overviews, ov)
+			}
+		}
+	}
 
 	return overviews, nil
 }

@@ -23,42 +23,34 @@ SOFTWARE.
 */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import ServiceOverviewPage from './service-view';
+import ViewPage from './view';
 import PodOverviewPage from './pod-view';
-import DaemonSetOverviewPage from './daemonset-view';
-import JobOverviewPage from './job-view';
-import { Service, PodOverview, DaemonSetOverview, JobOverview, ReplicaSetOverview } from "../../types";
+import { Service, Pod, DaemonSet, Deployment, Job, ReplicaSet } from "../../types";
 import { RouteComponentProps, withRouter } from 'react-router';
 import _ from 'lodash';
 import { IGlobalState } from '../../store';
-import { getAppOverview, setSelectedAppName } from '../../actions/apps';
+import { getOverview, setSelectedAppName } from '../../actions/overviews';
 import APIErrorModal from '../../components/error-modal';
 import { closeErrorModal } from '../../actions/error';
 import { IErrorState } from '../../reducers/error';
 
 type initialState = {
-  specModalOpen: boolean,
-  statusModalOpen: boolean,
-  configMapModalOpen: boolean,
-  deploymentModalOpen: boolean,
-  dsConfigMapModalOpen: boolean,
-  dsDeploymentModalOpen: boolean,
-  dsConditionModalOpen: boolean,
-  jobConfigMapModalOpen: boolean,
-  jobDeploymentModalOpen: boolean,
-  jobConditionModalOpen: boolean,
-  rsConfigMapModalOpen: boolean,
-  rsDeploymentModalOpen: boolean,
-  rsConditionModalOpen: boolean
+  daemonSetsModalOpen: boolean,
+  deploymentsModalOpen: boolean,
+  jobsModalOpen: boolean,
+  podsModalOpen: boolean,
+  replicaSetsModalOpen: boolean,
+  servicesModalOpen: boolean
 };
 
 export type OverviewProps = {
   identityToken?: string,
   serviceOverviews?: Service[],
-  podOverview: PodOverview,
-  daemonSetOverviews?: DaemonSetOverview[],
-  jobOverviews?: JobOverview[],
-  replicaSetOverviews?: ReplicaSetOverview[],
+  daemonSetOverviews?: DaemonSet[],
+  deploymentOverviews?: Deployment[],
+  podOverviews: Pod[],
+  jobOverviews?: Job[],
+  replicaSetOverviews?: ReplicaSet[],
   selectedAppName: string,
   getAppOverview(appname: string, queryString: string): void,
   setSelectedAppName(value: string): void,
@@ -70,71 +62,52 @@ export type OverviewProps = {
 
 export class Overview extends Component<OverviewProps, initialState> {
   state: initialState = {
-    specModalOpen: false,
-    statusModalOpen: false,
-    configMapModalOpen: false,
-    deploymentModalOpen: false,
-    dsConfigMapModalOpen: false,
-    dsDeploymentModalOpen: false,
-    dsConditionModalOpen: false,
-    jobConfigMapModalOpen: false,
-    jobDeploymentModalOpen: false,
-    jobConditionModalOpen: false,
-    rsConfigMapModalOpen: false,
-    rsDeploymentModalOpen: false,
-    rsConditionModalOpen: false
+    daemonSetsModalOpen: false,
+    deploymentsModalOpen: false,
+    jobsModalOpen: false,
+    podsModalOpen: false,
+    replicaSetsModalOpen: false,
+    servicesModalOpen: false
   }
 
   async componentDidMount() {
     const { match: { params }, location: { search } } = this.props;
     const query = new URLSearchParams(search);
 
-    if (params.appName) {
-      let appName = params.appName;
+    if (params.linkedName) {
+      let linkedName = params.linkedName;
       if (_.isEmpty(this.props.selectedAppName)) {
-        this.props.setSelectedAppName(params.appName);
+        this.props.setSelectedAppName(params.linkedName);
       } else {
-        appName = this.props.selectedAppName;
+        linkedName = this.props.selectedAppName;
       }
 
-      const labelSelector = query.get('labelSelector');
-      if (!this.props.isLoading && !_.isEmpty(labelSelector) && this.props.overviewsEmpty) {
-        this.props.getAppOverview(appName, labelSelector, this.props.cluster, this.props.identityToken);
+      const namespace = query.get('namespace');
+      if (!this.props.isLoading && !_.isEmpty(namespace) && this.props.overviewsEmpty) {
+        this.props.getOverview(linkedName, namespace, this.props.cluster, this.props.identityToken);
       }
     }
   }
 
   toggleModalType = (type) => {
     switch (type) {
-      case 'spec':
-        this.setState({ specModalOpen: !this.state.specModalOpen });
+      case 'daemonSets':
+        this.setState({ daemonSetsModalOpen: !this.state.daemonSetsModalOpen});
         break;
-      case 'status':
-        this.setState({ statusModalOpen: !this.state.statusModalOpen });
+      case 'deployments':
+        this.setState({ deploymentsModalOpen: !this.state.deploymentsModalOpen});
         break;
-      case 'configMap':
-        this.setState({ configMapModalOpen: !this.state.configMapModalOpen});
+      case 'jobs':
+          this.setState({ jobsModalOpen: !this.state.jobsModalOpen});
+          break;
+      case 'pods':
+        this.setState({ podsModalOpen: !this.state.podsModalOpen});
         break;
-      case 'deployment':
-        this.setState({ deploymentModalOpen: !this.state.deploymentModalOpen});
+      case 'replicaSets':
+        this.setState({ replicaSetsModalOpen: !this.state.replicaSetsModalOpen});
         break;
-      case 'ds-condition':
-        this.setState({ dsConditionModalOpen: !this.state.dsConditionModalOpen});
-        break;
-      case 'ds-deployment':
-        this.setState({ dsDeploymentModalOpen: !this.state.dsDeploymentModalOpen});
-        break;
-      case 'ds-configmap':
-        this.setState({ dsConfigMapModalOpen: !this.state.dsConfigMapModalOpen});
-        break;
-      case 'job-condition':
-        this.setState({ jobConditionModalOpen: !this.state.jobConditionModalOpen});
-        break;
-      case 'job-deployment':
-        this.setState({ jobDeploymentModalOpen: !this.state.jobDeploymentModalOpen});
-        break;
-      case 'job-configmap':
-        this.setState({ jobConfigMapModalOpen: !this.state.jobConfigMapModalOpen});
+      case 'services':
+        this.setState({ servicesModalOpen: !this.state.servicesModalOpen});
         break;
       default:
         break;
@@ -144,32 +117,24 @@ export class Overview extends Component<OverviewProps, initialState> {
   render() {
     return (
       <div className="overview-container">
-        <ServiceOverviewPage 
-          serviceOverviews={this.props.serviceOverviews} 
+        <ViewPage 
+          linkedName={this.props.linkedName}
+          namespace={this.props.namespace}
+          daemonSetOverviews={this.props.daemonSetOverviews}
+          deploymentOverviews={this.props.deploymentOverviews}
+          jobOverviews={this.props.jobsOverviews}
+          podOverviews={this.props.podsOverviews}
+          replicaSetOverviews={this.props.replicaSetOverviews}
+          serviceOverviews={this.props.serviceOverviews}
           toggleModalType={this.toggleModalType}
-          specModalOpen={this.state.specModalOpen}
-          statusModalOpen={this.state.statusModalOpen}
-          configMapModalOpen={this.state.configMapModalOpen}
-          deploymentModalOpen={this.state.deploymentModalOpen}
-          replicaSetOverviews={this.props.replicaSetOverviews} />
+          daemonSetsModalOpen={this.state.daemonSetsModalOpen}
+          deploymentsModalOpen={this.state.deploymentsModalOpen}
+          jobsModalOpen={this.state.jobsModalOpen}
+          podsModalOpen={this.state.podsModalOpen}
+          replicaSetsModalOpen={this.state.replicaSetsModalOpen}
+          servicesModalOpen={this.state.servicesModalOpen} />
 
-        <DaemonSetOverviewPage 
-          daemonSetOverviews={this.props.daemonSetOverviews} 
-          toggleModalType={this.toggleModalType}
-          conditionsModalOpen={this.state.dsConfigMapModalOpen}
-          configMapModalOpen={this.state.dsConfigMapModalOpen}
-          deploymentModalOpen={this.state.dsDeploymentModalOpen}
-          replicaSetOverviews={this.props.replicaSetOverviews} />
-
-        <JobOverviewPage 
-          jobOverviews={this.props.jobOverviews} 
-          toggleModalType={this.toggleModalType}
-          conditionsModalOpen={this.state.jobConditionModalOpen}
-          configMapModalOpen={this.state.jobConfigMapModalOpen}
-          deploymentModalOpen={this.state.jobDeploymentModalOpen}
-          replicaSetOverviews={this.props.replicaSetOverviews} />
-
-        <PodOverviewPage podOverview={this.props.podOverview} />
+        <PodOverviewPage podOverviews={this.props.podOverviews} />
 
         <APIErrorModal
           open={this.props.error.apiOpen}
@@ -183,45 +148,63 @@ export class Overview extends Component<OverviewProps, initialState> {
   }
 }
 
-export const mapStateToProps = ({ appsState, authState, clustersState, errorState }: IGlobalState) => {
-  let serviceOverviews,
+export const mapStateToProps = ({ overviewsState, authState, clustersState, errorState }: IGlobalState) => {
+  let linkedName,
+    namespace,
+    serviceOverviews,
     daemonSetOverviews,
+    deploymentOverviews,
     jobOverviews,
-    podOverview,
+    podOverviews,
     replicaSetOverviews;
 
-  if (appsState.appOverview && appsState.appOverview.serviceOverviews) {
-    serviceOverviews = appsState.appOverview.serviceOverviews;
+  if (overviewsState.overview && overviewsState.overview.linkedName) {
+    linkedName = overviewsState.overview.linkedName;
   }
 
-  if (appsState.appOverview && appsState.appOverview.daemonSetOverviews) {
-    daemonSetOverviews = appsState.appOverview.daemonSetOverviews;
+  if (overviewsState.overview && overviewsState.overview.namespace) {
+    namespace = overviewsState.overview.namespace;
   }
 
-  if (appsState.appOverview && appsState.appOverview.jobOverviews) {
-    jobOverviews = appsState.appOverview.jobOverviews;
+  if (overviewsState.overview && overviewsState.overview.services) {
+    serviceOverviews = overviewsState.overview.services;
   }
 
-  if (appsState.appOverview && appsState.appOverview.podOverviews) {
-    podOverview = appsState.appOverview.podOverviews;
+  if (overviewsState.overview && overviewsState.overview.daemonSets) {
+    daemonSetOverviews = overviewsState.overview.daemonSets;
   }
 
-  if (appsState.appOverview && appsState.appOverview.replicaSetOverviews) {
-    replicaSetOverviews = appsState.appOverview.replicaSetOverviews;
+  if (overviewsState.overview && overviewsState.overview.deployments) {
+    deploymentOverviews = overviewsState.overview.deployments;
   }
 
-  const overviewsEmpty = _.isEmpty(podOverview) && 
+  if (overviewsState.overview && overviewsState.overview.jobs) {
+    jobOverviews = overviewsState.overview.jobs;
+  }
+
+  if (overviewsState.overview && overviewsState.overview.pods) {
+    podOverviews = overviewsState.overview.pods;
+  }
+
+  if (overviewsState.overview && overviewsState.overview.replicaSets) {
+    replicaSetOverviews = overviewsState.overview.replicaSets;
+  }
+
+  const overviewsEmpty = _.isEmpty(podOverviews) && 
     (_.isEmpty(serviceOverviews) || _.isEmpty(daemonSetOverviews) || _.isEmpty(jobOverviews) || _.isEmpty(replicaSetOverviews));
 
   return {
     cluster: clustersState.cluster,
     identityToken: authState.identityToken,
+    linkedName: linkedName,
+    namespace: namespace,
     serviceOverviews: serviceOverviews,
     daemonSetOverviews: daemonSetOverviews,
+    deploymentOverviews: deploymentOverviews,
     jobOverviews: jobOverviews,
-    podOverview: podOverview,
+    podOverviews: podOverviews,
     replicaSetOverviews: replicaSetOverviews,
-    selectedAppName: appsState.selectedAppName,
+    selectedAppName: overviewsState.selectedAppName,
     error: errorState,
     overviewsEmpty: overviewsEmpty
   };
@@ -229,7 +212,7 @@ export const mapStateToProps = ({ appsState, authState, clustersState, errorStat
 
 export const mapActionsToProps = (dispatch) => {
   return {
-    getAppOverview: (appname: string, labelSelector: string, cluster: string, jwt: string) => dispatch(getAppOverview(appname, labelSelector, cluster, jwt)),
+    getOverview: (linkedName: string, namespace: string, cluster: string, jwt: string) => dispatch(getOverview(linkedName, namespace, cluster, jwt)),
     setSelectedAppName: (value: string) => dispatch(setSelectedAppName(value)),
     closeErrorModal: () => dispatch(closeErrorModal())
   };

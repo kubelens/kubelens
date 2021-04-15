@@ -61,7 +61,13 @@ func (k *Client) Pod(options PodOptions) (overview *PodOverview, apiErr *errs.AP
 		return nil, errs.InternalServerError(err.Error())
 	}
 
-	list, err := clientset.CoreV1().Pods(options.Namespace).List(options.Context, metav1.ListOptions{})
+	pds := clientset.CoreV1().Pods(options.Namespace)
+
+	if pds == nil {
+		return nil, nil
+	}
+
+	list, err := pds.List(options.Context, metav1.ListOptions{})
 
 	if err != nil {
 		klog.Trace()
@@ -105,11 +111,17 @@ func (k *Client) Pods(options PodOptions) (overviews []PodOverview, apiErr *errs
 		return nil, errs.InternalServerError(err.Error())
 	}
 
+	pds := clientset.CoreV1().Pods(options.Namespace)
+
+	if pds == nil {
+		return nil, nil
+	}
+
 	lo := metav1.ListOptions{
 		Limit: options.GetLimit(),
 	}
 
-	list, err := clientset.CoreV1().Pods(options.Namespace).List(options.Context, lo)
+	list, err := pds.List(options.Context, lo)
 
 	if err != nil {
 		klog.Trace()

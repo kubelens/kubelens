@@ -72,6 +72,7 @@ func (h request) Logs(w http.ResponseWriter, r *http.Request) {
 		ContainerName: data.ContainerName,
 		Tail:          tl,
 		Follow:        false,
+		Context:       r.Context(),
 	})
 
 	if apiErr != nil {

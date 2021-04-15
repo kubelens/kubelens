@@ -47,7 +47,13 @@ func (k *Client) Deployment(options DeploymentOptions) (overview *DeploymentOver
 		return nil, errs.InternalServerError(err.Error())
 	}
 
-	list, err := clientset.AppsV1().Deployments(options.Namespace).List(options.Context, metav1.ListOptions{})
+	dpl := clientset.AppsV1().Deployments(options.Namespace)
+
+	if dpl == nil {
+		return nil, nil
+	}
+
+	list, err := dpl.List(options.Context, metav1.ListOptions{})
 
 	if err != nil {
 		klog.Trace()
@@ -83,7 +89,13 @@ func (k *Client) Deployments(options DeploymentOptions) (overviews []DeploymentO
 		return nil, errs.InternalServerError(err.Error())
 	}
 
-	list, err := clientset.AppsV1().Deployments(options.Namespace).List(options.Context, metav1.ListOptions{})
+	dpl := clientset.AppsV1().Deployments(options.Namespace)
+
+	if dpl == nil {
+		return nil, nil
+	}
+
+	list, err := dpl.List(options.Context, metav1.ListOptions{})
 
 	if err != nil {
 		klog.Trace()

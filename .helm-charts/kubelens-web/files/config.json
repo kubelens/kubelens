@@ -12,6 +12,5 @@
   "oAuthRequestType": "",
   "oAuthScope": "",
   "oAuthConnection": "",
-  "oAuthEnabled": false,
-  "deployerLinkName": ""
+  "oAuthEnabled": false
 }

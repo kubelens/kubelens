@@ -30,7 +30,7 @@ import logo from '../../assets/kubelens-logo-inverse.png';
 import { IGlobalState } from 'store';
 import config from '../../config';
 import { setSelectedCluster } from '../../actions/cluster';
-import { getApps } from '../../actions/apps';
+import { getOverviews } from '../../actions/overviews';
 import _ from 'lodash';
 import './styles.css';
 
@@ -45,7 +45,7 @@ export interface NavBarProps extends
   selectedCluster: string,
   identityToken: string,
   setSelectedCluster(cluster: string): void,
-  getApps(cluster: string, jwt: string): void
+  getOverviews(cluster: string, jwt: string): void
 }
 
 export class NavBar extends Component<NavBarProps, NavBarState> {
@@ -76,7 +76,7 @@ export class NavBar extends Component<NavBarProps, NavBarState> {
 
   private async setSelectedCluster(cluster) {
     this.props.setSelectedCluster(cluster);
-    this.props.getApps(cluster, this.props.identityToken);
+    this.props.getOverviews(cluster, this.props.identityToken);
     this.toggleClusterSelect();
   }
 
@@ -127,7 +127,7 @@ export const mapStateToProps = ({ loadingState, clustersState, authState }: IGlo
 export const mapActionsToProps = (dispatch) => {
   return {
     setSelectedCluster: (cluster: string) => dispatch(setSelectedCluster(cluster)),
-    getApps: (cluster: string, jwt: string) => dispatch(getApps(cluster, jwt))
+    getGetOverviews: (cluster: string, jwt: string) => dispatch(getOverviews(cluster, jwt))
   };
 };
 

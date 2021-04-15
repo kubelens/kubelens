@@ -23,8 +23,8 @@ SOFTWARE.
 */
 import { ActionCreator, Dispatch } from 'redux';
 import { ThunkAction } from 'redux-thunk';
-import { IAppsState } from '../reducers/apps';
-import { AppOverview, App, Apps } from "../types";
+import { IOverviewsState } from '../reducers/overviews';
+import { Overview } from "../types";
 import adapter from './adapter';
 import _ from 'lodash';
 import { ErrorActionTypes } from './error';
@@ -34,27 +34,27 @@ import { LoadingActionTypes } from './loading';
 Combine the action types with a union (we assume there are more)
 example: export type CharacterActions = IGetAllAction | IGetOneAction ... 
 */
-export type AppsActions = IGetAppOverview | IGetApps | ISetSelectedAppName | IFilterApps;
+export type OverviewActions = IGetOverview | IGetOverviews | ISetSelectedAppName | IFilterOverviews;
 
 // Create Action Constants
-export enum AppsActionTypes {
-  GET_APP_OVERVIEW = 'GET_APP_OVERVIEW',
-  GET_APPS = 'GET_APPS',
+export enum OverviewActionTypes {
+  GET_OVERVIEW = 'GET_OVERVIEW',
+  GET_OVERVIEWS = 'GET_OVERVIEWS',
   SET_SELECTED_APP_NAME = 'SET_SELECTED_APP_NAME',
-  FILTER_APPS = 'FILTER_APPS'
+  FILTER_OVERVIEWS = 'FILTER_APPS'
 }
 
-// IGetAppOverview interface .
-export interface IGetAppOverview {
-  type: AppsActionTypes.GET_APP_OVERVIEW,
-  appOverview?: AppOverview
+// IGetOverview interface .
+export interface IGetOverview {
+  type: OverviewActionTypes.GET_OVERVIEW,
+  overview?: Overview
 }
 
-/* Get App Overviews
+/* Get Overviews
 <Promise<Return Type>, State Interface, Type of Param, Type of Action> */
-export const getAppOverview: ActionCreator<
-  ThunkAction<Promise<any>, IAppsState, null, IGetAppOverview>
-> = (appname: string, namespace: string, labelSelector: string, cluster: string, jwt: string) => {
+export const getOverview: ActionCreator<
+  ThunkAction<Promise<any>, IOverviewsState, null, IGetOverview>
+> = (linkedName: string, namespace: string, cluster: string, jwt: string) => {
   return async (dispatch: Dispatch) => {
     try {
       dispatch({
@@ -62,11 +62,11 @@ export const getAppOverview: ActionCreator<
         loading: true,
       });
 
-      const response = await adapter.get(`/apps/${appname}?namespace=${namespace}&labelSelector=${encodeURIComponent(labelSelector)}&detailed=true`, cluster, jwt);
+      const response = await adapter.get(`overviews/${linkedName}?namespace=${namespace}`, cluster, jwt);
 
       dispatch({
-        type: AppsActionTypes.GET_APP_OVERVIEW,
-        appOverview: response.data
+        type: OverviewActionTypes.GET_OVERVIEW,
+        overview: response.data
       });
 
       dispatch({
@@ -89,17 +89,17 @@ export const getAppOverview: ActionCreator<
   };
 };
 
-// IGetApps interface .
-export interface IGetApps {
-  type: AppsActionTypes.GET_APPS,
-  apps?: App[],
-  filteredApps?: App[]
+// IGetOverviews interface .
+export interface IGetOverviews {
+  type: OverviewActionTypes.GET_OVERVIEWS,
+  overviews?: Overview[],
+  filteredOverviews?: Overview[]
 }
 
-/* Get Apps
+/* Get Overviews
 <Promise<Return Type>, State Interface, Type of Param, Type of Action> */
-export const getApps: ActionCreator<
-  ThunkAction<Promise<any>, IAppsState, null, IGetApps>
+export const getOverviews: ActionCreator<
+  ThunkAction<Promise<any>, IOverviewsState, null, IGetOverviews>
 > = (cluster: string, jwt: string) => {
   return async (dispatch: Dispatch) => {
     try {
@@ -108,14 +108,14 @@ export const getApps: ActionCreator<
         loading: true,
       });
 
-      const response = await adapter.get('/apps', cluster, jwt);
-      const data = response.data as Apps;
-      const apps = _.orderBy(data, 'name');
+      const response = await adapter.get('overviews', cluster, jwt);
+      const data = response.data as Overview[];
+      const overviews = _.orderBy(data, 'linkedName');
 
       dispatch({
-        type: AppsActionTypes.GET_APPS,
-        apps: apps,
-        filteredApps: apps
+        type: OverviewActionTypes.GET_OVERVIEWS,
+        overviews: overviews,
+        filteredOverviews: overviews
       });
       
       dispatch({
@@ -140,44 +140,42 @@ export const getApps: ActionCreator<
 
 // ISetSelectedAppName interface .
 export interface ISetSelectedAppName {
-  type: AppsActionTypes.SET_SELECTED_APP_NAME,
+  type: OverviewActionTypes.SET_SELECTED_APP_NAME,
   selectedAppName: string
 }
 
 /* <Promise<Return Type>, State Interface, Type of Param, Type of Action> */
 export const setSelectedAppName: ActionCreator<
-  ThunkAction<Promise<any>, IAppsState, null, IGetApps>
+  ThunkAction<Promise<any>, IOverviewsState, null, ISetSelectedAppName>
 > = (selectedAppName: string) => {
   return async (dispatch: Dispatch) => {
     dispatch({
-      type: AppsActionTypes.SET_SELECTED_APP_NAME,
+      type: OverviewActionTypes.SET_SELECTED_APP_NAME,
       selectedAppName: selectedAppName
     });
   };
 };
 
-// IFilterApps interface .
-export interface IFilterApps {
-  type: AppsActionTypes.FILTER_APPS,
-  filteredApps: App[]
+// IFilterOverviews interface .
+export interface IFilterOverviews {
+  type: OverviewActionTypes.FILTER_OVERVIEWS,
+  filteredOverviews: Overview[]
 }
 
 /* <Promise<Return Type>, State Interface, Type of Param, Type of Action> */
-export const filterApps: ActionCreator<
-  ThunkAction<Promise<any>, IAppsState, null, IGetApps>
-> = (value: string, apps: App[]) => {
+export const filterOverviews: ActionCreator<
+  ThunkAction<Promise<any>, IOverviewsState, null, IFilterOverviews>
+> = (value: string, overviews: Overview[]) => {
   return async (dispatch: Dispatch) => {
 
-    const filtered = _.filter(apps, (svc: App) => {
-      return (svc.name.includes(value)) 
-        || svc.namespace.includes(value)
-        || svc.labelSelector.includes(value)
-        || svc.kind.includes(value);
+    const filtered = _.filter(overviews, (ov: Overview) => {
+      return (ov.linkedName.includes(value)) 
+        || ov.namespace.includes(value)
     });
 
     dispatch({
-      type: AppsActionTypes.FILTER_APPS,
-      filteredApps: filtered
+      type: OverviewActionTypes.FILTER_OVERVIEWS,
+      filteredOverviews: filtered
     });
   };
 };

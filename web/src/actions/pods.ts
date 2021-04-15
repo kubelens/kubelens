@@ -23,7 +23,7 @@ SOFTWARE.
 */
 import { ActionCreator, Dispatch } from 'redux';
 import { ThunkAction } from 'redux-thunk';
-import { PodDetail } from '../types';
+import { Pod } from '../types';
 import { IPodState } from '../reducers/pods';
 import adapter from './adapter';
 import { ErrorActionTypes } from './error';
@@ -45,14 +45,14 @@ export enum PodActionTypes {
 
 export interface IGetPod {
   type: PodActionTypes.GET_POD,
-  pod?: PodDetail
+  podOverview?: Pod
 }
 
 /* Clear errors
 <Promise<Return Type>, State Interface, Type of Param, Type of Action> */
 export const getPod: ActionCreator<
   ThunkAction<Promise<any>, IPodState, null, IGetPod>
-> = (podname: string, queryString: string, cluster: string, jwt: string) => {
+> = (podName: string, namespace: string, cluster: string, jwt: string) => {
   return async (dispatch: Dispatch) => {
     try {
       dispatch({
@@ -60,11 +60,11 @@ export const getPod: ActionCreator<
         loading: true,
       });
 
-      const response = await adapter.get(`/pods/${podname}${queryString}`, cluster, jwt);
+      const response = await adapter.get(`pods/${podName}?namespace=${namespace}`, cluster, jwt);
 
       dispatch({
         type: PodActionTypes.GET_POD,
-        pod: response.data
+        podOverview: response.data
       });
 
       dispatch({
@@ -126,7 +126,7 @@ export const setSelectedContainerName: ActionCreator<
 
 export interface IClearPod {
   type: PodActionTypes.CLEAR_POD,
-  pod?: PodDetail
+  podOverview?: Pod
 }
 
 /* Set container name
@@ -137,7 +137,7 @@ export const clearPod: ActionCreator<
   return async (dispatch: Dispatch) => {
     dispatch({
       type: PodActionTypes.CLEAR_POD,
-      pod: null
+      podOverview: null
     });
   };
 };

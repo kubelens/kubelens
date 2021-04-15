@@ -51,7 +51,13 @@ func (k *Client) Service(options ServiceOptions) (overview *ServiceOverview, api
 		return nil, errs.InternalServerError(err.Error())
 	}
 
-	list, err := clientset.CoreV1().Services(options.Namespace).List(options.Context, metav1.ListOptions{})
+	svcs := clientset.CoreV1().Services(options.Namespace)
+
+	if svcs == nil {
+		return nil, nil
+	}
+
+	list, err := svcs.List(options.Context, metav1.ListOptions{})
 
 	if err != nil {
 		klog.Trace()
@@ -86,7 +92,13 @@ func (k *Client) Services(options ServiceOptions) (overviews []ServiceOverview, 
 		return nil, errs.InternalServerError(err.Error())
 	}
 
-	list, err := clientset.CoreV1().Services(options.Namespace).List(options.Context, metav1.ListOptions{})
+	svcs := clientset.CoreV1().Services(options.Namespace)
+
+	if svcs == nil {
+		return nil, nil
+	}
+
+	list, err := svcs.List(options.Context, metav1.ListOptions{})
 
 	if err != nil {
 		klog.Trace()

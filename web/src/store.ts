@@ -37,7 +37,7 @@ Redux Thunk middleware allows you to write action creators that return a functio
 import thunk from 'redux-thunk';
 
 // Import reducers and state type
-import * as apps from './reducers/apps';
+import * as overviews from './reducers/overviews';
 import * as logs from './reducers/logs';
 import * as pods from './reducers/pods';
 import * as auth from './reducers/auth';
@@ -49,7 +49,7 @@ export const history = createBrowserHistory();
 
 // Create an interface for the application state
 export interface IGlobalState {
-  appsState: apps.IAppsState,
+  overviewsState: overviews.IOverviewsState,
   logsState: logs.ILogsState,
   podsState: pods.IPodState,
   authState: auth.IAuthState,
@@ -61,7 +61,7 @@ export interface IGlobalState {
 
 // Create the root reducer
 const rootReducer = combineReducers<IGlobalState>({
-  appsState: apps.reducer,
+  overviewsState: overviews.reducer,
   logsState: logs.reducer,
   podsState: pods.reducer,
   authState: auth.reducer,

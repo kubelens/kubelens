@@ -23,29 +23,29 @@ SOFTWARE.
 */
 import React from 'react';
 import { Row, Col } from 'reactstrap';
-import { PodOverview } from '../../types';
+import { Pod } from '../../types';
 import PodCard from '../../components/pod-card';
 import _ from 'lodash';
 import './styles.css';
 
 export type PodOverviewProps = {
-  podOverview: PodOverview
+  podOverviews: Pod[]
 };
 
 const Overview = ({
-  podOverview
+  podOverviews
 }: PodOverviewProps) => {
   return (
     <div>
-      {!_.isEmpty(podOverview) &&
+      {!_.isEmpty(podOverviews) &&
         <div>
           <h4>Pods</h4>
           <hr />
           <Row>
-            {podOverview.pods && podOverview.pods.map(pod => {
-              return (
-                <Col sm={6} key={pod.name}>
-                  <PodCard name={pod.name} pod={pod} />
+            {podOverviews && podOverviews.map(ov => {
+              return !_.isEmpty(ov.name) && (
+                <Col sm={6} key={ov.name}>
+                  <PodCard podName={ov.name} overview={ov} />
                 </Col>
               )
             })
