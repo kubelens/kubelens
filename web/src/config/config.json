@@ -10,28 +10,7 @@
   "oAuthEnabled": false,
   "availableClusters": [
     {
-      "centralus-internal-np-aks": "http://kubelens-api.centralus-internal-np-aks.centralus.chrazure.cloud/"
-    },
-    {
-      "eastus2-internal-np-aks": "http://kubelens-api.eastus2-internal-np-aks.eastus2.chrazure.cloud/"
-    },
-    {
-      "centralus-internal-prd-aks": "http://kubelens-api.centralus-internal-prd-aks.centralus.chrazure.cloud/"
-    },
-    {
-      "eastus2-internal-prd-aks": "http://kubelens-api.eastus2-internal-prd-aks.eastus2.chrazure.cloud/"
-    },
-    {
-      "centralus-external-np-aks": "http://kubelens-api.centralus-external-np-aks.centralus.chrazure.cloud/"
-    },
-    {
-      "eastus2-external-np-aks": "http://kubelens-api.eastus2-external-np-aks.eastus2.chrazure.cloud/"
-    },
-    {
-      "centralus-external-prd-aks": "http://kubelens-api.centralus-external-prd-aks.centralus.chrazure.cloud/"
-    },
-    {
-      "eastus2-external-prd-aks": "http://kubelens-api.eastus2-external-prd-aks.eastus2.chrazure.cloud/"
+      "local": "http://kubelens-api.local/"
     }
   ]
 }
