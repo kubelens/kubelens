@@ -148,21 +148,6 @@ func (k *Client) Overviews(options OverviewOptions) (overviews []Overview, apiEr
 					})
 				}
 
-				// Deployments
-				dps, _ := k.Deployments(DeploymentOptions{
-					Namespace: ns.Namespace,
-					UserRole:  options.UserRole,
-					Logger:    options.Logger,
-					Context:   options.Context,
-				})
-
-				for _, dp := range dps {
-					nsOverviews[index] = append(nsOverviews[index], Overview{
-						LinkedName: dp.LinkedName,
-						Namespace:  dp.Namespace,
-					})
-				}
-
 				// Jobs
 				jbs, _ := k.Jobs(JobOptions{
 					Namespace: ns.Namespace,
@@ -190,36 +175,6 @@ func (k *Client) Overviews(options OverviewOptions) (overviews []Overview, apiEr
 					nsOverviews[index] = append(nsOverviews[index], Overview{
 						LinkedName: pov.LinkedName,
 						Namespace:  pov.Namespace,
-					})
-				}
-
-				// ReplicaSets
-				rss, _ := k.ReplicaSets(ReplicaSetOptions{
-					Namespace: ns.Namespace,
-					UserRole:  options.UserRole,
-					Logger:    options.Logger,
-					Context:   options.Context,
-				})
-
-				for _, rs := range rss {
-					nsOverviews[index] = append(nsOverviews[index], Overview{
-						LinkedName: rs.LinkedName,
-						Namespace:  rs.Namespace,
-					})
-				}
-
-				// Services
-				svcs, _ := k.Services(ServiceOptions{
-					Namespace: ns.Namespace,
-					UserRole:  options.UserRole,
-					Logger:    options.Logger,
-					Context:   options.Context,
-				})
-
-				for _, svc := range svcs {
-					nsOverviews[index] = append(nsOverviews[index], Overview{
-						LinkedName: svc.LinkedName,
-						Namespace:  svc.Namespace,
 					})
 				}
 			}

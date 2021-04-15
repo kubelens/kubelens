@@ -61,7 +61,7 @@ const PodCard = (props: PodCardProps) => {
               <CardText label="Start Time" value={moment(overview.pod.startTime).format('l LTS')} />
             </Col>
             <Col sm={4}>
-              <CardText label="Status" value={<img style={{ marginTop: '5px' }} height={25} src={PodPhaseStyle(overview.pod.phase).img} alt="Status" />} />
+              <CardText label="Status" value={<img style={{ marginTop: '5px' }} height={25} src={PodPhaseStyle(overview.pod.status.phase).img} alt="Status" />} />
             </Col>
           </Row>
           <Row >
