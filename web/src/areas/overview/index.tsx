@@ -40,7 +40,8 @@ type initialState = {
   jobsModalOpen: boolean,
   podsModalOpen: boolean,
   replicaSetsModalOpen: boolean,
-  servicesModalOpen: boolean
+  servicesModalOpen: boolean,
+  configMapsModalOpen: boolean
 };
 
 export type OverviewProps = {
@@ -67,7 +68,8 @@ export class Overview extends Component<OverviewProps, initialState> {
     jobsModalOpen: false,
     podsModalOpen: false,
     replicaSetsModalOpen: false,
-    servicesModalOpen: false
+    servicesModalOpen: false,
+    configMapsModalOpen: false
   }
 
   async componentDidMount() {
@@ -109,6 +111,9 @@ export class Overview extends Component<OverviewProps, initialState> {
       case 'services':
         this.setState({ servicesModalOpen: !this.state.servicesModalOpen});
         break;
+      case 'configMaps':
+        this.setState({ configMapsModalOpen: !this.state.configMapsModalOpen});
+        break;
       default:
         break;
     }
@@ -126,13 +131,15 @@ export class Overview extends Component<OverviewProps, initialState> {
           podOverviews={this.props.podsOverviews}
           replicaSetOverviews={this.props.replicaSetOverviews}
           serviceOverviews={this.props.serviceOverviews}
+          configMapOverviews={this.props.configMapOverviews}
           toggleModalType={this.toggleModalType}
           daemonSetsModalOpen={this.state.daemonSetsModalOpen}
           deploymentsModalOpen={this.state.deploymentsModalOpen}
           jobsModalOpen={this.state.jobsModalOpen}
           podsModalOpen={this.state.podsModalOpen}
           replicaSetsModalOpen={this.state.replicaSetsModalOpen}
-          servicesModalOpen={this.state.servicesModalOpen} />
+          servicesModalOpen={this.state.servicesModalOpen}
+          configMapsModalOpen={this.state.configMapsModalOpen} />
 
         <PodOverviewPage podOverviews={this.props.podOverviews} />
 
@@ -156,7 +163,8 @@ export const mapStateToProps = ({ overviewsState, authState, clustersState, erro
     deploymentOverviews,
     jobOverviews,
     podOverviews,
-    replicaSetOverviews;
+    replicaSetOverviews,
+    configMapOverviews;
 
   if (overviewsState.overview && overviewsState.overview.linkedName) {
     linkedName = overviewsState.overview.linkedName;
@@ -190,6 +198,10 @@ export const mapStateToProps = ({ overviewsState, authState, clustersState, erro
     replicaSetOverviews = overviewsState.overview.replicaSets;
   }
 
+  if (overviewsState.overview && overviewsState.overview.configMaps) {
+    configMapOverviews = overviewsState.overview.configMaps;
+  }
+
   const overviewsEmpty = _.isEmpty(podOverviews) && 
     (_.isEmpty(serviceOverviews) || _.isEmpty(daemonSetOverviews) || _.isEmpty(jobOverviews) || _.isEmpty(replicaSetOverviews));
 
@@ -204,6 +216,7 @@ export const mapStateToProps = ({ overviewsState, authState, clustersState, erro
     jobOverviews: jobOverviews,
     podOverviews: podOverviews,
     replicaSetOverviews: replicaSetOverviews,
+    configMapOverviews:configMapOverviews,
     selectedAppName: overviewsState.selectedAppName,
     error: errorState,
     overviewsEmpty: overviewsEmpty

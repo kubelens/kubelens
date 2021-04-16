@@ -70,24 +70,3 @@ func TestPodsDefaultWithFilters(t *testing.T) {
 	assert.Nil(t, err)
 	assert.True(t, len(r) > 0)
 }
-
-func TestGetPodSuccess(t *testing.T) {
-	ns := "somens"
-	n := "pod6"
-
-	c := setupClient(ns, n, false, false)
-
-	r, err := c.Pods(PodOptions{
-		UserRole:   rbacfakes.RoleAssignment{},
-		Logger:     &logfakes.Logger{},
-		Namespace:  ns,
-		Name:       n,
-		LinkedName: n,
-		Context:    context.Background(),
-	})
-
-	assert.Nil(t, err)
-	assert.NotNil(t, r)
-	assert.Equal(t, ns, r[0].Namespace)
-	assert.Equal(t, n, r[0].Name)
-}

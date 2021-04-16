@@ -42,7 +42,8 @@ export type Overview = {
 	jobs:        Job[],
 	pods:        Pod[],
 	replicaSets: ReplicaSet[],
-	services:    Service[]
+	services:    Service[],
+  configMaps:  ConfigMap[]
 }
 
 export type DaemonSet = {
@@ -90,4 +91,11 @@ export type Service = {
 export type Log = {
   pod:    string,
   output: string
+}
+
+export type ConfigMap = {
+  name:         string,
+  linkedName:   string,
+	namespace:    string,
+	service:      any
 }

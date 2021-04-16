@@ -36,6 +36,7 @@ type Overview struct {
 	Pods        []PodOverview        `json:"pods,omitempty"`
 	ReplicaSets []ReplicaSetOverview `json:"replicaSets,omitempty"`
 	Services    []ServiceOverview    `json:"services,omitempty"`
+	ConfigMaps  []ConfigMapOverview  `json:"configMaps,omitempty"`
 }
 
 // Overview returns a Overview given filter options
@@ -90,6 +91,15 @@ func (k *Client) Overview(options OverviewOptions) (overview *Overview, apiErr *
 			Context:    options.Context,
 		})
 
+		// ConfigMaps
+		cms, _ := k.ConfigMaps(ConfigMapOptions{
+			Namespace:  options.Namespace,
+			LinkedName: options.LinkedName,
+			UserRole:   options.UserRole,
+			Logger:     options.Logger,
+			Context:    options.Context,
+		})
+
 		overview = &Overview{
 			LinkedName:  options.LinkedName,
 			Namespace:   options.Namespace,
@@ -99,6 +109,7 @@ func (k *Client) Overview(options OverviewOptions) (overview *Overview, apiErr *
 			Pods:        povs,
 			ReplicaSets: rss,
 			Services:    svcs,
+			ConfigMaps:  cms,
 		}
 	}
 

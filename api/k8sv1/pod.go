@@ -83,6 +83,20 @@ func (k *Client) Pod(options PodOptions) (overview *PodOverview, apiErr *errs.AP
 			go func(index int, pod v1.Pod) {
 				defer wg.Done()
 				if options.UserRole.HasPodAccess(pod.Labels) {
+
+					// try to catch sensitive values in environment variables.
+					// TODO is there a better way?
+					for ci, c := range pod.Spec.Containers {
+						env := []v1.EnvVar{}
+
+						for _, e := range c.Env {
+							if !stringContainsSensitiveInfo(e.Name) {
+								env = append(env, e)
+							}
+						}
+						pod.Spec.Containers[ci].Env = env
+					}
+
 					// first check name of deployment, then by labelSelctor
 					if strings.EqualFold(pod.Name, options.Name) {
 						overview = &PodOverview{

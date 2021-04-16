@@ -57,6 +57,28 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			pod.SetNamespace(namespace)
 			pod.SetLabels(lbl)
 			pod.SetName(name)
+			pod.Spec.Containers = []v1.Container{
+				{
+					Env: []v1.EnvVar{
+						{
+							Name:  "testPassword",
+							Value: "password",
+						},
+						{
+							Name:  "testKey",
+							Value: "key",
+						},
+						{
+							Name:  "testSecret",
+							Value: "secret",
+						},
+						{
+							Name:  "regular_entry",
+							Value: "not so sensitive",
+						},
+					},
+				},
+			}
 			fmt.Printf("pod added: %s/%s\n", pod.Namespace, pod.Name)
 			pods <- pod
 			cancel()

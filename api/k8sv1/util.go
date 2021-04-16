@@ -46,3 +46,13 @@ func labelsContainSelector(selector string, labels map[string]string) bool {
 func getLinkedName(labels map[string]string) string {
 	return labels[config.C.LabelKeyLink]
 }
+
+func stringContainsSensitiveInfo(toCheck string) bool {
+	l := strings.ToLower(toCheck)
+	if strings.Contains(l, "pass") ||
+		strings.Contains(l, "key") ||
+		strings.Contains(l, "secret") {
+		return true
+	}
+	return false
+}

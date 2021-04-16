@@ -23,9 +23,10 @@ SOFTWARE.
 */
 import React from 'react';
 import { Row, Col, Card, CardBody, Button } from 'reactstrap';
-import { DaemonSet, Deployment, Job, Pod, ReplicaSet, Service } from '../../types';
+import { DaemonSet, Deployment, Job, Pod, ReplicaSet, Service, ConfigMap } from '../../types';
 import JsonViewModal from '../../components/json-view-modal';
 import _ from 'lodash';
+import './styles.css';
 
 export type OverviewProps = {
   linkedName: string,
@@ -36,13 +37,15 @@ export type OverviewProps = {
   jobOverviews: Job[],
   podOverviews: Pod[],
   replicaSetOverviews: ReplicaSet[],
+  configMapOverviews: ConfigMap[],
   toggleModalType: (type: string) => void,
   daemonSetsModalOpen: boolean,
   deploymentsModalOpen: boolean,
   jobsModalOpen: boolean,
   podsModalOpen: boolean,
   replicaSetsModalOpen: boolean,
-  servicesModalOpen: boolean
+  servicesModalOpen: boolean,
+  configMapsModalOpen: boolean
 };
 
 const View = ({
@@ -54,13 +57,15 @@ const View = ({
   jobOverviews,
   podOverviews,
   replicaSetOverviews,
+  configMapOverviews,
   toggleModalType,
   daemonSetsModalOpen,
   deploymentsModalOpen,
   jobsModalOpen,
   podsModalOpen,
   replicaSetsModalOpen,
-  servicesModalOpen
+  servicesModalOpen,
+  configMapsModalOpen
 }: OverviewProps) => {
   return (
     <div>
@@ -72,32 +77,37 @@ const View = ({
             <Row>
               {!_.isEmpty(daemonSetOverviews) &&
                 <Col sm={4}>
-                <Button outline color="info" onClick={() => toggleModalType('daemonSets')} block>DaemonSets</Button>
+                <Button className="overview-button" outline color="info" onClick={() => toggleModalType('daemonSets')} block>DaemonSets</Button>
                 </Col>
               }
               {!_.isEmpty(deploymentOverviews) &&
                 <Col sm={4}>
-                <Button outline color="info" onClick={() => toggleModalType('deployments')} block>Deployments</Button>
+                <Button className="overview-button" outline color="info" onClick={() => toggleModalType('deployments')} block>Deployments</Button>
                 </Col>
               }
               {!_.isEmpty(jobOverviews) &&
                 <Col sm={4}>
-                <Button outline color="info" onClick={() => toggleModalType('jobs')} block>Jobs</Button>
+                <Button className="overview-button" outline color="info" onClick={() => toggleModalType('jobs')} block>Jobs</Button>
                 </Col>
               }
               {!_.isEmpty(podOverviews) &&
                 <Col sm={4}>
-                <Button outline color="info" onClick={() => toggleModalType('pods')} block>Pods</Button>
+                <Button className="overview-button" outline color="info" onClick={() => toggleModalType('pods')} block>Pods</Button>
                 </Col>
               }
               {!_.isEmpty(replicaSetOverviews) &&
                 <Col sm={4}>
-                <Button outline color="info" onClick={() => toggleModalType('replicaSets')} block>ReplicaSets</Button>
+                <Button className="overview-button" outline color="info" onClick={() => toggleModalType('replicaSets')} block>ReplicaSets</Button>
                 </Col>
               }
               {!_.isEmpty(serviceOverviews) &&
                 <Col sm={4}>
-                <Button outline color="info" onClick={() => toggleModalType('services')} block>Services</Button>
+                <Button className="overview-button" outline color="info" onClick={() => toggleModalType('services')} block>Services</Button>
+                </Col>
+              }
+              {!_.isEmpty(configMapOverviews) &&
+                <Col sm={4}>
+                <Button className="overview-button" outline color="info" onClick={() => toggleModalType('configMaps')} block>ConfigMaps</Button>
                 </Col>
               }
             </Row>
@@ -150,6 +160,14 @@ const View = ({
           body={serviceOverviews}
           handleClose={() => {
             toggleModalType('services');
+          }} />
+        
+        <JsonViewModal
+          title="ConfigMaps"
+          show={configMapsModalOpen}
+          body={configMapOverviews}
+          handleClose={() => {
+            toggleModalType('configMaps');
           }} />
       </div>
   </div>

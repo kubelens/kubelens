@@ -101,8 +101,15 @@ func authMiddleware(next http.Handler) http.Handler {
 		if !strings.EqualFold(r.Method, http.MethodOptions) {
 			var roleAssignment *rbac.RoleAssignment
 
+			authBearer := r.Header.Get("Authorization")
+			if len(authBearer) == 0 {
+				l.Errorf("Missing Authoriztion Header: %s - %+v", r.URL.RequestURI(), r.Header)
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
+				return
+			}
 			// Authorization: Bearer ... so it's 7 characters to start of jwt
-			requestJWT := r.Header.Get("Authorization")[7:]
+			requestJWT := authBearer[7:]
 
 			// check for Okta specific provider
 			if strings.Contains(strings.ToLower(config.C.OAuthJWTIssuer), "okta") {

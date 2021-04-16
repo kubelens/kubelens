@@ -85,7 +85,13 @@ func (k *Client) ConfigMaps(options ConfigMapOptions) (overviews []ConfigMapOver
 		return nil, errs.InternalServerError(err.Error())
 	}
 
-	list, err := clientset.CoreV1().ConfigMaps(options.Namespace).List(options.Context, metav1.ListOptions{})
+	cml := clientset.CoreV1().ConfigMaps(options.Namespace)
+
+	if cml == nil {
+		return nil, nil
+	}
+
+	list, err := cml.List(options.Context, metav1.ListOptions{})
 
 	if err != nil {
 		klog.Trace()
