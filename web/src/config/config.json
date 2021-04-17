@@ -10,7 +10,9 @@
   "oAuthEnabled": false,
   "availableClusters": [
     {
-      "local": "http://kubelens-api.local/"
+      "name": "minikube",
+      "cluster": "minikube",
+      "url": "http://localhost:39000"
     }
   ]
 }

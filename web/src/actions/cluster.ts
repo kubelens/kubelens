@@ -23,6 +23,7 @@ SOFTWARE.
 */
 import { ActionCreator, Dispatch } from 'redux';
 import { ThunkAction } from 'redux-thunk';
+import { AvailableCluster } from 'types';
 import { IClustersState } from '../reducers/cluster';
 
 /* 
@@ -38,14 +39,14 @@ export enum ClustersActionTypes {
 
 export interface ISetSelectedCluster {
   type: ClustersActionTypes.SET_SELECTED_CLUSTER,
-  cluster: string
+  cluster?: AvailableCluster
 }
 
 /* Clear errors
 <Promise<Return Type>, State Interface, Type of Param, Type of Action> */
 export const setSelectedCluster: ActionCreator<
   ThunkAction<Promise<any>, IClustersState, null, ISetSelectedCluster>
-> = (cluster: string) => {
+> = (cluster: AvailableCluster) => {
   return async (dispatch: Dispatch) => {
     dispatch({
       type: ClustersActionTypes.SET_SELECTED_CLUSTER,

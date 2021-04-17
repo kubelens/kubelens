@@ -250,7 +250,7 @@ export const mapStateToProps = ({ overviewsState, podsState, logsState, authStat
   }
 
   return {
-    cluster: clustersState.cluster,
+    cluster: clustersState.cluster && clustersState.cluster.url,
     identityToken: identityToken,
     podOverview: podsState.podOverview,
     logs: logsState.logs,

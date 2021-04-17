@@ -49,14 +49,12 @@ const get = async (path: string, cluster: string, jwt: string): Promise<AxiosRes
 
     const rc = buildRequestConfig(cfg.oAuthRequestType, jwt, {});
 
-    let endpoint = '';
-    _.forEach(cfg.availableClusters, value => {
-      if (!_.isEmpty(value[cluster])) {
-        endpoint = value[cluster];
-      }
-    })
+    // add trailing slash if missing
+    if (cluster.charAt(cluster.length - 1) != '/') {
+      cluster += '/';
+    }
 
-    return await axios.get(`${endpoint}${path}`, rc);
+    return await axios.get(`${cluster}${path}`, rc);
   } catch (err) {
     return Promise.reject(err);
   }

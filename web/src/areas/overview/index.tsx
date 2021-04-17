@@ -206,7 +206,7 @@ export const mapStateToProps = ({ overviewsState, authState, clustersState, erro
     (_.isEmpty(serviceOverviews) || _.isEmpty(daemonSetOverviews) || _.isEmpty(jobOverviews) || _.isEmpty(replicaSetOverviews));
 
   return {
-    cluster: clustersState.cluster,
+    cluster: clustersState.cluster && clustersState.cluster.url,
     identityToken: authState.identityToken,
     linkedName: linkedName,
     namespace: namespace,

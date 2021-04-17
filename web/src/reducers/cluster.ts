@@ -22,14 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 import { Reducer } from 'redux';
+import { AvailableCluster } from 'types';
 import { ClustersActions, ClustersActionTypes } from '../actions/cluster';
 
 export interface IClustersState {
-  readonly cluster: string
+  readonly cluster?: AvailableCluster
 }
 
 export const INITIAL_STATE: IClustersState = {
-  cluster: ''
+  cluster: undefined
 };
 
 export const reducer: Reducer<IClustersState, ClustersActions> = (

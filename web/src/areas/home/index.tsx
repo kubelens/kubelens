@@ -116,7 +116,7 @@ export class Home extends Component<HomeProps, initialState> {
 
 export const mapStateToProps = ({ loadingState, overviewsState, authState, clustersState, errorState }: IGlobalState) => {
   return {
-    cluster: clustersState.cluster,
+    cluster: clustersState.cluster && clustersState.cluster.url,
     identityToken: authState.identityToken,
     overviews: overviewsState.overviews,
     filteredOverviews: overviewsState.filteredOverviews || overviewsState.overviews,

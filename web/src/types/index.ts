@@ -31,8 +31,14 @@ export type Config = {
   oAuthScope:         string,
   oAuthConnection:    string,
   oAuthEnabled:       boolean,
-  availableClusters:  {}[]
+  availableClusters:  AvailableCluster[]
 };
+
+export type AvailableCluster = {
+  name:     string,
+  cluster:  string,
+  url:      string
+}
 
 export type Overview = {
   linkedName:  string,
