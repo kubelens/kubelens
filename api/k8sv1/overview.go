@@ -5,7 +5,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 
 	klog "github.com/kubelens/kubelens/api/log"
@@ -19,8 +18,6 @@ type OverviewOptions struct {
 	LinkedName string `json:"linkedName"`
 	// namespace to filter on
 	Namespace string `json:"namespace"`
-	//users role assignemnt
-	UserRole rbac.RoleAssignmenter
 	// logger instance
 	Logger klog.Logger
 	// Context .
@@ -41,76 +38,67 @@ type Overview struct {
 
 // Overview returns a Overview given filter options
 func (k *Client) Overview(options OverviewOptions) (overview *Overview, apiErr *errs.APIError) {
-	if options.UserRole.HasNamespaceAccess(options.Namespace) {
-		// DaemonSets
-		dss, _ := k.DaemonSets(DaemonSetOptions{
-			Namespace:  options.Namespace,
-			LinkedName: options.LinkedName,
-			UserRole:   options.UserRole,
-			Logger:     options.Logger,
-			Context:    options.Context,
-		})
-		// Deployments
-		dps, _ := k.Deployments(DeploymentOptions{
-			Namespace:  options.Namespace,
-			LinkedName: options.LinkedName,
-			UserRole:   options.UserRole,
-			Logger:     options.Logger,
-			Context:    options.Context,
-		})
-		// Jobs
-		jbs, _ := k.Jobs(JobOptions{
-			Namespace:  options.Namespace,
-			LinkedName: options.LinkedName,
-			UserRole:   options.UserRole,
-			Logger:     options.Logger,
-			Context:    options.Context,
-		})
-		// Pods
-		povs, _ := k.Pods(PodOptions{
-			Namespace:  options.Namespace,
-			LinkedName: options.LinkedName,
-			UserRole:   options.UserRole,
-			Logger:     options.Logger,
-			Context:    options.Context,
-		})
-		// ReplicaSets
-		rss, _ := k.ReplicaSets(ReplicaSetOptions{
-			Namespace:  options.Namespace,
-			LinkedName: options.LinkedName,
-			UserRole:   options.UserRole,
-			Logger:     options.Logger,
-			Context:    options.Context,
-		})
-		// Services
-		svcs, _ := k.Services(ServiceOptions{
-			Namespace:  options.Namespace,
-			LinkedName: options.LinkedName,
-			UserRole:   options.UserRole,
-			Logger:     options.Logger,
-			Context:    options.Context,
-		})
+	// DaemonSets
+	dss, _ := k.DaemonSets(DaemonSetOptions{
+		Namespace:  options.Namespace,
+		LinkedName: options.LinkedName,
+		Logger:     options.Logger,
+		Context:    options.Context,
+	})
+	// Deployments
+	dps, _ := k.Deployments(DeploymentOptions{
+		Namespace:  options.Namespace,
+		LinkedName: options.LinkedName,
+		Logger:     options.Logger,
+		Context:    options.Context,
+	})
+	// Jobs
+	jbs, _ := k.Jobs(JobOptions{
+		Namespace:  options.Namespace,
+		LinkedName: options.LinkedName,
+		Logger:     options.Logger,
+		Context:    options.Context,
+	})
+	// Pods
+	povs, _ := k.Pods(PodOptions{
+		Namespace:  options.Namespace,
+		LinkedName: options.LinkedName,
+		Logger:     options.Logger,
+		Context:    options.Context,
+	})
+	// ReplicaSets
+	rss, _ := k.ReplicaSets(ReplicaSetOptions{
+		Namespace:  options.Namespace,
+		LinkedName: options.LinkedName,
+		Logger:     options.Logger,
+		Context:    options.Context,
+	})
+	// Services
+	svcs, _ := k.Services(ServiceOptions{
+		Namespace:  options.Namespace,
+		LinkedName: options.LinkedName,
+		Logger:     options.Logger,
+		Context:    options.Context,
+	})
 
-		// ConfigMaps
-		cms, _ := k.ConfigMaps(ConfigMapOptions{
-			Namespace:  options.Namespace,
-			LinkedName: options.LinkedName,
-			UserRole:   options.UserRole,
-			Logger:     options.Logger,
-			Context:    options.Context,
-		})
+	// ConfigMaps
+	cms, _ := k.ConfigMaps(ConfigMapOptions{
+		Namespace:  options.Namespace,
+		LinkedName: options.LinkedName,
+		Logger:     options.Logger,
+		Context:    options.Context,
+	})
 
-		overview = &Overview{
-			LinkedName:  options.LinkedName,
-			Namespace:   options.Namespace,
-			DaemonSets:  dss,
-			Deployments: dps,
-			Jobs:        jbs,
-			Pods:        povs,
-			ReplicaSets: rss,
-			Services:    svcs,
-			ConfigMaps:  cms,
-		}
+	overview = &Overview{
+		LinkedName:  options.LinkedName,
+		Namespace:   options.Namespace,
+		DaemonSets:  dss,
+		Deployments: dps,
+		Jobs:        jbs,
+		Pods:        povs,
+		ReplicaSets: rss,
+		Services:    svcs,
+		ConfigMaps:  cms,
 	}
 
 	return overview, nil
@@ -143,51 +131,46 @@ func (k *Client) Overviews(options OverviewOptions) (overviews []Overview, apiEr
 
 		go func(index int, ns v1.Namespace) {
 			defer wg.Done()
-			if options.UserRole.HasNamespaceAccess(ns.Namespace) {
-				// DaemonSets
-				dss, _ := k.DaemonSets(DaemonSetOptions{
-					Namespace: ns.Namespace,
-					UserRole:  options.UserRole,
-					Logger:    options.Logger,
-					Context:   options.Context,
+			// DaemonSets
+			dss, _ := k.DaemonSets(DaemonSetOptions{
+				Namespace: ns.Namespace,
+				Logger:    options.Logger,
+				Context:   options.Context,
+			})
+
+			for _, ds := range dss {
+				nsOverviews[index] = append(nsOverviews[index], Overview{
+					LinkedName: ds.LinkedName,
+					Namespace:  ds.Namespace,
 				})
+			}
 
-				for _, ds := range dss {
-					nsOverviews[index] = append(nsOverviews[index], Overview{
-						LinkedName: ds.LinkedName,
-						Namespace:  ds.Namespace,
-					})
-				}
+			// Jobs
+			jbs, _ := k.Jobs(JobOptions{
+				Namespace: ns.Namespace,
+				Logger:    options.Logger,
+				Context:   options.Context,
+			})
 
-				// Jobs
-				jbs, _ := k.Jobs(JobOptions{
-					Namespace: ns.Namespace,
-					UserRole:  options.UserRole,
-					Logger:    options.Logger,
-					Context:   options.Context,
+			for _, jb := range jbs {
+				nsOverviews[index] = append(nsOverviews[index], Overview{
+					LinkedName: jb.LinkedName,
+					Namespace:  jb.Namespace,
 				})
+			}
 
-				for _, jb := range jbs {
-					nsOverviews[index] = append(nsOverviews[index], Overview{
-						LinkedName: jb.LinkedName,
-						Namespace:  jb.Namespace,
-					})
-				}
+			// Pods
+			povs, _ := k.Pods(PodOptions{
+				Namespace: ns.Namespace,
+				Logger:    options.Logger,
+				Context:   options.Context,
+			})
 
-				// Pods
-				povs, _ := k.Pods(PodOptions{
-					Namespace: ns.Namespace,
-					UserRole:  options.UserRole,
-					Logger:    options.Logger,
-					Context:   options.Context,
+			for _, pov := range povs {
+				nsOverviews[index] = append(nsOverviews[index], Overview{
+					LinkedName: pov.LinkedName,
+					Namespace:  pov.Namespace,
 				})
-
-				for _, pov := range povs {
-					nsOverviews[index] = append(nsOverviews[index], Overview{
-						LinkedName: pov.LinkedName,
-						Namespace:  pov.Namespace,
-					})
-				}
 			}
 		}(i, namespace)
 	}

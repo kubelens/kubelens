@@ -15,7 +15,7 @@ done
 
 COVERAGE=$(go tool cover -func=coverage-all.out | tail -1 | tr -d '[:space:]' | tr -d '()' | tr -d '%' | tr -d ':' | sed -e 's/total//g' | sed -e 's/statements//g')
 
-if [[ ${COVERAGE%.*} -lt 60 ]]; then 
+if [[ ${COVERAGE%.*} -lt 65 ]]; then 
   echo "Insufficient Test Coverage: ${COVERAGE}"
   exit 1
 else

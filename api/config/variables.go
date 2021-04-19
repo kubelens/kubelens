@@ -46,17 +46,12 @@ type config struct {
 	OAuthJWTIssuer        string   `json:"oAuthJwtIssuer"`
 	OAuthClientID         string   `json:"oAuthClientID"`
 	EnableAuth            bool     `json:"enableAuth"`
-	EnableRBAC            bool     `json:"enableRBAC"`
-	RBACClaim             string   `json:"rbacClaim"`
-	HealthRoute           string   `json:"healthRoute"`
 	LabelKeyLink          string   `json:"labelKeyLink"`
 	EnableTLS             bool     `json:"enableTLS"`
 	TLSCert               string   `json:"tlsCert"`
 	TLSKey                string   `json:"tlsKey"`
 	ContentSecurityPolicy string   `json:"contentSecurityPolicy"`
 	PublicKeyHPKP         string   `json:"publicKeyHPKP"`
-	ViewerLabelInclusions []string `json:"viewerLabelInclusions"`
-	ViewerLabelExclusions []string `json:"viewerLabelExclusions"`
 	AdminEmails           []string `json:"adminEmails"`
 }
 

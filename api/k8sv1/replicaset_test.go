@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,7 +12,6 @@ func TestReplicaSetsDefaultSuccess(t *testing.T) {
 	c := setupClient("testns", "rs1", false, false)
 
 	d, err := c.ReplicaSets(ReplicaSetOptions{
-		UserRole:   &rbacfakes.RoleAssignment{},
 		Logger:     &logfakes.Logger{},
 		Namespace:  "testns",
 		LinkedName: "rs1",
@@ -29,7 +27,6 @@ func TestGetReplicaSetsDefaultFail(t *testing.T) {
 	c := setupClient("testns", "rs2", true, true)
 
 	_, err := c.ReplicaSets(ReplicaSetOptions{
-		UserRole:   &rbacfakes.RoleAssignment{},
 		Logger:     &logfakes.Logger{},
 		Namespace:  "testns",
 		LinkedName: "rs2",
@@ -43,7 +40,6 @@ func TestReplicaSetDefaultSuccess(t *testing.T) {
 	c := setupClient("testns", "rs3", false, false)
 
 	d, err := c.ReplicaSet(ReplicaSetOptions{
-		UserRole:   &rbacfakes.RoleAssignment{},
 		Logger:     &logfakes.Logger{},
 		Namespace:  "testns",
 		Name:       "rs3",
@@ -60,7 +56,6 @@ func TestGetReplicaSetDefaultFail(t *testing.T) {
 	c := setupClient("testns", "rs4", true, true)
 
 	_, err := c.ReplicaSet(ReplicaSetOptions{
-		UserRole:   &rbacfakes.RoleAssignment{},
 		Logger:     &logfakes.Logger{},
 		Namespace:  "testns",
 		Name:       "rs4",

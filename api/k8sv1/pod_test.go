@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"testing"
 
-	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,7 +13,6 @@ func TestPodDefault(t *testing.T) {
 	c := setupClient("default", "pod1", false, false)
 
 	r, err := c.Pod(PodOptions{
-		UserRole:  rbacfakes.RoleAssignment{},
 		Logger:    &logfakes.Logger{},
 		Name:      "pod1",
 		Namespace: "default",
@@ -29,7 +27,6 @@ func TestPodDetailForbidden(t *testing.T) {
 	c := setupClient("default", "pod2", true, false)
 
 	_, err := c.Pod(PodOptions{
-		UserRole:  rbacfakes.RoleAssignment{},
 		Logger:    &logfakes.Logger{},
 		Name:      "pod2",
 		Namespace: "default",
@@ -44,7 +41,6 @@ func TestPodsDefault(t *testing.T) {
 	c := setupClient("default", "pod3", false, false)
 
 	r, err := c.Pods(PodOptions{
-		UserRole:   rbacfakes.RoleAssignment{},
 		Logger:     &logfakes.Logger{},
 		Namespace:  "default",
 		LinkedName: "pod3",
@@ -59,7 +55,6 @@ func TestPodsDefaultWithFilters(t *testing.T) {
 	c := setupClient("default", "pod4", false, false)
 
 	r, err := c.Pods(PodOptions{
-		UserRole:   rbacfakes.RoleAssignment{},
 		Logger:     &logfakes.Logger{},
 		Namespace:  "default",
 		Name:       "test",

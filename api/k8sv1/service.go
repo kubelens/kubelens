@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 
 	klog "github.com/kubelens/kubelens/api/log"
@@ -22,8 +21,6 @@ type ServiceOptions struct {
 	Namespace string `json:"namespace"`
 	// the labels to match kinds
 	Labels map[string]string `json:"labels"`
-	//users role assignemnt
-	UserRole rbac.RoleAssignmenter
 	// logger instance
 	Logger klog.Logger
 	// Context .
@@ -66,16 +63,14 @@ func (k *Client) Service(options ServiceOptions) (overview *ServiceOverview, api
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			if options.UserRole.HasServiceAccess(item.Labels) {
-				// first check name of deployment, then by labelSelctor
-				if strings.EqualFold(item.Name, options.Name) {
-					return &ServiceOverview{
-						Name:       item.Name,
-						LinkedName: getLinkedName(item.Labels),
-						Namespace:  item.Namespace,
-						Service:    &item,
-					}, nil
-				}
+			// first check name of deployment, then by labelSelctor
+			if strings.EqualFold(item.Name, options.Name) {
+				return &ServiceOverview{
+					Name:       item.Name,
+					LinkedName: getLinkedName(item.Labels),
+					Namespace:  item.Namespace,
+					Service:    &item,
+				}, nil
 			}
 		}
 	}
@@ -107,17 +102,8 @@ func (k *Client) Services(options ServiceOptions) (overviews []ServiceOverview, 
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			if options.UserRole.HasServiceAccess(item.Labels) {
-				if len(options.LinkedName) > 0 {
-					if labelsContainSelector(options.LinkedName, item.Labels) {
-						overviews = append(overviews, ServiceOverview{
-							Name:       item.Name,
-							LinkedName: getLinkedName(item.Labels),
-							Namespace:  item.Namespace,
-							Service:    &item,
-						})
-					}
-				} else {
+			if len(options.LinkedName) > 0 {
+				if labelsContainSelector(options.LinkedName, item.Labels) {
 					overviews = append(overviews, ServiceOverview{
 						Name:       item.Name,
 						LinkedName: getLinkedName(item.Labels),
@@ -125,6 +111,13 @@ func (k *Client) Services(options ServiceOptions) (overviews []ServiceOverview, 
 						Service:    &item,
 					})
 				}
+			} else {
+				overviews = append(overviews, ServiceOverview{
+					Name:       item.Name,
+					LinkedName: getLinkedName(item.Labels),
+					Namespace:  item.Namespace,
+					Service:    &item,
+				})
 			}
 		}
 	}

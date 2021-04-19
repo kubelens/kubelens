@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 	klog "github.com/kubelens/kubelens/api/log"
 	appsv1 "k8s.io/api/apps/v1"
@@ -19,8 +18,6 @@ type DaemonSetOptions struct {
 	LinkedName string `json:"linkedName"`
 	// namespace to filter on
 	Namespace string `json:"namespace"`
-	//users role assignemnt
-	UserRole rbac.RoleAssignmenter
 	// logger instance
 	Logger klog.Logger
 	// Context .
@@ -63,16 +60,14 @@ func (k *Client) DaemonSet(options DaemonSetOptions) (overview *DaemonSetOvervie
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			if options.UserRole.HasDaemonSetAccess(item.Labels) {
-				// first check name of deployment, then by labelSelctor
-				if strings.EqualFold(item.Name, options.Name) {
-					return &DaemonSetOverview{
-						Name:       item.Name,
-						LinkedName: getLinkedName(item.Labels),
-						Namespace:  item.Namespace,
-						DaemonSet:  &item,
-					}, nil
-				}
+			// first check name of deployment, then by labelSelctor
+			if strings.EqualFold(item.Name, options.Name) {
+				return &DaemonSetOverview{
+					Name:       item.Name,
+					LinkedName: getLinkedName(item.Labels),
+					Namespace:  item.Namespace,
+					DaemonSet:  &item,
+				}, nil
 			}
 		}
 	}
@@ -103,17 +98,8 @@ func (k *Client) DaemonSets(options DaemonSetOptions) (overviews []DaemonSetOver
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			if options.UserRole.HasDaemonSetAccess(item.Labels) {
-				if len(options.LinkedName) > 0 {
-					if labelsContainSelector(options.LinkedName, item.Labels) {
-						overviews = append(overviews, DaemonSetOverview{
-							Name:       item.Name,
-							LinkedName: getLinkedName(item.Labels),
-							Namespace:  item.Namespace,
-							DaemonSet:  &item,
-						})
-					}
-				} else {
+			if len(options.LinkedName) > 0 {
+				if labelsContainSelector(options.LinkedName, item.Labels) {
 					overviews = append(overviews, DaemonSetOverview{
 						Name:       item.Name,
 						LinkedName: getLinkedName(item.Labels),
@@ -121,6 +107,13 @@ func (k *Client) DaemonSets(options DaemonSetOptions) (overviews []DaemonSetOver
 						DaemonSet:  &item,
 					})
 				}
+			} else {
+				overviews = append(overviews, DaemonSetOverview{
+					Name:       item.Name,
+					LinkedName: getLinkedName(item.Labels),
+					Namespace:  item.Namespace,
+					DaemonSet:  &item,
+				})
 			}
 		}
 	}

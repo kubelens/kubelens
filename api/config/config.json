@@ -24,18 +24,7 @@
   "oAuthAudience": "",
   "oAuthClientID": "",
   "enableAuth": false,
-  "enableRBAC": false,
-  "rbacClaim": "",
   "labelKeyLink": "app",
-  "viewerLabelInclusions": [
-    "app"
-  ],
-  "viewerLabelExclusions": [
-    "k8s-app",
-    "component",
-    "run"
-  ],
-  "adminEmails": [],
   "contentSecurityPolicy": "",
   "enableTLS": false,
   "tlsCert": "",

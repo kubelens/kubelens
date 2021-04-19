@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,9 +12,8 @@ func TestOverviewsSuccess(t *testing.T) {
 	c := setupClient("testns", "ov1", false, false)
 
 	d, err := c.Overviews(OverviewOptions{
-		UserRole: &rbacfakes.RoleAssignment{},
-		Logger:   &logfakes.Logger{},
-		Context:  context.Background(),
+		Logger:  &logfakes.Logger{},
+		Context: context.Background(),
 	})
 
 	assert.Nil(t, err)
@@ -29,7 +27,6 @@ func TestOverviewSuccess(t *testing.T) {
 	d, err := c.Overview(OverviewOptions{
 		Namespace:  "testns",
 		LinkedName: "ov2",
-		UserRole:   &rbacfakes.RoleAssignment{},
 		Logger:     &logfakes.Logger{},
 		Context:    context.Background(),
 	})

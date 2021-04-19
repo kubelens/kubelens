@@ -29,7 +29,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 
@@ -43,8 +42,6 @@ Name string `json:"name"`
 	Namespace string `json:"namespace"`
 	// the labels to match kinds
 	Labels map[string]string `json:"labels"`
-	//users role assignemnt
-	UserRole rbac.RoleAssignmenter
 	// logger instance
 	Logger klog.Logger
 */
@@ -52,12 +49,10 @@ Name string `json:"name"`
 // Overviews .
 func (h request) Overviews(w http.ResponseWriter, r *http.Request) {
 	l := klog.MustFromContext(r.Context())
-	ra := rbac.MustFromContext(r.Context())
 
 	overviews, apiErr := h.k8Client.Overviews(k8sv1.OverviewOptions{
-		UserRole: ra,
-		Logger:   l,
-		Context:  r.Context(),
+		Logger:  l,
+		Context: r.Context(),
 	})
 
 	if apiErr != nil {
@@ -81,7 +76,6 @@ func (h request) Overviews(w http.ResponseWriter, r *http.Request) {
 // Overview retrieves an overview of a given name.
 func (h request) Overview(w http.ResponseWriter, r *http.Request) {
 	l := klog.MustFromContext(r.Context())
-	ra := rbac.MustFromContext(r.Context())
 
 	var linkedName string
 
@@ -101,7 +95,6 @@ func (h request) Overview(w http.ResponseWriter, r *http.Request) {
 	}
 
 	overviews, apiErr := h.k8Client.Overview(k8sv1.OverviewOptions{
-		UserRole:   ra,
 		Logger:     l,
 		Context:    r.Context(),
 		Namespace:  data.Namespace,

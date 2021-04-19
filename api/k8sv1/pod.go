@@ -5,7 +5,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 
 	klog "github.com/kubelens/kubelens/api/log"
@@ -24,8 +23,6 @@ type PodOptions struct {
 	// Limit the number of pod summaries to return
 	// Use function GetLimit to get the default limit or this overriden value.
 	Limit int64 `json:"linit"`
-	//users role assignemnt
-	UserRole rbac.RoleAssignmenter
 	// logger instance
 	Logger klog.Logger
 	// Context .
@@ -82,29 +79,27 @@ func (k *Client) Pod(options PodOptions) (overview *PodOverview, apiErr *errs.AP
 		for i, item := range list.Items {
 			go func(index int, pod v1.Pod) {
 				defer wg.Done()
-				if options.UserRole.HasPodAccess(pod.Labels) {
 
-					// try to catch sensitive values in environment variables.
-					// TODO is there a better way?
-					for ci, c := range pod.Spec.Containers {
-						env := []v1.EnvVar{}
+				// try to catch sensitive values in environment variables.
+				// TODO is there a better way?
+				for ci, c := range pod.Spec.Containers {
+					env := []v1.EnvVar{}
 
-						for _, e := range c.Env {
-							if !stringContainsSensitiveInfo(e.Name) {
-								env = append(env, e)
-							}
+					for _, e := range c.Env {
+						if !stringContainsSensitiveInfo(e.Name) {
+							env = append(env, e)
 						}
-						pod.Spec.Containers[ci].Env = env
 					}
+					pod.Spec.Containers[ci].Env = env
+				}
 
-					// first check name of deployment, then by labelSelctor
-					if strings.EqualFold(pod.Name, options.Name) {
-						overview = &PodOverview{
-							Name:       pod.Name,
-							LinkedName: getLinkedName(pod.Labels),
-							Namespace:  pod.Namespace,
-							Pod:        &pod,
-						}
+				// first check name of deployment, then by labelSelctor
+				if strings.EqualFold(pod.Name, options.Name) {
+					overview = &PodOverview{
+						Name:       pod.Name,
+						LinkedName: getLinkedName(pod.Labels),
+						Namespace:  pod.Namespace,
+						Pod:        &pod,
 					}
 				}
 			}(i, item)
@@ -152,23 +147,21 @@ func (k *Client) Pods(options PodOptions) (overviews []PodOverview, apiErr *errs
 		for i, item := range list.Items {
 			go func(index int, pod v1.Pod) {
 				defer wg.Done()
-				if options.UserRole.HasPodAccess(pod.Labels) {
-					if len(options.LinkedName) > 0 {
-						if labelsContainSelector(options.LinkedName, pod.Labels) {
-							overviews[index] = PodOverview{
-								Name:       pod.Name,
-								LinkedName: getLinkedName(pod.Labels),
-								Namespace:  pod.Namespace,
-								Pod:        &pod,
-							}
-						}
-					} else {
+				if len(options.LinkedName) > 0 {
+					if labelsContainSelector(options.LinkedName, pod.Labels) {
 						overviews[index] = PodOverview{
 							Name:       pod.Name,
 							LinkedName: getLinkedName(pod.Labels),
 							Namespace:  pod.Namespace,
 							Pod:        &pod,
 						}
+					}
+				} else {
+					overviews[index] = PodOverview{
+						Name:       pod.Name,
+						LinkedName: getLinkedName(pod.Labels),
+						Namespace:  pod.Namespace,
+						Pod:        &pod,
 					}
 				}
 			}(i, item)

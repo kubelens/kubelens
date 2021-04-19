@@ -29,7 +29,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 
@@ -40,7 +39,6 @@ import (
 // Service .
 func (h request) Service(w http.ResponseWriter, r *http.Request) {
 	l := klog.MustFromContext(r.Context())
-	ra := rbac.MustFromContext(r.Context())
 
 	var name string
 
@@ -60,7 +58,6 @@ func (h request) Service(w http.ResponseWriter, r *http.Request) {
 	}
 
 	overview, apiErr := h.k8Client.Service(k8sv1.ServiceOptions{
-		UserRole:  ra,
 		Logger:    l,
 		Context:   r.Context(),
 		Name:      name,
@@ -88,7 +85,6 @@ func (h request) Service(w http.ResponseWriter, r *http.Request) {
 // Services .
 func (h request) Services(w http.ResponseWriter, r *http.Request) {
 	l := klog.MustFromContext(r.Context())
-	ra := rbac.MustFromContext(r.Context())
 
 	// get query params
 	var data Req
@@ -102,7 +98,6 @@ func (h request) Services(w http.ResponseWriter, r *http.Request) {
 	}
 
 	overviews, apiErr := h.k8Client.Services(k8sv1.ServiceOptions{
-		UserRole:   ra,
 		Logger:     l,
 		Context:    r.Context(),
 		LinkedName: data.LinkedName,

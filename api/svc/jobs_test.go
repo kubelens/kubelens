@@ -6,8 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
-	"github.com/kubelens/kubelens/api/auth/rbac"
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 	klog "github.com/kubelens/kubelens/api/log"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
@@ -21,9 +19,6 @@ func TestGetJobs(t *testing.T) {
 
 	dctx := klog.NewContext(req.Context(), "", &logfakes.Logger{})
 	req = req.WithContext(dctx)
-
-	ctx := rbac.NewContext(req.Context(), rbacfakes.RoleAssignment{})
-	req = req.WithContext(ctx)
 
 	h.Jobs(w, req)
 
@@ -51,9 +46,6 @@ func TestGetJob(t *testing.T) {
 
 	dctx := klog.NewContext(req.Context(), "", &logfakes.Logger{})
 	req = req.WithContext(dctx)
-
-	ctx := rbac.NewContext(req.Context(), rbacfakes.RoleAssignment{})
-	req = req.WithContext(ctx)
 
 	h.Job(w, req)
 

@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,7 +12,6 @@ func TestJobsDefaultSuccess(t *testing.T) {
 	c := setupClient("testns", "jobs1", false, false)
 
 	d, err := c.Jobs(JobOptions{
-		UserRole:   &rbacfakes.RoleAssignment{},
 		Logger:     &logfakes.Logger{},
 		Namespace:  "testns",
 		LinkedName: "jobs1",
@@ -29,7 +27,6 @@ func TestGetJobsDefaultFail(t *testing.T) {
 	c := setupClient("testns", "jobs2", true, true)
 
 	_, err := c.Jobs(JobOptions{
-		UserRole:   &rbacfakes.RoleAssignment{},
 		Logger:     &logfakes.Logger{},
 		Namespace:  "testns",
 		LinkedName: "jobs2",
@@ -43,7 +40,6 @@ func TestJobDefaultSuccess(t *testing.T) {
 	c := setupClient("testns", "jobs3", false, false)
 
 	d, err := c.Job(JobOptions{
-		UserRole:   &rbacfakes.RoleAssignment{},
 		Logger:     &logfakes.Logger{},
 		Namespace:  "testns",
 		Name:       "jobs3",
@@ -60,7 +56,6 @@ func TestGetJobDefaultFail(t *testing.T) {
 	c := setupClient("testns", "test", true, true)
 
 	_, err := c.Job(JobOptions{
-		UserRole:  &rbacfakes.RoleAssignment{},
 		Logger:    &logfakes.Logger{},
 		Namespace: "testns",
 		Context:   context.Background(),

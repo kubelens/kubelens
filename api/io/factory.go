@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/creack/httpreq"
-	"github.com/kubelens/kubelens/api/auth/rbac"
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 	klog "github.com/kubelens/kubelens/api/log"
 )
@@ -71,7 +70,6 @@ func (f *Factory) Run() {
 // Register handles websocket requests from the peer.
 func (f *Factory) Register(k8Client k8sv1.Clienter, w http.ResponseWriter, r *http.Request) {
 	l := klog.MustFromContext(r.Context())
-	ra := rbac.MustFromContext(r.Context())
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 
@@ -118,7 +116,6 @@ func (f *Factory) Register(k8Client k8sv1.Clienter, w http.ResponseWriter, r *ht
 	// get stream
 	stream, apiErr := k8Client.ReadLogs(k8sv1.LogOptions{
 		Logger:        l,
-		UserRole:      ra,
 		PodName:       pod,
 		ContainerName: containerName,
 		Namespace:     ns,

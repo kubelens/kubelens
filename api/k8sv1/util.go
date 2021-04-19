@@ -47,6 +47,9 @@ func getLinkedName(labels map[string]string) string {
 	return labels[config.C.LabelKeyLink]
 }
 
+// Hard coded check for now, but there really shouldn't be any
+// secrets exposed unless the application has them stored in an
+// insecure way such as a configMap or through environment variables.
 func stringContainsSensitiveInfo(toCheck string) bool {
 	l := strings.ToLower(toCheck)
 	if strings.Contains(l, "pass") ||

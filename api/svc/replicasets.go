@@ -29,7 +29,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 
@@ -40,7 +39,6 @@ import (
 // ReplicaSet .
 func (h request) ReplicaSet(w http.ResponseWriter, r *http.Request) {
 	l := klog.MustFromContext(r.Context())
-	ra := rbac.MustFromContext(r.Context())
 
 	var name string
 
@@ -60,7 +58,6 @@ func (h request) ReplicaSet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	overview, apiErr := h.k8Client.ReplicaSet(k8sv1.ReplicaSetOptions{
-		UserRole:  ra,
 		Logger:    l,
 		Context:   r.Context(),
 		Name:      name,
@@ -88,7 +85,6 @@ func (h request) ReplicaSet(w http.ResponseWriter, r *http.Request) {
 // ReplicaSets .
 func (h request) ReplicaSets(w http.ResponseWriter, r *http.Request) {
 	l := klog.MustFromContext(r.Context())
-	ra := rbac.MustFromContext(r.Context())
 
 	// get query params
 	var data Req
@@ -102,7 +98,6 @@ func (h request) ReplicaSets(w http.ResponseWriter, r *http.Request) {
 	}
 
 	overviews, apiErr := h.k8Client.ReplicaSets(k8sv1.ReplicaSetOptions{
-		UserRole:   ra,
 		Logger:     l,
 		Context:    r.Context(),
 		LinkedName: data.LinkedName,

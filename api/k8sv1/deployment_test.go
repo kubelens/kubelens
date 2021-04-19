@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
 	"github.com/stretchr/testify/assert"
 )
@@ -13,7 +12,6 @@ func TestGetDeploymentsDefaultSuccess(t *testing.T) {
 	c := setupClient("testns", "dpl1", false, false)
 
 	d, err := c.Deployments(DeploymentOptions{
-		UserRole:  &rbacfakes.RoleAssignment{},
 		Logger:    &logfakes.Logger{},
 		Namespace: "testns",
 		// just use the config map labelselctor for the service for ease.
@@ -31,7 +29,6 @@ func TestGetDeploymentDefaultFail(t *testing.T) {
 	c := setupClient("testns", "dpl2", true, true)
 
 	_, err := c.Deployments(DeploymentOptions{
-		UserRole:   &rbacfakes.RoleAssignment{},
 		Logger:     &logfakes.Logger{},
 		Namespace:  "testns",
 		LinkedName: "dpl2",

@@ -4,7 +4,6 @@ import (
 	"context"
 	"strings"
 
-	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -20,8 +19,6 @@ type DeploymentOptions struct {
 	LinkedName string `json:"linkedName"`
 	// the namespace of the deployment
 	Namespace string `json:"namespace"`
-	// users role assignemnt
-	UserRole rbac.RoleAssignmenter
 	// logger instance
 	Logger klog.Logger
 	// Context .
@@ -62,16 +59,14 @@ func (k *Client) Deployment(options DeploymentOptions) (overview *DeploymentOver
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			if options.UserRole.HasDeploymentAccess(item.Labels) {
-				// first check name of deployment, then by labelSelctor
-				if strings.EqualFold(item.Name, options.Name) {
-					return &DeploymentOverview{
-						Name:       item.Name,
-						LinkedName: getLinkedName(item.Labels),
-						Namespace:  item.Namespace,
-						Deployment: &item,
-					}, nil
-				}
+			// first check name of deployment, then by labelSelctor
+			if strings.EqualFold(item.Name, options.Name) {
+				return &DeploymentOverview{
+					Name:       item.Name,
+					LinkedName: getLinkedName(item.Labels),
+					Namespace:  item.Namespace,
+					Deployment: &item,
+				}, nil
 			}
 		}
 	}
@@ -104,17 +99,8 @@ func (k *Client) Deployments(options DeploymentOptions) (overviews []DeploymentO
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			if options.UserRole.HasDeploymentAccess(item.Labels) {
-				if len(options.LinkedName) > 0 {
-					if labelsContainSelector(options.LinkedName, item.Labels) {
-						overviews = append(overviews, DeploymentOverview{
-							Name:       item.Name,
-							LinkedName: getLinkedName(item.Labels),
-							Namespace:  item.Namespace,
-							Deployment: &item,
-						})
-					}
-				} else {
+			if len(options.LinkedName) > 0 {
+				if labelsContainSelector(options.LinkedName, item.Labels) {
 					overviews = append(overviews, DeploymentOverview{
 						Name:       item.Name,
 						LinkedName: getLinkedName(item.Labels),
@@ -122,6 +108,13 @@ func (k *Client) Deployments(options DeploymentOptions) (overviews []DeploymentO
 						Deployment: &item,
 					})
 				}
+			} else {
+				overviews = append(overviews, DeploymentOverview{
+					Name:       item.Name,
+					LinkedName: getLinkedName(item.Labels),
+					Namespace:  item.Namespace,
+					Deployment: &item,
+				})
 			}
 		}
 	}

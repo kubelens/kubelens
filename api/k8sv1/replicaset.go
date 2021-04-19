@@ -5,7 +5,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 	klog "github.com/kubelens/kubelens/api/log"
 	appsv1 "k8s.io/api/apps/v1"
@@ -20,8 +19,6 @@ type ReplicaSetOptions struct {
 	LinkedName string `json:"linkedName"`
 	// the namespace of the deployment
 	Namespace string `json:"namespace"`
-	//users role assignemnt
-	UserRole rbac.RoleAssignmenter
 	// logger instance
 	Logger klog.Logger
 	// Context .
@@ -70,15 +67,13 @@ func (k *Client) ReplicaSet(options ReplicaSetOptions) (overview *ReplicaSetOver
 		for i, item := range list.Items {
 			go func(index int, rs appsv1.ReplicaSet) {
 				defer wg.Done()
-				if options.UserRole.HasReplicaSetAccess(rs.Labels) {
-					// first check name of deployment, then by labelSelctor
-					if strings.EqualFold(rs.Name, options.Name) {
-						overview = &ReplicaSetOverview{
-							Name:       rs.Name,
-							LinkedName: getLinkedName(rs.Labels),
-							Namespace:  rs.Namespace,
-							ReplicaSet: &rs,
-						}
+				// first check name of deployment, then by labelSelctor
+				if strings.EqualFold(rs.Name, options.Name) {
+					overview = &ReplicaSetOverview{
+						Name:       rs.Name,
+						LinkedName: getLinkedName(rs.Labels),
+						Namespace:  rs.Namespace,
+						ReplicaSet: &rs,
 					}
 				}
 			}(i, item)
@@ -124,23 +119,21 @@ func (k *Client) ReplicaSets(options ReplicaSetOptions) (overviews []ReplicaSetO
 		for i, item := range list.Items {
 			go func(index int, rs appsv1.ReplicaSet) {
 				defer wg.Done()
-				if options.UserRole.HasReplicaSetAccess(rs.Labels) {
-					if len(options.LinkedName) > 0 {
-						if labelsContainSelector(options.LinkedName, rs.Labels) {
-							ovs[index] = ReplicaSetOverview{
-								Name:       rs.Name,
-								LinkedName: getLinkedName(rs.Labels),
-								Namespace:  rs.Namespace,
-								ReplicaSet: &rs,
-							}
-						}
-					} else {
+				if len(options.LinkedName) > 0 {
+					if labelsContainSelector(options.LinkedName, rs.Labels) {
 						ovs[index] = ReplicaSetOverview{
 							Name:       rs.Name,
 							LinkedName: getLinkedName(rs.Labels),
 							Namespace:  rs.Namespace,
 							ReplicaSet: &rs,
 						}
+					}
+				} else {
+					ovs[index] = ReplicaSetOverview{
+						Name:       rs.Name,
+						LinkedName: getLinkedName(rs.Labels),
+						Namespace:  rs.Namespace,
+						ReplicaSet: &rs,
 					}
 				}
 			}(i, item)

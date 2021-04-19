@@ -8,8 +8,6 @@ import (
 	"testing"
 
 	"github.com/gorilla/websocket"
-	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
-	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/config"
 	k8fakes "github.com/kubelens/kubelens/api/k8sv1/fakes"
 	klog "github.com/kubelens/kubelens/api/log"
@@ -30,9 +28,6 @@ func TestFactoryWriteReadSuccess(t *testing.T) {
 	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		dctx := klog.NewContext(r.Context(), "", &logfakes.Logger{})
 		r = r.WithContext(dctx)
-
-		ctx := rbac.NewContext(r.Context(), rbacfakes.RoleAssignment{})
-		r = r.WithContext(ctx)
 
 		wsFactory.Register(&k8fakes.K8sV1{}, w, r)
 	}))
@@ -93,9 +88,6 @@ func TestFactoryWriteReadForbiddenHost(t *testing.T) {
 	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		dctx := klog.NewContext(r.Context(), "", &logfakes.Logger{})
 		r = r.WithContext(dctx)
-
-		ctx := rbac.NewContext(r.Context(), rbacfakes.RoleAssignment{})
-		r = r.WithContext(ctx)
 
 		wsFactory.Register(&k8fakes.K8sV1{}, w, r)
 	}))
