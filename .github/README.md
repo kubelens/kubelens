@@ -38,6 +38,8 @@ More features to come. Any help/contributions/feedback is very much appreciated!
 
 ## Screenshots
 
+![Select Cluster](cluster-select.png)
+
 ![Selected Overview](overview.png)
 
 ![Pod Detail & Logs](pod-detail.png)
