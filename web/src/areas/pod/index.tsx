@@ -31,7 +31,6 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import { setSelectedAppName } from '../../actions/overviews';
 import { getPod, setSelectedContainerName, clearPod } from '../../actions/pods';
 import { getLogs, toggleLogStream } from '../../actions/logs';
-import config from '../../config';
 import { AuthClient } from '../../auth/authClient';
 import { closeErrorModal } from '../../actions/error';
 import APIErrorModal from '../../components/error-modal';
@@ -137,22 +136,12 @@ export class PodView extends Component<any, initialState> {
   }
 
   openLogStream = async () => {
-    const cfg = await config();
-
-    let endpoint = '';
-    _.forEach(cfg.availableClusters, value => {
-      if (!_.isEmpty(value[this.props.cluster])) {
-        endpoint = `${value[this.props.cluster].replace('http', 'ws')}io`;
-      }
-    })
-
     const socket = new LogSocket({
-      cluster: this.props.cluster,
+      cluster: `${this.props.cluster.replace('http', 'ws')}/io`,
       podname: this.props.podOverview.pod.metadata.name,
       containerName: this.props.selectedContainerName,
       namespace: this.props.podOverview.pod.metadata.namespace,
       handler: this.logStreamHandler,
-      wsBase: endpoint,
       accessToken: this.props.identityToken
     });
 
