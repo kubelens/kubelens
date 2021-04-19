@@ -38,8 +38,8 @@ const ClusterModal = (props: ClusterModalProps) => {
   return (
     <Modal isOpen={props.open} toggle={props.handleClose}>
       <ModalHeader toggle={props.handleClose}>Available Clusters</ModalHeader>
-      <ModalBody>
-      <Input className="search" title="Available Clusters" type="text" placeholder="Search" onChange={props.onFilterChanged} />
+      <ModalBody className="cluster-modal-backdrop">
+      <Input title="Available Clusters" type="text" placeholder="Search" onChange={props.onFilterChanged} />
       <hr />
       { props.availableClusters.map(c => {
         return (

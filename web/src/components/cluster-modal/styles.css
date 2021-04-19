@@ -10,3 +10,7 @@
   background-color: #3498DB;
   color: white;
 }
+
+.cluster-modal-backdrop {
+  background-color: #f0f0f0;
+}
