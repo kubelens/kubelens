@@ -8,9 +8,9 @@ Enzyme.configure({ adapter: new Adapter() })
 const setup = () => {
   const props = {
     identityToken: 'token',
-    selectedAppName: 'appname',
+    selectedOverview: 'appname',
     getAppOverview: jest.fn(),
-    setSelectedAppName: jest.fn(),
+    setselectedOverview: jest.fn(),
     overviewsEmpty: false,
     error: {
       apiOpen: false

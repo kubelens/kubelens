@@ -33,13 +33,14 @@ import { getOverviews, getOverview, setSelectedOverview, filterOverviews } from 
 import { closeErrorModal } from '../../actions/error';
 import APIErrorModal from '../../components/error-modal';
 import { IErrorState } from '../../reducers/error';
+import qs from 'qs';
 
 type initialState = {};
 
 export type HomeProps = {
   cluster: string,
   identityToken?: string,
-  selectedAppName: string,
+  selectedOverview: string,
   filteredApps: Overview[],
   overviews: Overview[],
   getOverviews(cluster: string, jwt: string): void,
@@ -61,11 +62,12 @@ export class Home extends Component<HomeProps, initialState> {
   }
 
   public componentDidMount() {
-    const { match: { params }, location: { search } } = this.props;
-    const query = new URLSearchParams(search);
+    const { match: { params }, location } = this.props;
+    const search = location.pathname.substring(location.pathname.indexOf("?")+1);
+    const query = qs.parse(search);
 
-    if (_.isEmpty(this.props.selectedAppName) && !_.isEmpty(params.linkedName)) {
-      this.props.setSelectedOverview({linkName: params.linkedName, namespace: query.get('namespace')});
+    if (_.isEmpty(this.props.selectedOverview) && !_.isEmpty(params.linkedName)) {
+      this.props.setSelectedOverview({linkName: params.linkedName, namespace: query.namespace});
     }
 
     if (!this.props.isLoading && _.isEmpty(this.props.overviews)) {
@@ -74,8 +76,8 @@ export class Home extends Component<HomeProps, initialState> {
   }
 
   public shouldComponentUpdate(nextProps: HomeProps) {
-    if (!this.props.selectedAppName
-      || nextProps.selectedAppName !== this.props.selectedAppName
+    if (!this.props.selectedOverview
+      || nextProps.selectedOverview !== this.props.selectedOverview
       || nextProps.isLoading !== this.props.isLoading
       || !_.isEqual(nextProps.filteredApps, this.props.filteredApps)) {
       return true;

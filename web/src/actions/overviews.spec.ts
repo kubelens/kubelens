@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import { deepEqual, fail } from 'assert';
 
 import adapter from './adapter';
-import { AppsActionTypes, getApps, getAppOverview, setSelectedAppName, filterApps } from './apps';
+import { AppsActionTypes, getApps, getAppOverview, setselectedOverview, filterApps } from './apps';
 
 import configureMockStore from "redux-mock-store";
 import thunk from "redux-thunk";
@@ -141,12 +141,12 @@ describe('getAppOverviews should', () => {
 });
 
 describe('non-api calls actions should', () => {
-  test('setSelectedAppName', async () => {
+  test('setselectedOverview', async () => {
     const store = mockStore();
     const expectedActions = [ 
       AppsActionTypes.SET_SELECTED_APP_NAME
     ];
-    return store.dispatch(setSelectedAppName('testapp'))
+    return store.dispatch(setselectedOverview('testapp'))
       .then(() => {
         deepEqual(store.getActions().map(action => action.type), expectedActions);
       })

@@ -14,7 +14,7 @@ const setup = () => {
     },
     onViewApp: jest.fn(),
     app: {name: 'name1', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'},
-    selectedAppName: 'appname'
+    selectedOverview: 'appname'
   }
 
   const wrapper = shallow(<AppCard {...props} />)

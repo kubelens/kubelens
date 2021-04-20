@@ -33,6 +33,7 @@ import { getOverview, setSelectedOverview } from '../../actions/overviews';
 import APIErrorModal from '../../components/error-modal';
 import { closeErrorModal } from '../../actions/error';
 import { IErrorState } from '../../reducers/error';
+import qs from 'qs';
 
 type initialState = {
   daemonSetsModalOpen: boolean,
@@ -52,9 +53,9 @@ export type OverviewProps = {
   podOverviews: Pod[],
   jobOverviews?: Job[],
   replicaSetOverviews?: ReplicaSet[],
-  selectedAppName: string,
+  selectedOverview: string,
   getAppOverview(appname: string, queryString: string): void,
-  setSelectedAppName(value: string): void,
+  setSelectedOverview(value: SelectedOverview): void,
   error: IErrorState,
   overviewsEmpty: boolean,
 } | RouteComponentProps<{
@@ -73,17 +74,18 @@ export class Overview extends Component<OverviewProps, initialState> {
   }
 
   async componentDidMount() {
-    const { match: { params }, location: { search } } = this.props;
-    const query = new URLSearchParams(search);
+    const { match: { params }, location } = this.props;
+    const search = location.pathname.substring(location.pathname.indexOf("?")+1);
+    const query = qs.parse(search);
 
     if (params.linkedName) {
       let linkedName = params.linkedName;
-      const namespace = query.get('namespace');
+      const namespace = query.namespace;
 
-      if (_.isEmpty(this.props.selectedAppName)) {
+      if (_.isEmpty(this.props.selectedOverview)) {
         this.props.setSelectedOverview({linkedName: params.linkedName, namespace: namespace});
       } else {
-        linkedName = this.props.selectedAppName;
+        linkedName = this.props.selectedOverview;
       }
       
       if (!this.props.isLoading && !_.isEmpty(namespace) && this.props.overviewsEmpty) {

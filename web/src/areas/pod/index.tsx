@@ -25,7 +25,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import LogSocket, { ILogSocket } from '../../io/logSocket';
 import PodPage from './view';
-import { Log, Pod } from '../../types';
+import { Log, Pod, SelectedOverview } from '../../types';
 import _ from 'lodash';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { getPod, setSelectedContainerName, clearPod } from '../../actions/pods';
@@ -34,6 +34,7 @@ import { AuthClient } from '../../auth/authClient';
 import { closeErrorModal } from '../../actions/error';
 import APIErrorModal from '../../components/error-modal';
 import { IErrorState } from '../../reducers/error';
+import qs from 'qs';
 
 type initialState = {
   envModalOpen: boolean,
@@ -51,10 +52,10 @@ export type PodProps = {
   podOverview: Pod,
   logs: Log,
   envBody: {},
-  selectedAppName: string,
+  selectedOverview: string,
   hasLogAccess: boolean,
   authClient(): AuthClient,
-  setSelectedAppName(value: string): void,
+  setSelectedOverview(value: SelectedOverview): void,
   getPod(podName: string, queryString: string): void,
   getLogs(podName: string, queryString: string): void,
   toggleLogStream(enabled: boolean): void,
@@ -82,12 +83,13 @@ export class PodView extends Component<any, initialState> {
 
   async componentDidMount() {
     this._isMounted = true;
-    const { match: { params }, location: { search } } = this.props;
-    const query = new URLSearchParams(search);
+    const { match: { params }, location } = this.props;
     const podName = params.podName.substring(0, params.podName.indexOf("?"));
+    const search = location.pathname.substring(location.pathname.indexOf("?")+1);
+    const query = qs.parse(search);
 
-    if (_.isEmpty(this.props.selectedAppName)) {
-      this.props.setSelectedAppName(params.linkedName);
+    if (_.isEmpty(this.props.selectedOverview)) {
+      this.props.setSelectedOverview({linkedName: params.linkedName, namespace: query.namespace});
     }
 
     if (_.isEmpty(this.props.selectedContainerName) && !_.isEmpty(this.props.podOverview)) {
@@ -95,14 +97,15 @@ export class PodView extends Component<any, initialState> {
     }
 
     if (_.isEmpty(this.props.podOverview)) {
-      this.props.getPod(podName, query.get('namespace'), this.props.cluster, this.props.identityToken);
+      this.props.getPod(podName, query.namespace, this.props.cluster, this.props.identityToken);
     }
   }
 
   componentDidUpdate(prevProps) {
-    const { match: { params }, location: { search } } = this.props;
-    const query = new URLSearchParams(search);
+    const { match: { params }, location } = this.props;
     const podName = params.podName.substring(0, params.podName.indexOf("?"));
+    const search = location.pathname.substring(location.pathname.indexOf("?")+1);
+    const query = qs.parse(search);
 
     // will be on first load, set and return to allow for update of props.
     if (_.isEmpty(this.props.selectedContainerName) && !_.isEmpty(this.props.podOverview)) {
@@ -112,7 +115,7 @@ export class PodView extends Component<any, initialState> {
 
     // check if props updated and that it's not a fresh load
     if (prevProps.selectedContainerName !== this.props.selectedContainerName && !_.isEmpty(this.props.selectedContainerName)) {
-      this.props.getLogs(podName, query.get('namespace'), this.props.selectedContainerName, query.get('tail'), this.props.cluster, this.props.identityToken);
+      this.props.getLogs(podName, query.namespace, this.props.selectedContainerName, query.tail, this.props.cluster, this.props.identityToken);
     }
   }
 

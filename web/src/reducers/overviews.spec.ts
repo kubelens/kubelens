@@ -28,7 +28,7 @@ describe('apps reducer', () => {
   it('should handle GET_APP_OVERVIEW with initial state poplulated', () => {
     expect(
       reducer({
-        selectedAppName: 'appname',
+        selectedOverview: 'appname',
         filteredApps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}],
         apps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}]
       }, {
@@ -40,7 +40,7 @@ describe('apps reducer', () => {
         }]
       })
     ).toEqual({
-      selectedAppName: 'appname',
+      selectedOverview: 'appname',
       filteredApps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}],
       apps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}],
       appOverview: [{
@@ -66,14 +66,14 @@ describe('apps reducer', () => {
   it('should handle GET_APPS with initial state poplulated', () => {
     expect(
       reducer({
-        selectedAppName: 'appname',
+        selectedOverview: 'appname',
         filteredApps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}]
       }, {
         type: AppsActionTypes.GET_APPS,
         apps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}]
       })
     ).toEqual({
-      selectedAppName: 'appname',
+      selectedOverview: 'appname',
       filteredApps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}],
       apps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}]
     })
@@ -93,13 +93,13 @@ describe('apps reducer', () => {
   it('should handle FILTER_APPS with initial state poplulated', () => {
     expect(
       reducer({
-        selectedAppName: 'appname'
+        selectedOverview: 'appname'
       }, {
         type: AppsActionTypes.FILTER_APPS,
         filteredApps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}]
       })
     ).toEqual({
-      selectedAppName: 'appname',
+      selectedOverview: 'appname',
       filteredApps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}]
     })
   })
