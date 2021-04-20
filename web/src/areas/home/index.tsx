@@ -26,10 +26,10 @@ import { connect } from 'react-redux';
 import { withRouter, RouteComponentProps } from 'react-router';
 import NavBar from '../../components/nav';
 import View from './view';
-import { Overview } from "../../types";
+import { Overview, SelectedOverview } from "../../types";
 import _ from 'lodash';
 import { IGlobalState } from '../../store';
-import { getOverviews, getOverview, setSelectedAppName, filterOverviews } from '../../actions/overviews';
+import { getOverviews, getOverview, setSelectedOverview, filterOverviews } from '../../actions/overviews';
 import { closeErrorModal } from '../../actions/error';
 import APIErrorModal from '../../components/error-modal';
 import { IErrorState } from '../../reducers/error';
@@ -44,7 +44,7 @@ export type HomeProps = {
   overviews: Overview[],
   getOverviews(cluster: string, jwt: string): void,
   getOverview(appname: string, namespace: string, cluster: string, jwt: string): void,
-  setSelectedAppName(value: string): void,
+  setSelectedOverview(value: SelectedOverview): void,
   filterOverviews(value: string, apps: Overview[]): void,
   error: IErrorState,
   isLoading: boolean
@@ -61,10 +61,11 @@ export class Home extends Component<HomeProps, initialState> {
   }
 
   public componentDidMount() {
-    const { match: { params } } = this.props;
+    const { match: { params }, location: { search } } = this.props;
+    const query = new URLSearchParams(search);
 
     if (_.isEmpty(this.props.selectedAppName) && !_.isEmpty(params.linkedName)) {
-      this.props.setSelectedAppName(params.linkedName);
+      this.props.setSelectedOverview({linkName: params.linkedName, namespace: query.get('namespace')});
     }
 
     if (!this.props.isLoading && _.isEmpty(this.props.overviews)) {
@@ -87,7 +88,7 @@ export class Home extends Component<HomeProps, initialState> {
   }
 
   private onViewOverview(linkedName: string, namespace: string) {
-    this.props.setSelectedAppName(linkedName);
+    this.props.setSelectedOverview({linkedName, namespace});
 
     this.props.getOverview(linkedName, namespace, this.props.cluster, this.props.identityToken);
 
@@ -120,7 +121,7 @@ export const mapStateToProps = ({ loadingState, overviewsState, authState, clust
     identityToken: authState.identityToken,
     overviews: overviewsState.overviews,
     filteredOverviews: overviewsState.filteredOverviews || overviewsState.overviews,
-    selectedAppName: overviewsState.selectedAppName,
+    selectedOverview: overviewsState.selectedOverview,
     error: errorState,
     isLoading: loadingState.loading
   };
@@ -130,7 +131,7 @@ export const mapActionsToProps = (dispatch) => {
   return {
     getOverviews: (cluster: string, jwt: string) => dispatch(getOverviews(cluster, jwt)),
     getOverview: (linkedName: string, namespace: string, cluster: string, jwt: string) => dispatch(getOverview(linkedName, namespace, cluster, jwt)),
-    setSelectedAppName: (value: string) => dispatch(setSelectedAppName(value)),
+    setSelectedOverview: (value: SelectedOverview) => dispatch(setSelectedOverview(value)),
     filterOverviews: (value: string, apps: Overview[]) => dispatch(filterOverviews(value, apps)),
     closeErrorModal: () => dispatch(closeErrorModal())
   };

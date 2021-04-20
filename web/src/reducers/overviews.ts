@@ -23,19 +23,19 @@ SOFTWARE.
 */
 import { Reducer } from 'redux';
 import { OverviewActions, OverviewActionTypes } from '../actions/overviews';
-import { Overview } from '../types';
+import { Overview, SelectedOverview } from '../types';
 
 export interface IOverviewsState {
   readonly overview?: Overview,
   readonly overviews?: Overview[],
-  readonly selectedAppName?: string,
+  readonly selectedOverview?: SelectedOverview,
   readonly filteredOverviews?: Overview[]
 }
 
 export const INITIAL_STATE: IOverviewsState = {
   overview: undefined,
   overviews: undefined,
-  selectedAppName: undefined,
+  selectedOverview: undefined,
   filteredOverviews: undefined
 };
 
@@ -59,10 +59,10 @@ export const reducer: Reducer<IOverviewsState, OverviewActions> = (
       }
     }
 
-    case OverviewActionTypes.SET_SELECTED_APP_NAME: {
+    case OverviewActionTypes.SET_SELECTED_OVERVIEW: {
       return {
         ...state,
-        selectedAppName: action.selectedAppName
+        selectedOverview: action.selectedOverview
       }
     }
 

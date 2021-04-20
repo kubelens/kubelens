@@ -24,7 +24,7 @@ SOFTWARE.
 import React, { lazy } from 'react';
 import { Route } from 'react-router-dom';
 import { Input } from 'reactstrap';
-import { Overview } from '../../types';
+import { Overview, SelectedOverview } from '../../types';
 import { RouteChildrenProps } from 'react-router';
 import ReactList from 'react-list';
 import OverviewCard from '../../components/overview-card';
@@ -41,16 +41,15 @@ export type HomeViewProps =
     onFilterChanged: Function,
     onViewApp(appname: string, namespace: string, labelSelector: string),
     filteredOverviews: Overview[],
-    selectedAppName: string
+    selectedOverview: SelectedOverview
   }
 
 const HomePage = (props: HomeViewProps) => {
   const {
-    match,
     onFilterChanged,
     onViewOverview,
     filteredOverviews,
-    selectedAppName
+    selectedOverview
   } = props;
 
   return (
@@ -73,8 +72,7 @@ const HomePage = (props: HomeViewProps) => {
                         key={key}
                         overview={filteredOverviews[index]}
                         index={index}
-                        match={match}
-                        selectedAppName={selectedAppName}
+                        selectedOverview={selectedOverview}
                         onViewOverview={onViewOverview}/>
                     )
                   }} 

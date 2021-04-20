@@ -126,11 +126,7 @@ func (k *Client) Pods(options PodOptions) (overviews []PodOverview, apiErr *errs
 		return nil, nil
 	}
 
-	lo := metav1.ListOptions{
-		Limit: options.GetLimit(),
-	}
-
-	list, err := pds.List(options.Context, lo)
+	list, err := pds.List(options.Context, metav1.ListOptions{})
 
 	if err != nil {
 		klog.Trace()

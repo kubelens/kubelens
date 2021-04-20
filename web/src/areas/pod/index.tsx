@@ -28,14 +28,12 @@ import PodPage from './view';
 import { Log, Pod } from '../../types';
 import _ from 'lodash';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { setSelectedAppName } from '../../actions/overviews';
 import { getPod, setSelectedContainerName, clearPod } from '../../actions/pods';
 import { getLogs, toggleLogStream } from '../../actions/logs';
 import { AuthClient } from '../../auth/authClient';
 import { closeErrorModal } from '../../actions/error';
 import APIErrorModal from '../../components/error-modal';
 import { IErrorState } from '../../reducers/error';
-import qs from 'qs';
 
 type initialState = {
   envModalOpen: boolean,
@@ -84,12 +82,9 @@ export class PodView extends Component<any, initialState> {
 
   async componentDidMount() {
     this._isMounted = true;
-    const { match: { params }, location } = this.props;
+    const { match: { params }, location: { search } } = this.props;
+    const query = new URLSearchParams(search);
     const podName = params.podName.substring(0, params.podName.indexOf("?"));
-    const search = location.pathname.substring(location.pathname.indexOf("?")+1);
-    // const namespace = location.pathname.substring(location.pathname.indexOf("=")+1, location.pathname.length);
-
-    const query = qs.parse(search);
 
     if (_.isEmpty(this.props.selectedAppName)) {
       this.props.setSelectedAppName(params.linkedName);
@@ -100,16 +95,14 @@ export class PodView extends Component<any, initialState> {
     }
 
     if (_.isEmpty(this.props.podOverview)) {
-      this.props.getPod(podName, query.namespace, this.props.cluster, this.props.identityToken);
+      this.props.getPod(podName, query.get('namespace'), this.props.cluster, this.props.identityToken);
     }
   }
 
   componentDidUpdate(prevProps) {
-    const { match: { params }, location } = this.props;
+    const { match: { params }, location: { search } } = this.props;
+    const query = new URLSearchParams(search);
     const podName = params.podName.substring(0, params.podName.indexOf("?"));
-    const search = location.pathname.substring(location.pathname.indexOf("?")+1, location.pathname.length);
-    // const char = _.isEmpty(search) ? "" : "&"
-    const query = qs.parse(search);
 
     // will be on first load, set and return to allow for update of props.
     if (_.isEmpty(this.props.selectedContainerName) && !_.isEmpty(this.props.podOverview)) {
@@ -119,7 +112,7 @@ export class PodView extends Component<any, initialState> {
 
     // check if props updated and that it's not a fresh load
     if (prevProps.selectedContainerName !== this.props.selectedContainerName && !_.isEmpty(this.props.selectedContainerName)) {
-      this.props.getLogs(podName, query.namespace, this.props.selectedContainerName, query.tail, this.props.cluster, this.props.identityToken);
+      this.props.getLogs(podName, query.get('namespace'), this.props.selectedContainerName, query.get('tail'), this.props.cluster, this.props.identityToken);
     }
   }
 
@@ -244,7 +237,7 @@ export const mapStateToProps = ({ overviewsState, podsState, logsState, authStat
     podOverview: podsState.podOverview,
     logs: logsState.logs,
     envBody: envBody,
-    selectedAppName: overviewsState.selectedAppName,
+    selectedCluster: overviewsState.selectedCluster,
     hasLogAccess: hasLogAccess,
     selectedContainerName: podsState.selectedContainerName,
     error: errorState
@@ -253,7 +246,6 @@ export const mapStateToProps = ({ overviewsState, podsState, logsState, authStat
 
 export const mapActionsToProps = (dispatch) => {
   return {
-    setSelectedAppName: (value: string) => dispatch(setSelectedAppName(value)),
     getPod: (podName: string, namespace: string, cluster: string, jwt: string) => dispatch(getPod(podName, namespace, cluster, jwt)),
     getLogs: (podName: string, namespace: string, containerName: string, tail: number, cluster: string, jwt: string) => dispatch(getLogs(podName, namespace, containerName, tail, cluster, jwt)),
     toggleLogStream: (enabled: boolean) => dispatch(toggleLogStream(enabled)),

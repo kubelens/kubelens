@@ -25,11 +25,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import ViewPage from './view';
 import PodOverviewPage from './pod-view';
-import { Service, Pod, DaemonSet, Deployment, Job, ReplicaSet } from "../../types";
+import { Service, Pod, DaemonSet, Deployment, Job, ReplicaSet, SelectedOverview } from "../../types";
 import { RouteComponentProps, withRouter } from 'react-router';
 import _ from 'lodash';
 import { IGlobalState } from '../../store';
-import { getOverview, setSelectedAppName } from '../../actions/overviews';
+import { getOverview, setSelectedOverview } from '../../actions/overviews';
 import APIErrorModal from '../../components/error-modal';
 import { closeErrorModal } from '../../actions/error';
 import { IErrorState } from '../../reducers/error';
@@ -78,13 +78,14 @@ export class Overview extends Component<OverviewProps, initialState> {
 
     if (params.linkedName) {
       let linkedName = params.linkedName;
+      const namespace = query.get('namespace');
+
       if (_.isEmpty(this.props.selectedAppName)) {
-        this.props.setSelectedAppName(params.linkedName);
+        this.props.setSelectedOverview({linkedName: params.linkedName, namespace: namespace});
       } else {
         linkedName = this.props.selectedAppName;
       }
-
-      const namespace = query.get('namespace');
+      
       if (!this.props.isLoading && !_.isEmpty(namespace) && this.props.overviewsEmpty) {
         this.props.getOverview(linkedName, namespace, this.props.cluster, this.props.identityToken);
       }
@@ -217,7 +218,7 @@ export const mapStateToProps = ({ overviewsState, authState, clustersState, erro
     podOverviews: podOverviews,
     replicaSetOverviews: replicaSetOverviews,
     configMapOverviews:configMapOverviews,
-    selectedAppName: overviewsState.selectedAppName,
+    selectedOverview: overviewsState.selectedOverview,
     error: errorState,
     overviewsEmpty: overviewsEmpty
   };
@@ -226,7 +227,7 @@ export const mapStateToProps = ({ overviewsState, authState, clustersState, erro
 export const mapActionsToProps = (dispatch) => {
   return {
     getOverview: (linkedName: string, namespace: string, cluster: string, jwt: string) => dispatch(getOverview(linkedName, namespace, cluster, jwt)),
-    setSelectedAppName: (value: string) => dispatch(setSelectedAppName(value)),
+    setSelectedOverview: (value: SelectedOverview) => dispatch(setSelectedOverview(value)),
     closeErrorModal: () => dispatch(closeErrorModal())
   };
 };

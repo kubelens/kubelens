@@ -186,6 +186,7 @@ func (k *Client) Overviews(options OverviewOptions) (overviews []Overview, apiEr
 				for _, ov := range overviews {
 					if strings.EqualFold(nsov.LinkedName, ov.LinkedName) && strings.EqualFold(nsov.Namespace, ov.Namespace) {
 						found = true
+						break
 					}
 				}
 				if !found {

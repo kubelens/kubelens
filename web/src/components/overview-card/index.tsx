@@ -23,7 +23,7 @@ SOFTWARE.
 */
 import React from 'react';
 import { Row, Col, Card, CardHeader, CardBody } from 'reactstrap';
-import { Overview } from '../../types/index';
+import { SelectedOverview, Overview } from '../../types/index';
 import RightArrowInverse from '../../assets/right-arrow-yellow-inverse.png';
 import _ from 'lodash';
 import './styles.css';
@@ -31,27 +31,21 @@ import './styles.css';
 export type OverviewCardProps = {
   overview: Overview,
   index: number,
-  match: any,
-  selectedAppName: string,
+  selectedOverview: SelectedOverview,
   onViewOverview(linkedName: string, namespace: string)
 };
 
 const OverviewCard = (props: OverviewCardProps) => {
-  const { overview, index, match, selectedAppName, onViewOverview } = props;
+  const { overview, index, selectedOverview, onViewOverview } = props;
 
   const viewOverview = () => {
     return onViewOverview(overview.linkedName, overview.namespace);
   };
   // if from a link, grab the name of the app so we can mark which one is being viewed.
-  const selected =
-    (_.isEmpty(selectedAppName) && match)
-      ? match.params.linkedName
-      : selectedAppName;
-
   return (
     <div key={`${overview.linkedName}-${index}`} id="anti-shadow-div">
       <div id="shadow-div" >
-        <Card dir="ltr" style={{ marginRight: (overview.linkedName === selected) ? -40 : 0, marginBottom: '10px', border: '3px solid #4D5061' }}>
+        <Card dir="ltr" style={{ marginRight: !_.isEmpty(overview) && !_.isEmpty(selectedOverview) && overview.linkedName === selectedOverview.linkedName && overview.namespace == selectedOverview.namespace ? -40 : 0, marginBottom: '10px', border: '3px solid #4D5061' }}>
           <CardHeader className="text-center" style={{ backgroundColor: 'white' }}>
             <strong>
               {overview.linkedName}

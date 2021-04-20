@@ -40,6 +40,11 @@ export type AvailableCluster = {
   url:      string
 }
 
+export type SelectedOverview = {
+  linkedName:  string,
+	namespace:   string
+}
+
 export type Overview = {
   linkedName:  string,
 	namespace:   string,

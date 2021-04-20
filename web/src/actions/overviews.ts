@@ -24,7 +24,7 @@ SOFTWARE.
 import { ActionCreator, Dispatch } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import { IOverviewsState } from '../reducers/overviews';
-import { Overview } from "../types";
+import { SelectedOverview, Overview } from "../types";
 import adapter from './adapter';
 import _ from 'lodash';
 import { ErrorActionTypes } from './error';
@@ -34,13 +34,13 @@ import { LoadingActionTypes } from './loading';
 Combine the action types with a union (we assume there are more)
 example: export type CharacterActions = IGetAllAction | IGetOneAction ... 
 */
-export type OverviewActions = IGetOverview | IGetOverviews | ISetSelectedAppName | IFilterOverviews;
+export type OverviewActions = IGetOverview | IGetOverviews | ISetSelectedOverview | IFilterOverviews;
 
 // Create Action Constants
 export enum OverviewActionTypes {
   GET_OVERVIEW = 'GET_OVERVIEW',
   GET_OVERVIEWS = 'GET_OVERVIEWS',
-  SET_SELECTED_APP_NAME = 'SET_SELECTED_APP_NAME',
+  SET_SELECTED_OVERVIEW = 'SET_SELECTED_OVERVIEW',
   FILTER_OVERVIEWS = 'FILTER_APPS'
 }
 
@@ -138,20 +138,20 @@ export const getOverviews: ActionCreator<
   };
 };
 
-// ISetSelectedAppName interface .
-export interface ISetSelectedAppName {
-  type: OverviewActionTypes.SET_SELECTED_APP_NAME,
-  selectedAppName: string
+// ISetSelectedOverview interface .
+export interface ISetSelectedOverview {
+  type: OverviewActionTypes.SET_SELECTED_OVERVIEW,
+  selectedOverview: SelectedOverview
 }
 
 /* <Promise<Return Type>, State Interface, Type of Param, Type of Action> */
-export const setSelectedAppName: ActionCreator<
-  ThunkAction<Promise<any>, IOverviewsState, null, ISetSelectedAppName>
-> = (selectedAppName: string) => {
+export const setSelectedOverview: ActionCreator<
+  ThunkAction<Promise<any>, IOverviewsState, null, ISetSelectedOverview>
+> = (selectedOverview: SelectedOverview) => {
   return async (dispatch: Dispatch) => {
     dispatch({
-      type: OverviewActionTypes.SET_SELECTED_APP_NAME,
-      selectedAppName: selectedAppName
+      type: OverviewActionTypes.SET_SELECTED_OVERVIEW,
+      selectedOverview: selectedOverview
     });
   };
 };
