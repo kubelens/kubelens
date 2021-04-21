@@ -56,8 +56,7 @@ export type OverviewProps = {
   selectedOverview: SelectedOverview,
   getAppOverview(appname: string, queryString: string): void,
   setSelectedOverview(value: SelectedOverview): void,
-  error: IErrorState,
-  overviewsEmpty: boolean,
+  error: IErrorState
 } | RouteComponentProps<{
   appName?: string
 }>;
@@ -89,7 +88,7 @@ export class Overview extends Component<OverviewProps, initialState> {
         overview = this.props.selectedOverview;
       }
       
-      if (!this.props.isLoading && !_.isEmpty(overview.linkedName) && !_.isEmpty(overview.namespace) && this.props.overviewsEmpty) {
+      if (!this.props.isLoading && !_.isEmpty(overview.linkedName) && !_.isEmpty(overview.namespace)) {
         this.props.getOverview(overview.linkedName, overview.namespace, this.props.cluster, this.props.identityToken);
       }
     }
@@ -206,14 +205,6 @@ export const mapStateToProps = ({ overviewsState, authState, clustersState, erro
     configMapOverviews = overviewsState.overview.configMaps;
   }
 
-  const overviewsEmpty = _.isEmpty(podOverviews) && 
-    (_.isEmpty(serviceOverviews) || 
-    _.isEmpty(daemonSetOverviews) || 
-    _.isEmpty(deploymentOverviews) ||
-    _.isEmpty(jobOverviews) || 
-    _.isEmpty(replicaSetOverviews) ||
-    _.isEmpty(configMapOverviews));
-
   return {
     cluster: clustersState.cluster && clustersState.cluster.url,
     identityToken: authState.identityToken,
@@ -227,8 +218,7 @@ export const mapStateToProps = ({ overviewsState, authState, clustersState, erro
     replicaSetOverviews: replicaSetOverviews,
     configMapOverviews:configMapOverviews,
     selectedOverview: overviewsState.selectedOverview,
-    error: errorState,
-    overviewsEmpty: overviewsEmpty
+    error: errorState
   };
 };
 

@@ -52,10 +52,9 @@ export type PodProps = {
   podOverview: Pod,
   logs: Log,
   envBody: {},
-  selectedOverview: string,
+  selectedOverview: SelectedOverview,
   hasLogAccess: boolean,
   authClient(): AuthClient,
-  setSelectedOverview(value: SelectedOverview): void,
   getPod(podName: string, queryString: string): void,
   getLogs(podName: string, queryString: string): void,
   toggleLogStream(enabled: boolean): void,
@@ -83,13 +82,12 @@ export class PodView extends Component<any, initialState> {
 
   async componentDidMount() {
     this._isMounted = true;
-    const { match: { params }, location: { search } } = this.props;
+    const { match: { params } } = this.props;
     const podName = params.podName.substring(0, params.podName.indexOf("?"));
+    // for some reason location.search is empty, and the params field is the entre uri
+    // and this.props.selectedOverview is always empty here?
+    const search = params.podName.substring(params.podName.indexOf("?"), params.podName.length);
     const query = qs.parse(search.replace('?',''));
-
-    if (_.isEmpty(this.props.selectedOverview)) {
-      this.props.setSelectedOverview({linkedName: params.linkedName, namespace: query.namespace});
-    }
 
     if (_.isEmpty(this.props.selectedContainerName) && !_.isEmpty(this.props.podOverview)) {
       this.props.setSelectedContainerName(this.props.podOverview.pod.spec.containers[0].name);
@@ -101,10 +99,11 @@ export class PodView extends Component<any, initialState> {
   }
 
   componentDidUpdate(prevProps) {
-    const { match: { params }, location } = this.props;
+    const { match: { params } } = this.props;
     const podName = params.podName.substring(0, params.podName.indexOf("?"));
-    const search = location.pathname.substring(location.pathname.indexOf("?")+1);
-    const query = qs.parse(search);
+    // for some reason location.search is empty, and the params field is the entre uri
+    const search = params.podName.substring(params.podName.indexOf("?"), params.podName.length);
+    const query = qs.parse(search.replace('?',''));
 
     // will be on first load, set and return to allow for update of props.
     if (_.isEmpty(this.props.selectedContainerName) && !_.isEmpty(this.props.podOverview)) {
@@ -114,7 +113,7 @@ export class PodView extends Component<any, initialState> {
 
     // check if props updated and that it's not a fresh load
     if (prevProps.selectedContainerName !== this.props.selectedContainerName && !_.isEmpty(this.props.selectedContainerName)) {
-      this.props.getLogs(podName, query.namespace, this.props.selectedContainerName, query.tail, this.props.cluster, this.props.identityToken);
+      this.props.getLogs(podName, query.namespace, this.props.selectedContainerName, 100, this.props.cluster, this.props.identityToken);
     }
   }
 
@@ -242,7 +241,9 @@ export const mapStateToProps = ({ overviewsState, podsState, logsState, authStat
     selectedCluster: overviewsState.selectedCluster,
     hasLogAccess: hasLogAccess,
     selectedContainerName: podsState.selectedContainerName,
-    error: errorState
+    error: errorState,
+    // why is this always empty?
+    selectedOverview: overviewsState.selectedOvervew
   };
 };
 
