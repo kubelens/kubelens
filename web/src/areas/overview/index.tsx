@@ -53,7 +53,7 @@ export type OverviewProps = {
   podOverviews: Pod[],
   jobOverviews?: Job[],
   replicaSetOverviews?: ReplicaSet[],
-  selectedOverview: string,
+  selectedOverview: SelectedOverview,
   getAppOverview(appname: string, queryString: string): void,
   setSelectedOverview(value: SelectedOverview): void,
   error: IErrorState,
@@ -78,17 +78,19 @@ export class Overview extends Component<OverviewProps, initialState> {
     const query = qs.parse(search.replace('?',''));
 
     if (params.linkedName) {
-      let linkedName = params.linkedName;
-      const namespace = query.namespace;
+      let overview = {
+        linkedName: params.linkedName,
+        namespace: query.namespace
+      };
 
       if (_.isEmpty(this.props.selectedOverview)) {
-        this.props.setSelectedOverview({linkedName: params.linkedName, namespace: namespace});
+        this.props.setSelectedOverview({linkedName: overview.linkedName, namespace: overview.namespace});
       } else {
-        linkedName = this.props.selectedOverview;
+        overview = this.props.selectedOverview;
       }
       
-      if (!this.props.isLoading && !_.isEmpty(namespace) && this.props.overviewsEmpty) {
-        this.props.getOverview(linkedName, namespace, this.props.cluster, this.props.identityToken);
+      if (!this.props.isLoading && !_.isEmpty(overview.linkedName) && !_.isEmpty(overview.namespace) && this.props.overviewsEmpty) {
+        this.props.getOverview(overview.linkedName, overview.namespace, this.props.cluster, this.props.identityToken);
       }
     }
   }
@@ -205,7 +207,12 @@ export const mapStateToProps = ({ overviewsState, authState, clustersState, erro
   }
 
   const overviewsEmpty = _.isEmpty(podOverviews) && 
-    (_.isEmpty(serviceOverviews) || _.isEmpty(daemonSetOverviews) || _.isEmpty(jobOverviews) || _.isEmpty(replicaSetOverviews));
+    (_.isEmpty(serviceOverviews) || 
+    _.isEmpty(daemonSetOverviews) || 
+    _.isEmpty(deploymentOverviews) ||
+    _.isEmpty(jobOverviews) || 
+    _.isEmpty(replicaSetOverviews) ||
+    _.isEmpty(configMapOverviews));
 
   return {
     cluster: clustersState.cluster && clustersState.cluster.url,
