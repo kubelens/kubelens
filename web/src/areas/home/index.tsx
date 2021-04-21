@@ -62,9 +62,8 @@ export class Home extends Component<HomeProps, initialState> {
   }
 
   public componentDidMount() {
-    const { match: { params }, location } = this.props;
-    const search = location.pathname.substring(location.pathname.indexOf("?")+1);
-    const query = qs.parse(search);
+    const { match: { params }, location: { search } } = this.props;
+    const query = qs.parse(search.replace('?',''));
 
     if (_.isEmpty(this.props.selectedOverview) && !_.isEmpty(params.linkedName)) {
       this.props.setSelectedOverview({linkName: params.linkedName, namespace: query.namespace});

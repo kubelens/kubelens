@@ -74,9 +74,8 @@ export class Overview extends Component<OverviewProps, initialState> {
   }
 
   async componentDidMount() {
-    const { match: { params }, location } = this.props;
-    const search = location.pathname.substring(location.pathname.indexOf("?")+1);
-    const query = qs.parse(search);
+    const { match: { params }, location: { search } } = this.props;
+    const query = qs.parse(search.replace('?',''));
 
     if (params.linkedName) {
       let linkedName = params.linkedName;

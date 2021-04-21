@@ -83,10 +83,9 @@ export class PodView extends Component<any, initialState> {
 
   async componentDidMount() {
     this._isMounted = true;
-    const { match: { params }, location } = this.props;
+    const { match: { params }, location: { search } } = this.props;
     const podName = params.podName.substring(0, params.podName.indexOf("?"));
-    const search = location.pathname.substring(location.pathname.indexOf("?")+1);
-    const query = qs.parse(search);
+    const query = qs.parse(search.replace('?',''));
 
     if (_.isEmpty(this.props.selectedOverview)) {
       this.props.setSelectedOverview({linkedName: params.linkedName, namespace: query.namespace});
