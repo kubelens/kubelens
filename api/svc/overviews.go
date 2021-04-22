@@ -79,8 +79,8 @@ func (h request) Overview(w http.ResponseWriter, r *http.Request) {
 
 	var linkedName string
 
-	// "/v1/apps/{linkedName}" = []string{"", "apps", "name"}
-	if params := strings.Split(r.URL.Path, "/"); len(params) > 2 {
+	// "/overviews/{linkedName}" = []string{"", "overviews", "name"}
+	if params := strings.Split(r.URL.Path, "/"); len(params) >= 2 {
 		linkedName = params[2]
 	}
 

@@ -2,7 +2,7 @@ package k8sv1
 
 import (
 	"context"
-	"strings"
+	"fmt"
 
 	"github.com/kubelens/kubelens/api/errs"
 	appsv1 "k8s.io/api/apps/v1"
@@ -50,7 +50,9 @@ func (k *Client) Deployment(options DeploymentOptions) (overview *DeploymentOver
 		return nil, nil
 	}
 
-	list, err := dpl.List(options.Context, metav1.ListOptions{})
+	list, err := dpl.List(options.Context, metav1.ListOptions{
+		FieldSelector: fmt.Sprintf("metadata.name=%s", options.Name),
+	})
 
 	if err != nil {
 		klog.Trace()
@@ -59,15 +61,12 @@ func (k *Client) Deployment(options DeploymentOptions) (overview *DeploymentOver
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			// first check name of deployment, then by labelSelctor
-			if strings.EqualFold(item.Name, options.Name) {
-				return &DeploymentOverview{
-					Name:       item.Name,
-					LinkedName: getLinkedName(item.Labels),
-					Namespace:  item.Namespace,
-					Deployment: &item,
-				}, nil
-			}
+			return &DeploymentOverview{
+				Name:       item.Name,
+				LinkedName: getLinkedName(item.Labels),
+				Namespace:  item.Namespace,
+				Deployment: &item,
+			}, nil
 		}
 	}
 
@@ -90,7 +89,11 @@ func (k *Client) Deployments(options DeploymentOptions) (overviews []DeploymentO
 		return nil, nil
 	}
 
-	list, err := dpl.List(options.Context, metav1.ListOptions{})
+	lo := metav1.ListOptions{}
+	if len(options.LinkedName) > 0 {
+		lo.LabelSelector = generateLabelSelector(options.LinkedName)
+	}
+	list, err := dpl.List(options.Context, lo)
 
 	if err != nil {
 		klog.Trace()
@@ -99,23 +102,12 @@ func (k *Client) Deployments(options DeploymentOptions) (overviews []DeploymentO
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			if len(options.LinkedName) > 0 {
-				if labelsContainSelector(options.LinkedName, item.Labels) {
-					overviews = append(overviews, DeploymentOverview{
-						Name:       item.Name,
-						LinkedName: getLinkedName(item.Labels),
-						Namespace:  item.Namespace,
-						Deployment: &item,
-					})
-				}
-			} else {
-				overviews = append(overviews, DeploymentOverview{
-					Name:       item.Name,
-					LinkedName: getLinkedName(item.Labels),
-					Namespace:  item.Namespace,
-					Deployment: &item,
-				})
-			}
+			overviews = append(overviews, DeploymentOverview{
+				Name:       item.Name,
+				LinkedName: getLinkedName(item.Labels),
+				Namespace:  item.Namespace,
+				Deployment: &item,
+			})
 		}
 	}
 

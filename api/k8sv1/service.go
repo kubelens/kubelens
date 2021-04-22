@@ -2,7 +2,7 @@ package k8sv1
 
 import (
 	"context"
-	"strings"
+	"fmt"
 
 	"github.com/kubelens/kubelens/api/errs"
 
@@ -54,7 +54,9 @@ func (k *Client) Service(options ServiceOptions) (overview *ServiceOverview, api
 		return nil, nil
 	}
 
-	list, err := svcs.List(options.Context, metav1.ListOptions{})
+	list, err := svcs.List(options.Context, metav1.ListOptions{
+		FieldSelector: fmt.Sprintf("metadata.name=%s", options.Name),
+	})
 
 	if err != nil {
 		klog.Trace()
@@ -63,15 +65,12 @@ func (k *Client) Service(options ServiceOptions) (overview *ServiceOverview, api
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			// first check name of deployment, then by labelSelctor
-			if strings.EqualFold(item.Name, options.Name) {
-				return &ServiceOverview{
-					Name:       item.Name,
-					LinkedName: getLinkedName(item.Labels),
-					Namespace:  item.Namespace,
-					Service:    &item,
-				}, nil
-			}
+			return &ServiceOverview{
+				Name:       item.Name,
+				LinkedName: getLinkedName(item.Labels),
+				Namespace:  item.Namespace,
+				Service:    &item,
+			}, nil
 		}
 	}
 	return overview, nil
@@ -93,7 +92,11 @@ func (k *Client) Services(options ServiceOptions) (overviews []ServiceOverview, 
 		return nil, nil
 	}
 
-	list, err := svcs.List(options.Context, metav1.ListOptions{})
+	lo := metav1.ListOptions{}
+	if len(options.LinkedName) > 0 {
+		lo.LabelSelector = generateLabelSelector(options.LinkedName)
+	}
+	list, err := svcs.List(options.Context, lo)
 
 	if err != nil {
 		klog.Trace()
@@ -102,23 +105,12 @@ func (k *Client) Services(options ServiceOptions) (overviews []ServiceOverview, 
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			if len(options.LinkedName) > 0 {
-				if labelsContainSelector(options.LinkedName, item.Labels) {
-					overviews = append(overviews, ServiceOverview{
-						Name:       item.Name,
-						LinkedName: getLinkedName(item.Labels),
-						Namespace:  item.Namespace,
-						Service:    &item,
-					})
-				}
-			} else {
-				overviews = append(overviews, ServiceOverview{
-					Name:       item.Name,
-					LinkedName: getLinkedName(item.Labels),
-					Namespace:  item.Namespace,
-					Service:    &item,
-				})
-			}
+			overviews = append(overviews, ServiceOverview{
+				Name:       item.Name,
+				LinkedName: getLinkedName(item.Labels),
+				Namespace:  item.Namespace,
+				Service:    &item,
+			})
 		}
 	}
 	return overviews, nil

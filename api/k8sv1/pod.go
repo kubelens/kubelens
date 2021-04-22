@@ -2,7 +2,7 @@ package k8sv1
 
 import (
 	"context"
-	"strings"
+	"fmt"
 	"sync"
 
 	"github.com/kubelens/kubelens/api/errs"
@@ -64,7 +64,9 @@ func (k *Client) Pod(options PodOptions) (overview *PodOverview, apiErr *errs.AP
 		return nil, nil
 	}
 
-	list, err := pds.List(options.Context, metav1.ListOptions{})
+	list, err := pds.List(options.Context, metav1.ListOptions{
+		FieldSelector: fmt.Sprintf("metadata.name=%s", options.Name),
+	})
 
 	if err != nil {
 		klog.Trace()
@@ -93,14 +95,11 @@ func (k *Client) Pod(options PodOptions) (overview *PodOverview, apiErr *errs.AP
 					pod.Spec.Containers[ci].Env = env
 				}
 
-				// first check name of deployment, then by labelSelctor
-				if strings.EqualFold(pod.Name, options.Name) {
-					overview = &PodOverview{
-						Name:       pod.Name,
-						LinkedName: getLinkedName(pod.Labels),
-						Namespace:  pod.Namespace,
-						Pod:        &pod,
-					}
+				overview = &PodOverview{
+					Name:       pod.Name,
+					LinkedName: getLinkedName(pod.Labels),
+					Namespace:  pod.Namespace,
+					Pod:        &pod,
 				}
 			}(i, item)
 		}
@@ -126,7 +125,11 @@ func (k *Client) Pods(options PodOptions) (overviews []PodOverview, apiErr *errs
 		return nil, nil
 	}
 
-	list, err := pds.List(options.Context, metav1.ListOptions{})
+	lo := metav1.ListOptions{}
+	if len(options.LinkedName) > 0 {
+		lo.LabelSelector = generateLabelSelector(options.LinkedName)
+	}
+	list, err := pds.List(options.Context, lo)
 
 	if err != nil {
 		klog.Trace()
@@ -143,22 +146,11 @@ func (k *Client) Pods(options PodOptions) (overviews []PodOverview, apiErr *errs
 		for i, item := range list.Items {
 			go func(index int, pod v1.Pod) {
 				defer wg.Done()
-				if len(options.LinkedName) > 0 {
-					if labelsContainSelector(options.LinkedName, pod.Labels) {
-						overviews[index] = PodOverview{
-							Name:       pod.Name,
-							LinkedName: getLinkedName(pod.Labels),
-							Namespace:  pod.Namespace,
-							Pod:        &pod,
-						}
-					}
-				} else {
-					overviews[index] = PodOverview{
-						Name:       pod.Name,
-						LinkedName: getLinkedName(pod.Labels),
-						Namespace:  pod.Namespace,
-						Pod:        &pod,
-					}
+				overviews[index] = PodOverview{
+					Name:       pod.Name,
+					LinkedName: getLinkedName(pod.Labels),
+					Namespace:  pod.Namespace,
+					Pod:        &pod,
 				}
 			}(i, item)
 		}

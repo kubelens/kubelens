@@ -25,26 +25,30 @@ SOFTWARE.
 package k8sv1
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/kubelens/kubelens/api/config"
 )
 
 func labelsContainSelector(selector string, labels map[string]string) bool {
-	if labels == nil || len(labels) == 0 || len(selector) == 0 {
+	if labels == nil {
 		return false
 	}
 
-	if strings.EqualFold(labels[config.C.LabelKeyLink], selector) {
-		return true
+	if len(labels) == 0 || len(selector) == 0 {
+		return false
 	}
 
-	// default to true if no labels are provided to allow all
-	return false
+	return strings.EqualFold(labels[config.C.LabelKeyLink], selector)
 }
 
 func getLinkedName(labels map[string]string) string {
 	return labels[config.C.LabelKeyLink]
+}
+
+func generateLabelSelector(value string) string {
+	return fmt.Sprintf("%s=%s", config.C.LabelKeyLink, value)
 }
 
 // Hard coded check for now, but there really shouldn't be any

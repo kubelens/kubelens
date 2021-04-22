@@ -2,7 +2,7 @@ package k8sv1
 
 import (
 	"context"
-	"strings"
+	"fmt"
 	"sync"
 
 	"github.com/kubelens/kubelens/api/errs"
@@ -52,7 +52,9 @@ func (k *Client) ReplicaSet(options ReplicaSetOptions) (overview *ReplicaSetOver
 		return nil, nil
 	}
 
-	list, err := rsl.List(options.Context, metav1.ListOptions{})
+	list, err := rsl.List(options.Context, metav1.ListOptions{
+		FieldSelector: fmt.Sprintf("metadata.name=%s", options.Name),
+	})
 
 	if err != nil {
 		klog.Trace()
@@ -67,14 +69,11 @@ func (k *Client) ReplicaSet(options ReplicaSetOptions) (overview *ReplicaSetOver
 		for i, item := range list.Items {
 			go func(index int, rs appsv1.ReplicaSet) {
 				defer wg.Done()
-				// first check name of deployment, then by labelSelctor
-				if strings.EqualFold(rs.Name, options.Name) {
-					overview = &ReplicaSetOverview{
-						Name:       rs.Name,
-						LinkedName: getLinkedName(rs.Labels),
-						Namespace:  rs.Namespace,
-						ReplicaSet: &rs,
-					}
+				overview = &ReplicaSetOverview{
+					Name:       rs.Name,
+					LinkedName: getLinkedName(rs.Labels),
+					Namespace:  rs.Namespace,
+					ReplicaSet: &rs,
 				}
 			}(i, item)
 		}
@@ -100,7 +99,11 @@ func (k *Client) ReplicaSets(options ReplicaSetOptions) (overviews []ReplicaSetO
 		return nil, nil
 	}
 
-	list, err := rsl.List(options.Context, metav1.ListOptions{})
+	lo := metav1.ListOptions{}
+	if len(options.LinkedName) > 0 {
+		lo.LabelSelector = generateLabelSelector(options.LinkedName)
+	}
+	list, err := rsl.List(options.Context, lo)
 
 	if err != nil {
 		klog.Trace()
@@ -119,22 +122,11 @@ func (k *Client) ReplicaSets(options ReplicaSetOptions) (overviews []ReplicaSetO
 		for i, item := range list.Items {
 			go func(index int, rs appsv1.ReplicaSet) {
 				defer wg.Done()
-				if len(options.LinkedName) > 0 {
-					if labelsContainSelector(options.LinkedName, rs.Labels) {
-						ovs[index] = ReplicaSetOverview{
-							Name:       rs.Name,
-							LinkedName: getLinkedName(rs.Labels),
-							Namespace:  rs.Namespace,
-							ReplicaSet: &rs,
-						}
-					}
-				} else {
-					ovs[index] = ReplicaSetOverview{
-						Name:       rs.Name,
-						LinkedName: getLinkedName(rs.Labels),
-						Namespace:  rs.Namespace,
-						ReplicaSet: &rs,
-					}
+				ovs[index] = ReplicaSetOverview{
+					Name:       rs.Name,
+					LinkedName: getLinkedName(rs.Labels),
+					Namespace:  rs.Namespace,
+					ReplicaSet: &rs,
 				}
 			}(i, item)
 		}

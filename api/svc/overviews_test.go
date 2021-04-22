@@ -41,7 +41,7 @@ func TestGetOverviews(t *testing.T) {
 
 func TestGetAppOverviewDefault(t *testing.T) {
 	h := getSvc()
-	req := httptest.NewRequest("GET", `/overviews/appname"`, nil)
+	req := httptest.NewRequest("GET", `/overviews/appname?namespace=default"`, nil)
 	w := httptest.NewRecorder()
 
 	dctx := klog.NewContext(req.Context(), "", &logfakes.Logger{})

@@ -2,7 +2,7 @@ package k8sv1
 
 import (
 	"context"
-	"strings"
+	"fmt"
 
 	"github.com/kubelens/kubelens/api/errs"
 	klog "github.com/kubelens/kubelens/api/log"
@@ -51,7 +51,9 @@ func (k *Client) DaemonSet(options DaemonSetOptions) (overview *DaemonSetOvervie
 	if dsl == nil {
 		return nil, nil
 	}
-	list, err := dsl.List(options.Context, metav1.ListOptions{})
+	list, err := dsl.List(options.Context, metav1.ListOptions{
+		FieldSelector: fmt.Sprintf("metadata.name=%s", options.Name),
+	})
 
 	if err != nil {
 		klog.Trace()
@@ -60,15 +62,12 @@ func (k *Client) DaemonSet(options DaemonSetOptions) (overview *DaemonSetOvervie
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			// first check name of deployment, then by labelSelctor
-			if strings.EqualFold(item.Name, options.Name) {
-				return &DaemonSetOverview{
-					Name:       item.Name,
-					LinkedName: getLinkedName(item.Labels),
-					Namespace:  item.Namespace,
-					DaemonSet:  &item,
-				}, nil
-			}
+			return &DaemonSetOverview{
+				Name:       item.Name,
+				LinkedName: getLinkedName(item.Labels),
+				Namespace:  item.Namespace,
+				DaemonSet:  &item,
+			}, nil
 		}
 	}
 	return overview, nil
@@ -89,7 +88,12 @@ func (k *Client) DaemonSets(options DaemonSetOptions) (overviews []DaemonSetOver
 	if dsl == nil {
 		return nil, nil
 	}
-	list, err := dsl.List(options.Context, metav1.ListOptions{})
+
+	lo := metav1.ListOptions{}
+	if len(options.LinkedName) > 0 {
+		lo.LabelSelector = generateLabelSelector(options.LinkedName)
+	}
+	list, err := dsl.List(options.Context, lo)
 
 	if err != nil {
 		klog.Trace()
@@ -98,23 +102,12 @@ func (k *Client) DaemonSets(options DaemonSetOptions) (overviews []DaemonSetOver
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			if len(options.LinkedName) > 0 {
-				if labelsContainSelector(options.LinkedName, item.Labels) {
-					overviews = append(overviews, DaemonSetOverview{
-						Name:       item.Name,
-						LinkedName: getLinkedName(item.Labels),
-						Namespace:  item.Namespace,
-						DaemonSet:  &item,
-					})
-				}
-			} else {
-				overviews = append(overviews, DaemonSetOverview{
-					Name:       item.Name,
-					LinkedName: getLinkedName(item.Labels),
-					Namespace:  item.Namespace,
-					DaemonSet:  &item,
-				})
-			}
+			overviews = append(overviews, DaemonSetOverview{
+				Name:       item.Name,
+				LinkedName: getLinkedName(item.Labels),
+				Namespace:  item.Namespace,
+				DaemonSet:  &item,
+			})
 		}
 	}
 	return overviews, nil

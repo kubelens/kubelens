@@ -2,7 +2,7 @@ package k8sv1
 
 import (
 	"context"
-	"strings"
+	"fmt"
 
 	"github.com/kubelens/kubelens/api/errs"
 	klog "github.com/kubelens/kubelens/api/log"
@@ -47,7 +47,9 @@ func (k *Client) ConfigMap(options ConfigMapOptions) (overview *ConfigMapOvervie
 		return nil, errs.InternalServerError(err.Error())
 	}
 
-	list, err := clientset.CoreV1().ConfigMaps(options.Namespace).List(options.Context, metav1.ListOptions{})
+	list, err := clientset.CoreV1().ConfigMaps(options.Namespace).List(options.Context, metav1.ListOptions{
+		FieldSelector: fmt.Sprintf("metadata.name=%s", options.Name),
+	})
 
 	if err != nil {
 		klog.Trace()
@@ -56,15 +58,12 @@ func (k *Client) ConfigMap(options ConfigMapOptions) (overview *ConfigMapOvervie
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			// first check name of deployment, then by labelSelctor
-			if strings.EqualFold(item.Name, options.Name) {
-				return &ConfigMapOverview{
-					Name:       item.Name,
-					LinkedName: getLinkedName(item.Labels),
-					Namespace:  item.Namespace,
-					ConfigMap:  &item,
-				}, nil
-			}
+			return &ConfigMapOverview{
+				Name:       item.Name,
+				LinkedName: getLinkedName(item.Labels),
+				Namespace:  item.Namespace,
+				ConfigMap:  &item,
+			}, nil
 		}
 	}
 	return overview, nil
@@ -86,7 +85,11 @@ func (k *Client) ConfigMaps(options ConfigMapOptions) (overviews []ConfigMapOver
 		return nil, nil
 	}
 
-	list, err := cml.List(options.Context, metav1.ListOptions{})
+	lo := metav1.ListOptions{}
+	if len(options.LinkedName) > 0 {
+		lo.LabelSelector = generateLabelSelector(options.LinkedName)
+	}
+	list, err := cml.List(options.Context, lo)
 
 	if err != nil {
 		klog.Trace()
@@ -95,23 +98,12 @@ func (k *Client) ConfigMaps(options ConfigMapOptions) (overviews []ConfigMapOver
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			if len(options.LinkedName) > 0 {
-				if labelsContainSelector(options.LinkedName, item.Labels) {
-					overviews = append(overviews, ConfigMapOverview{
-						Name:       item.Name,
-						LinkedName: getLinkedName(item.Labels),
-						Namespace:  item.Namespace,
-						ConfigMap:  &item,
-					})
-				}
-			} else {
-				overviews = append(overviews, ConfigMapOverview{
-					Name:       item.Name,
-					LinkedName: getLinkedName(item.Labels),
-					Namespace:  item.Namespace,
-					ConfigMap:  &item,
-				})
-			}
+			overviews = append(overviews, ConfigMapOverview{
+				Name:       item.Name,
+				LinkedName: getLinkedName(item.Labels),
+				Namespace:  item.Namespace,
+				ConfigMap:  &item,
+			})
 		}
 	}
 	return overviews, nil

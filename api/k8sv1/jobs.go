@@ -2,7 +2,7 @@ package k8sv1
 
 import (
 	"context"
-	"strings"
+	"fmt"
 
 	"github.com/kubelens/kubelens/api/errs"
 	klog "github.com/kubelens/kubelens/api/log"
@@ -51,7 +51,9 @@ func (k *Client) Job(options JobOptions) (overview *JobOverview, apiErr *errs.AP
 		return nil, nil
 	}
 
-	list, err := jbs.List(options.Context, metav1.ListOptions{})
+	list, err := jbs.List(options.Context, metav1.ListOptions{
+		FieldSelector: fmt.Sprintf("metadata.name=%s", options.Name),
+	})
 
 	if err != nil {
 		klog.Trace()
@@ -60,15 +62,12 @@ func (k *Client) Job(options JobOptions) (overview *JobOverview, apiErr *errs.AP
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			// first check name of deployment, then by labelSelctor
-			if strings.EqualFold(item.Name, options.Name) {
-				return &JobOverview{
-					Name:       item.Name,
-					LinkedName: getLinkedName(item.Labels),
-					Namespace:  item.Namespace,
-					Job:        &item,
-				}, nil
-			}
+			return &JobOverview{
+				Name:       item.Name,
+				LinkedName: getLinkedName(item.Labels),
+				Namespace:  item.Namespace,
+				Job:        &item,
+			}, nil
 		}
 	}
 	return overview, nil
@@ -90,7 +89,11 @@ func (k *Client) Jobs(options JobOptions) (overviews []JobOverview, apiErr *errs
 		return nil, nil
 	}
 
-	list, err := jbs.List(options.Context, metav1.ListOptions{})
+	lo := metav1.ListOptions{}
+	if len(options.LinkedName) > 0 {
+		lo.LabelSelector = generateLabelSelector(options.LinkedName)
+	}
+	list, err := jbs.List(options.Context, lo)
 
 	if err != nil {
 		klog.Trace()
@@ -99,23 +102,12 @@ func (k *Client) Jobs(options JobOptions) (overviews []JobOverview, apiErr *errs
 
 	if list != nil && len(list.Items) > 0 {
 		for _, item := range list.Items {
-			if len(options.LinkedName) > 0 {
-				if labelsContainSelector(options.LinkedName, item.Labels) {
-					overviews = append(overviews, JobOverview{
-						Name:       item.Name,
-						LinkedName: getLinkedName(item.Labels),
-						Namespace:  item.Namespace,
-						Job:        &item,
-					})
-				}
-			} else {
-				overviews = append(overviews, JobOverview{
-					Name:       item.Name,
-					LinkedName: getLinkedName(item.Labels),
-					Namespace:  item.Namespace,
-					Job:        &item,
-				})
-			}
+			overviews = append(overviews, JobOverview{
+				Name:       item.Name,
+				LinkedName: getLinkedName(item.Labels),
+				Namespace:  item.Namespace,
+				Job:        &item,
+			})
 		}
 	}
 	return overviews, nil
