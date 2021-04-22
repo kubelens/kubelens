@@ -31,18 +31,6 @@ import (
 	"github.com/kubelens/kubelens/api/config"
 )
 
-func labelsContainSelector(selector string, labels map[string]string) bool {
-	if labels == nil {
-		return false
-	}
-
-	if len(labels) == 0 || len(selector) == 0 {
-		return false
-	}
-
-	return strings.EqualFold(labels[config.C.LabelKeyLink], selector)
-}
-
 func getLinkedName(labels map[string]string) string {
 	return labels[config.C.LabelKeyLink]
 }
