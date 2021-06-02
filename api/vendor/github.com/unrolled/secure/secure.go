@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 )
 
@@ -11,7 +12,7 @@ type secureCtxKey string
 
 const (
 	stsHeader            = "Strict-Transport-Security"
-	stsSubdomainString   = "; includeSubdomains"
+	stsSubdomainString   = "; includeSubDomains"
 	stsPreloadString     = "; preload"
 	frameOptionsHeader   = "X-Frame-Options"
 	frameOptionsValue    = "DENY"
@@ -26,8 +27,8 @@ const (
 	featurePolicyHeader  = "Feature-Policy"
 	expectCTHeader       = "Expect-CT"
 
-	ctxSecureHeaderKey = secureCtxKey("SecureResponseHeader")
-	cspNonceSize       = 16
+	ctxDefaultSecureHeaderKey = secureCtxKey("SecureResponseHeader")
+	cspNonceSize              = 16
 )
 
 // SSLHostFunc a type whose pointer is the type of field `SSLHostFunc` of `Options` struct
@@ -82,6 +83,9 @@ type Options struct {
 	SSLHost string
 	// AllowedHosts is a list of fully qualified domain names that are allowed. Default is empty list, which allows any and all host names.
 	AllowedHosts []string
+	// AllowedHostsAreRegex determines, if the provided slice contains valid regular expressions. If this flag is set to true, every request's
+	// host will be checked against these expressions. Default is false for backwards compatibility.
+	AllowedHostsAreRegex bool
 	// HostsProxyHeaders is a set of header keys that may hold a proxied hostname value for the request.
 	HostsProxyHeaders []string
 	// SSLHostFunc is a function pointer, the return value of the function is the host name that has same functionality as `SSHost`. Default is nil.
@@ -93,6 +97,8 @@ type Options struct {
 	STSSeconds int64
 	// ExpectCTHeader allows the Expect-CT header value to be set with a custom value. Default is "".
 	ExpectCTHeader string
+	// SecureContextKey allows a custom key to be specified for context storage.
+	SecureContextKey string
 }
 
 // Secure is a middleware that helps setup a few basic security features. A single secure.Options struct can be
@@ -103,6 +109,13 @@ type Secure struct {
 
 	// badHostHandler is the handler used when an incorrect host is passed in.
 	badHostHandler http.Handler
+
+	// cRegexAllowedHosts saves the compiled regular expressions of the AllowedHosts
+	// option for subsequent use in processRequest
+	cRegexAllowedHosts []*regexp.Regexp
+
+	// ctxSecureHeaderKey is the key used for context storage for request modification.
+	ctxSecureHeaderKey secureCtxKey
 }
 
 // New constructs a new Secure instance with the supplied options.
@@ -115,13 +128,32 @@ func New(options ...Options) *Secure {
 	}
 
 	o.ContentSecurityPolicy = strings.Replace(o.ContentSecurityPolicy, "$NONCE", "'nonce-%[1]s'", -1)
+	o.ContentSecurityPolicyReportOnly = strings.Replace(o.ContentSecurityPolicyReportOnly, "$NONCE", "'nonce-%[1]s'", -1)
 
-	o.nonceEnabled = strings.Contains(o.ContentSecurityPolicy, "%[1]s")
+	o.nonceEnabled = strings.Contains(o.ContentSecurityPolicy, "%[1]s") || strings.Contains(o.ContentSecurityPolicyReportOnly, "%[1]s")
 
-	return &Secure{
+	s := &Secure{
 		opt:            o,
 		badHostHandler: http.HandlerFunc(defaultBadHostHandler),
 	}
+
+	if s.opt.AllowedHostsAreRegex {
+		// Test for invalid regular expressions in AllowedHosts
+		for _, allowedHost := range o.AllowedHosts {
+			regex, err := regexp.Compile(fmt.Sprintf("^%s$", allowedHost))
+			if err != nil {
+				panic(fmt.Sprintf("Error parsing AllowedHost: %s", err))
+			}
+			s.cRegexAllowedHosts = append(s.cRegexAllowedHosts, regex)
+		}
+	}
+
+	s.ctxSecureHeaderKey = ctxDefaultSecureHeaderKey
+	if len(s.opt.SecureContextKey) > 0 {
+		s.ctxSecureHeaderKey = secureCtxKey(s.opt.SecureContextKey)
+	}
+
+	return s
 }
 
 // SetBadHostHandler sets the handler to call when secure rejects the host name.
@@ -160,7 +192,7 @@ func (s *Secure) HandlerForRequestOnly(h http.Handler) http.Handler {
 		}
 
 		// Save response headers in the request context.
-		ctx := context.WithValue(r.Context(), ctxSecureHeaderKey, responseHeader)
+		ctx := context.WithValue(r.Context(), s.ctxSecureHeaderKey, responseHeader)
 
 		// No headers will be written to the ResponseWriter.
 		h.ServeHTTP(w, r.WithContext(ctx))
@@ -190,7 +222,7 @@ func (s *Secure) HandlerFuncWithNextForRequestOnly(w http.ResponseWriter, r *htt
 	// If there was an error, do not call next.
 	if err == nil && next != nil {
 		// Save response headers in the request context
-		ctx := context.WithValue(r.Context(), ctxSecureHeaderKey, responseHeader)
+		ctx := context.WithValue(r.Context(), s.ctxSecureHeaderKey, responseHeader)
 
 		// No headers will be written to the ResponseWriter.
 		next(w, r.WithContext(ctx))
@@ -199,11 +231,9 @@ func (s *Secure) HandlerFuncWithNextForRequestOnly(w http.ResponseWriter, r *htt
 
 // addResponseHeaders Adds the headers from 'responseHeader' to the response.
 func addResponseHeaders(responseHeader http.Header, w http.ResponseWriter) {
-	if responseHeader != nil {
-		for key, values := range responseHeader {
-			for _, value := range values {
-				w.Header().Set(key, value)
-			}
+	for key, values := range responseHeader {
+		for _, value := range values {
+			w.Header().Set(key, value)
 		}
 	}
 }
@@ -214,6 +244,19 @@ func (s *Secure) Process(w http.ResponseWriter, r *http.Request) error {
 	addResponseHeaders(responseHeader, w)
 
 	return err
+}
+
+// ProcessAndReturnNonce runs the actual checks and writes the headers in the ResponseWriter.
+// In addition, the generated nonce for the request is returned as well as the error value.
+func (s *Secure) ProcessAndReturnNonce(w http.ResponseWriter, r *http.Request) (string, error) {
+	responseHeader, newR, err := s.processRequest(w, r)
+	if err != nil {
+		return "", err
+	}
+
+	addResponseHeaders(responseHeader, w)
+
+	return CSPNonce(newR.Context()), err
 }
 
 // ProcessNoModifyRequest runs the actual checks but does not write the headers in the ResponseWriter.
@@ -240,10 +283,19 @@ func (s *Secure) processRequest(w http.ResponseWriter, r *http.Request) (http.He
 	// Allowed hosts check.
 	if len(s.opt.AllowedHosts) > 0 && !s.opt.IsDevelopment {
 		isGoodHost := false
-		for _, allowedHost := range s.opt.AllowedHosts {
-			if strings.EqualFold(allowedHost, host) {
-				isGoodHost = true
-				break
+		if s.opt.AllowedHostsAreRegex {
+			for _, allowedHost := range s.cRegexAllowedHosts {
+				if match := allowedHost.MatchString(host); match {
+					isGoodHost = true
+					break
+				}
+			}
+		} else {
+			for _, allowedHost := range s.opt.AllowedHosts {
+				if strings.EqualFold(allowedHost, host) {
+					isGoodHost = true
+					break
+				}
 			}
 		}
 
@@ -399,7 +451,20 @@ func (s *Secure) isSSL(r *http.Request) bool {
 // Used by http.ReverseProxy.
 func (s *Secure) ModifyResponseHeaders(res *http.Response) error {
 	if res != nil && res.Request != nil {
-		responseHeader := res.Request.Context().Value(ctxSecureHeaderKey)
+		// Fix Location response header http to https:
+		// When SSL is enabled,
+		// And SSLHost is defined,
+		// And the response location header includes the SSLHost as the domain with a trailing slash,
+		// Or an exact match to the SSLHost.
+		location := res.Header.Get("Location")
+		if s.isSSL(res.Request) &&
+			len(s.opt.SSLHost) > 0 &&
+			(strings.HasPrefix(location, fmt.Sprintf("http://%s/", s.opt.SSLHost)) || location == fmt.Sprintf("http://%s", s.opt.SSLHost)) {
+			location = strings.Replace(location, "http:", "https:", 1)
+			res.Header.Set("Location", location)
+		}
+
+		responseHeader := res.Request.Context().Value(s.ctxSecureHeaderKey)
 		if responseHeader != nil {
 			for header, values := range responseHeader.(http.Header) {
 				if len(values) > 0 {

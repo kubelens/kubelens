@@ -24,23 +24,7 @@
   "oAuthAudience": "",
   "oAuthClientID": "",
   "enableAuth": false,
-  "enableRBAC": false,
-  "rbacClaim": "",
-  "projectSlugRegex": "",
-  "deployerLink": "",
-  "appNameLabelKeys": [
-    "app",
-    "name"
-  ],
-  "viewerLabelInclusions": [
-    "app"
-  ],
-  "viewerLabelExclusions": [
-    "k8s-app",
-    "component",
-    "run"
-  ],
-  "adminEmails": [],
+  "labelKeyLink": "app",
   "contentSecurityPolicy": "",
   "enableTLS": false,
   "tlsCert": "",

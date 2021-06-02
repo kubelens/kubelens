@@ -2,10 +2,10 @@ package k8sv1
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 
-	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 
 	klog "github.com/kubelens/kubelens/api/log"
@@ -33,18 +33,14 @@ type LogOptions struct {
 	Follow bool `json:"follow"`
 	// tail logs from line. If a stream request, this is ignored.
 	Tail int64 `json:"tail"`
-	//users role assignemnt
-	UserRole rbac.RoleAssignmenter
 	// logger instance
 	Logger klog.Logger
+	// Context .
+	Context context.Context
 }
 
 // Valid validates LogOptions fields
 func (a *LogOptions) Valid() *errs.APIError {
-	if !a.UserRole.HasNamespaceAccess(a.Namespace) {
-		return errs.Unauthorized()
-	}
-
 	if !a.ValidPodName() {
 		return errs.ValidationError("podname must be provided when getting logs")
 	}
@@ -78,14 +74,6 @@ func (a *LogOptions) GetTailLines() int64 {
 		return a.Tail
 	}
 	return 500
-}
-
-// UserCanAccess validates the user has access
-func (a *LogOptions) UserCanAccess(labels map[string]string) bool {
-	if !a.UserRole.HasPodAccess(labels) || !a.UserRole.HasLogAccess(labels) || !a.UserRole.Matches(labels, nil) {
-		return false
-	}
-	return true
 }
 
 // Logs returns a list of all logs for pods
@@ -136,21 +124,15 @@ func (k *Client) ReadLogs(options LogOptions) (rc io.ReadCloser, apiErr *errs.AP
 		Pods(options.Namespace)
 
 	// get pod for labels to check against role
-	if pd, err := list.Get(options.PodName, metav1.GetOptions{}); pd != nil {
+	if pd, err := list.Get(options.Context, options.PodName, metav1.GetOptions{}); pd != nil {
 		if err != nil {
 			klog.Trace()
 			return nil, errs.InternalServerError(err.Error())
 		}
-
-		labels := pd.GetLabels()
-		if !options.UserCanAccess(labels) {
-			klog.Trace()
-			return nil, errs.Forbidden()
-		}
 	}
 
 	tail := options.Tail
-	// ensure tail set to 1 line since we would be streaming
+	// ensure tail set to 1 line since we will be streaming
 	if options.Follow {
 		tail = 1
 	}
@@ -161,10 +143,12 @@ func (k *Client) ReadLogs(options LogOptions) (rc io.ReadCloser, apiErr *errs.AP
 		Follow:    options.Follow,
 	})
 
-	stream, err := req.Stream()
+	stream, err := req.Stream(options.Context)
 
 	if err != nil {
-		stream.Close()
+		if stream != nil {
+			stream.Close()
+		}
 		return nil, errs.InternalServerError(err.Error())
 	}
 

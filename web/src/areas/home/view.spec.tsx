@@ -18,7 +18,7 @@ const setup = () => {
       {name: 'name1', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'},
       {name: 'name2', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}
     ],
-    selectedAppName: 'appname',
+    selectedOverview: 'appname',
     isLoading: false
   }
 

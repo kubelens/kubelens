@@ -46,19 +46,12 @@ type config struct {
 	OAuthJWTIssuer        string   `json:"oAuthJwtIssuer"`
 	OAuthClientID         string   `json:"oAuthClientID"`
 	EnableAuth            bool     `json:"enableAuth"`
-	EnableRBAC            bool     `json:"enableRBAC"`
-	RBACClaim             string   `json:"rbacClaim"`
-	ProjectSlugRegex      string   `json:"projectSlugRegex"`
-	DeployerLink          string   `json:"deployerLink"`
-	HealthRoute           string   `json:"healthRoute"`
-	AppNameLabelKeys      []string `json:"appNameLabelKeys"`
+	LabelKeyLink          string   `json:"labelKeyLink"`
 	EnableTLS             bool     `json:"enableTLS"`
 	TLSCert               string   `json:"tlsCert"`
 	TLSKey                string   `json:"tlsKey"`
 	ContentSecurityPolicy string   `json:"contentSecurityPolicy"`
 	PublicKeyHPKP         string   `json:"publicKeyHPKP"`
-	ViewerLabelInclusions []string `json:"viewerLabelInclusions"`
-	ViewerLabelExclusions []string `json:"viewerLabelExclusions"`
 	AdminEmails           []string `json:"adminEmails"`
 }
 

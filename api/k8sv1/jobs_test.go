@@ -1,24 +1,21 @@
 package k8sv1
 
 import (
+	"context"
 	"testing"
 
-	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestJobOverviewsDefaultSuccess(t *testing.T) {
-	c := setupClient("testns", "test", false, false)
+func TestJobsDefaultSuccess(t *testing.T) {
+	c := setupClient("testns", "jobs1", false, false)
 
-	ls := map[string]string{}
-	ls[AppNameLabel] = FriendlyAppName
-
-	d, err := c.JobOverviews(JobOptions{
-		UserRole:      &rbacfakes.RoleAssignment{},
-		Logger:        &logfakes.Logger{},
-		Namespace:     "testns",
-		LabelSelector: ls,
+	d, err := c.Jobs(JobOptions{
+		Logger:     &logfakes.Logger{},
+		Namespace:  "testns",
+		LinkedName: "jobs1",
+		Context:    context.Background(),
 	})
 
 	assert.Nil(t, err)
@@ -26,43 +23,42 @@ func TestJobOverviewsDefaultSuccess(t *testing.T) {
 	assert.Equal(t, "testns", d[0].Namespace)
 }
 
-func TestGetJobOverviewsDefaultFail(t *testing.T) {
-	c := setupClient("testns", "test", true, true)
+func TestGetJobsDefaultFail(t *testing.T) {
+	c := setupClient("testns", "jobs2", true, true)
 
-	_, err := c.DeploymentOverviews(DeploymentOptions{
-		UserRole:      &rbacfakes.RoleAssignment{},
-		Logger:        &logfakes.Logger{},
-		Namespace:     "testns",
-		LabelSelector: map[string]string{"random": "labelvalue"},
+	_, err := c.Jobs(JobOptions{
+		Logger:     &logfakes.Logger{},
+		Namespace:  "testns",
+		LinkedName: "jobs2",
+		Context:    context.Background(),
 	})
 
 	assert.NotNil(t, err)
 }
 
-func TestJobAppInfosDefaultSuccess(t *testing.T) {
-	c := setupClient("testns", "test", false, false)
+func TestJobDefaultSuccess(t *testing.T) {
+	c := setupClient("testns", "jobs3", false, false)
 
-	ls := map[string]string{}
-	ls[AppNameLabel] = FriendlyAppName
-
-	d, err := c.JobAppInfos(JobOptions{
-		UserRole:  &rbacfakes.RoleAssignment{},
-		Logger:    &logfakes.Logger{},
-		Namespace: "testns",
+	d, err := c.Job(JobOptions{
+		Logger:     &logfakes.Logger{},
+		Namespace:  "testns",
+		Name:       "jobs3",
+		LinkedName: "whatever",
+		Context:    context.Background(),
 	})
 
 	assert.Nil(t, err)
-	assert.Len(t, d, 1)
-	assert.Equal(t, d[0].Namespace, "testns")
+	assert.NotNil(t, d)
+	assert.Equal(t, d.Namespace, "testns")
 }
 
-func TestGetJobAppInfosDefaultFail(t *testing.T) {
+func TestGetJobDefaultFail(t *testing.T) {
 	c := setupClient("testns", "test", true, true)
 
-	_, err := c.JobAppInfos(JobOptions{
-		UserRole:  &rbacfakes.RoleAssignment{},
+	_, err := c.Job(JobOptions{
 		Logger:    &logfakes.Logger{},
 		Namespace: "testns",
+		Context:   context.Background(),
 	})
 
 	assert.NotNil(t, err)

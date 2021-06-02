@@ -22,180 +22,91 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 export type Config = {
-  oAuthJwtIssuer: string,
-  oAuthAudience: string,
-  oAuthClientId: string,
-  oAuthRedirectUri: string,
-  oAuthResponseType: string,
-  oAuthRequestType: string,
-  oAuthScope: string,
-  oAuthConnection: string,
-  oAuthEnabled: boolean,
-  availableClusters: {}[],
-  deployerLinkName: string
+  oAuthJwtIssuer:     string,
+  oAuthAudience:      string,
+  oAuthClientId:      string,
+  oAuthRedirectUri:   string,
+  oAuthResponseType:  string,
+  oAuthRequestType:   string,
+  oAuthScope:         string,
+  oAuthConnection:    string,
+  oAuthEnabled:       boolean,
+  availableClusters:  AvailableCluster[]
 };
 
-export type Name = {
-  labelKey: string,
-  value: string
-};
-
-export type Log = {
-  pod: string,
-  output: string
-};
-
-export type App = {
-  name: string,
-  namespace: string,
-  labelSelector: string,
-  kind: string,
-  deployerLink?: string
-};
-
-export type Apps = App[];
-
-export type AppOverview = {
-  serviceOverviews: Service[],
-  daemonSetOverviews: DaemonSetOverview[],
-  replicaSetOverviews: ReplicaSetOverview[],
-  jobOverviews: JobOverview[],
-  podOverviews: PodOverview
+export type AvailableCluster = {
+  name:     string,
+  cluster:  string,
+  url:      string
 }
 
-export type ContainerStatus = {
-  image: string,
-  name: string,
-  restartCount: number,
-  ready: boolean
+export type SelectedOverview = {
+  linkedName:  string,
+	namespace:   string
 }
 
-export type PodDetail = {
-  name: string,
-  namespace: string,
-  hostIP?: string,
-  podIP?: string,
-  startTime?: string,
-  phase?: {},
-  phaseMessage: string,
-  containerStatus: [],
-  status: {
-    containerStatuses: ContainerStatus[],
-    conditions: [],
-    startTime: string,
-    phase: string
-  },
-  spec: {
-    containers: [{
-      env: object
-    }]
-  },
-  containerNames: string[]
-};
-
-export type Image = {
-  name: string,
-  containerName: string
+export type Overview = {
+  linkedName:  string,
+	namespace:   string,
+	daemonSets:  DaemonSet[],
+	deployments: Deployment[],
+	jobs:        Job[],
+	pods:        Pod[],
+	replicaSets: ReplicaSet[],
+	services:    Service[],
+  configMaps:  ConfigMap[]
 }
 
-export type PodInfo = {
-  name: string,
-  namespace: string,
-  hostIP?: string,
-  podIP?: string,
-  startTime?: string,
-  phase: string,
-  phaseMessage: string,
-  images: Image[],
-  conditions: []
+export type DaemonSet = {
+  name:         string,
+  linkedName:   string,
+	namespace:    string,
+	daemonSet:    any
 }
 
-export type PodOverview = {
-  name: string,
-  namespace: string,
-  clusterName?: string,
-  deployerLink?: string,
-  pods: PodInfo[]
+export type Deployment = {
+  name:         string,
+  linkedName:   string,
+	namespace:    string,
+	deployment:   any
+}
+
+export type Job = {
+  name:         string,
+  linkedName:   string,
+	namespace:    string,
+	job:          any
+}
+
+export type Pod = {
+  name:         string,
+  linkedName:   string,
+	namespace:    string,
+	pod:          any
+}
+
+export type ReplicaSet = {
+  name:         string,
+  linkedName:   string,
+	namespace:    string,
+	replicaSet:   any
 }
 
 export type Service = {
-  appName: Name,
-  name: string,
-  namespace: string,
-  type: {},
-  selector: Map<string, string>,
-  clusterIP?: string,
-  loadBalancerIP?: string,
-  externalIPs?: string[],
-  ports?: [{}],
-  spec?: {},
-  status?: {},
-  deployerLink?: string,
-  configMaps?: [{}],
-  deploymentOverviews: DeploymentOverview[]
-};
-
-export type DeploymentOverview = {
-  friendlyName: string,
-  name: string,
-  namespace: string,
-  labelSelector: {},
-  replicas: number,
-  updatedReplicas: number,
-  readyReplicas: number,
-  unavailableReplicas: number,
-  conditions: [{
-    type: string,
-    status: boolean,
-    lastUpdateTime: string,
-    lastTransitionTime: string,
-    reason: string,
-    message: string
-  }]
+  name:         string,
+  linkedName:   string,
+	namespace:    string,
+	service:      any
 }
 
-export type DaemonSetOverview = {
-  friendlyName: string,
-  name: string,
-  namespace: string,
-  labelSelector: {},
-  currentNumberScheduled: number,
-  desiredNumberScheduled: number,
-  numberAvailable: number,
-  numberMisscheduled: number,
-  numberReady: number,
-  numberUnavailable: number,
-  updatedNumberScheduled: number,
-  conditions: [],
-  configMaps?: [{}],
-  deploymentOverviews?: DeploymentOverview[]
+export type Log = {
+  pod:    string,
+  output: string
 }
 
-export type JobOverview = {
-  friendlyName: string,
-  name: string,
-  namespace: string,
-  labelSelector: {},
-	startTime: string,
-	completionTime: string,
-	active: number,
-	succeeded: number,
-	failed: number,
-  conditions: [],
-  configMaps?: [{}],
-  deploymentOverviews?: DeploymentOverview[]
-}
-
-export type ReplicaSetOverview = {
-  friendlyName: string,
-  name: string,
-  namespace: string,
-  labelSelector: {},
-  availableReplicas: number,
-  fullyLabeledReplicas: number,
-  readyReplicas: number,
-  replicas: number,
-  conditions: [],
-  configMaps?: [{}],
-  deploymentOverviews?: DeploymentOverview[]
+export type ConfigMap = {
+  name:         string,
+  linkedName:   string,
+	namespace:    string,
+	service:      any
 }

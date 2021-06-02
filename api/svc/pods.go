@@ -29,7 +29,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/kubelens/kubelens/api/auth/rbac"
 	"github.com/kubelens/kubelens/api/errs"
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 
@@ -37,39 +36,32 @@ import (
 	klog "github.com/kubelens/kubelens/api/log"
 )
 
-// PodDetail retrieves a list of applications across any namespace in the K8s cluster.
-// Params
-//		name - Name of the pod
-// 		namespace	- Scope results to namespace, e.g. default
-//		labelKey - The label key used for the application name, ex. app=some-app-name
-func (h request) PodDetail(w http.ResponseWriter, r *http.Request) {
+// Pod .
+func (h request) Pod(w http.ResponseWriter, r *http.Request) {
 	l := klog.MustFromContext(r.Context())
-	ra := rbac.MustFromContext(r.Context())
 
-	var podname string
+	var name string
 
 	// "/v1/pods/{name}" = []string{"", pods", "name"}
 	if params := strings.Split(r.URL.Path, "/"); len(params) == 3 {
-		podname = params[2]
+		name = params[2]
 	}
 
 	// get query params
 	var data Req
 	if err := httpreq.NewParsingMapPre(1).
 		ToString("namespace", &data.Namespace).
-		ToString("containerName", &data.ContainerName).
 		Parse(r.URL.Query()); err != nil {
 		l.Error(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	pod, apiErr := h.k8Client.PodDetail(k8sv1.PodDetailOptions{
-		UserRole:      ra,
-		Logger:        l,
-		Name:          podname,
-		Namespace:     data.Namespace,
-		ContainerName: data.ContainerName,
+	overview, apiErr := h.k8Client.Pod(k8sv1.PodOptions{
+		Logger:    l,
+		Context:   r.Context(),
+		Name:      name,
+		Namespace: data.Namespace,
 	})
 
 	if apiErr != nil {
@@ -78,7 +70,47 @@ func (h request) PodDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := json.Marshal(pod)
+	res, err := json.Marshal(overview)
+
+	if err != nil {
+		e := errs.SerializationError(err.Error())
+		http.Error(w, e.Message, e.Code)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
+}
+
+// Pods .
+func (h request) Pods(w http.ResponseWriter, r *http.Request) {
+	l := klog.MustFromContext(r.Context())
+
+	// get query params
+	var data Req
+	if err := httpreq.NewParsingMapPre(1).
+		ToString("namespace", &data.Namespace).
+		ToString("linkedName", &data.LinkedName).
+		Parse(r.URL.Query()); err != nil {
+		l.Error(err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	overviews, apiErr := h.k8Client.Pods(k8sv1.PodOptions{
+		Logger:     l,
+		Context:    r.Context(),
+		LinkedName: data.LinkedName,
+		Namespace:  data.Namespace,
+	})
+
+	if apiErr != nil {
+		l.Error(apiErr)
+		http.Error(w, apiErr.Message, apiErr.Code)
+		return
+	}
+
+	res, err := json.Marshal(overviews)
 
 	if err != nil {
 		e := errs.SerializationError(err.Error())

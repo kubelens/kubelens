@@ -4,8 +4,6 @@ go version
         
 # curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
-dep init || dep ensure
-
 # make -s test
 echo "mode: count" > coverage-all.out
 
@@ -17,7 +15,7 @@ done
 
 COVERAGE=$(go tool cover -func=coverage-all.out | tail -1 | tr -d '[:space:]' | tr -d '()' | tr -d '%' | tr -d ':' | sed -e 's/total//g' | sed -e 's/statements//g')
 
-if [[ ${COVERAGE%.*} -lt 70 ]]; then 
+if [[ ${COVERAGE%.*} -lt 65 ]]; then 
   echo "Insufficient Test Coverage: ${COVERAGE}"
   exit 1
 else

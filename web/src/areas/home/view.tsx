@@ -24,15 +24,15 @@ SOFTWARE.
 import React, { lazy } from 'react';
 import { Route } from 'react-router-dom';
 import { Input } from 'reactstrap';
-import { App } from '../../types';
+import { Overview, SelectedOverview } from '../../types';
 import { RouteChildrenProps } from 'react-router';
 import ReactList from 'react-list';
-import AppCard from '../../components/app-card';
+import OverviewCard from '../../components/overview-card';
 import _ from 'lodash';
 import './home.css';
 
-const Overview = lazy(() => import('../overview'));
-const Pod = lazy(() => import('../pod'));
+const OverviewPage = lazy(() => import('../overview'));
+const PodPage = lazy(() => import('../pod'));
 
 export type HomeViewProps =
   Partial<RouteChildrenProps<{
@@ -40,17 +40,16 @@ export type HomeViewProps =
   }>> & {
     onFilterChanged: Function,
     onViewApp(appname: string, namespace: string, labelSelector: string),
-    filteredApps: App[],
-    selectedAppName: string
+    filteredOverviews: Overview[],
+    selectedOverview: SelectedOverview
   }
 
 const HomePage = (props: HomeViewProps) => {
   const {
-    match,
     onFilterChanged,
-    onViewApp,
-    filteredApps,
-    selectedAppName
+    onViewOverview,
+    filteredOverviews,
+    selectedOverview
   } = props;
 
   return (
@@ -65,27 +64,26 @@ const HomePage = (props: HomeViewProps) => {
           {/* applications list */}
           {/* I don't understand css enough to get this to work without inline style, moving on. */}
           <div dir="rtl" style={{ maxHeight: '76vh', overflow: 'scroll', marginRight: -40, paddingRight: 40 }}>
-            {!_.isEmpty(filteredApps)
+            {!_.isEmpty(filteredOverviews)
               ? <ReactList 
                   itemRenderer={(index, key) => {
                     return (
-                      <AppCard 
+                      <OverviewCard 
                         key={key}
-                        app={filteredApps[index]}
+                        overview={filteredOverviews[index]}
                         index={index}
-                        match={match}
-                        selectedAppName={selectedAppName}
-                        onViewApp={onViewApp}/>
+                        selectedOverview={selectedOverview}
+                        onViewOverview={onViewOverview}/>
                     )
                   }} 
-                  length={filteredApps.length} 
+                  length={filteredOverviews.length} 
                   type="uniform"/>
               : <div>No Apps Returned.</div>}
           </div>
         </div>
         <div className="not-stuck">
-          <Route exact path='/:appName' render={p => <Overview {...p} {...props} />} />
-          <Route exact path='/:appName/pods/:podName' render={p => <Pod {...props} {...p} />} />
+          <Route exact path='/:linkedName' render={p => <OverviewPage {...p} {...props} />} />
+          <Route exact path='/:linkedName/pods/:podName' render={p => <PodPage {...props} {...p} />} />
           <Route path='/' render={() => { return null }} />
         </div>
       </div>

@@ -22,17 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 import { Reducer } from 'redux';
-import { PodDetail } from '../types';
+import { Pod } from '../types';
 import { PodActions, PodActionTypes } from '../actions/pods';
 
 export interface IPodState {
-  readonly pod?: PodDetail,
+  readonly podOverview?: Pod,
   readonly selectedPodName?: string,
   readonly selectedContainerName?: string
 }
 
 export const INITIAL_STATE: IPodState = {
-  pod: undefined,
+  podOverview: undefined,
   selectedPodName: undefined,
   selectedContainerName: undefined
 };
@@ -46,14 +46,14 @@ export const reducer: Reducer<IPodState, PodActions> = (
     case PodActionTypes.GET_POD: {
       return {
         ...state,
-        pod: action.pod
+        podOverview: action.podOverview
       }
     }
 
     case PodActionTypes.CLEAR_POD: {
       return {
         ...state,
-        pod: action.pod
+        podOverview: action.podOverview
       }
     }
 

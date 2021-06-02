@@ -1,198 +1,70 @@
-// This file is auto-generated. DO NOT EDIT
 package jws
 
 import (
-	"github.com/lestrrat-go/jwx/jwa"
-	"github.com/lestrrat-go/jwx/jwk"
+	"context"
+
+	"github.com/lestrrat-go/iter/mapiter"
+	"github.com/lestrrat-go/jwx/internal/iter"
 	"github.com/pkg/errors"
 )
 
-const (
-	AlgorithmKey              = "alg"
-	ContentTypeKey            = "cty"
-	CriticalKey               = "crit"
-	JWKKey                    = "jwk"
-	JWKSetURLKey              = "jku"
-	KeyIDKey                  = "kid"
-	TypeKey                   = "typ"
-	X509CertChainKey          = "x5c"
-	X509CertThumbprintKey     = "x5t"
-	X509CertThumbprintS256Key = "x5t#S256"
-	X509URLKey                = "x5u"
-)
-
-type Headers interface {
-	Get(string) (interface{}, bool)
-	Set(string, interface{}) error
-	Algorithm() jwa.SignatureAlgorithm
+// Iterate returns a channel that successively returns all the
+// header name and values.
+func (h *stdHeaders) Iterate(ctx context.Context) Iterator {
+	pairs := h.makePairs()
+	ch := make(chan *HeaderPair, len(pairs))
+	go func(ctx context.Context, ch chan *HeaderPair, pairs []*HeaderPair) {
+		defer close(ch)
+		for _, pair := range pairs {
+			select {
+			case <-ctx.Done():
+				return
+			case ch <- pair:
+			}
+		}
+	}(ctx, ch, pairs)
+	return mapiter.New(ch)
 }
 
-type StandardHeaders struct {
-	JWSalgorithm              jwa.SignatureAlgorithm `json:"alg,omitempty"`      // https://tools.ietf.org/html/rfc7515#section-4.1.1
-	JWScontentType            string                 `json:"cty,omitempty"`      // https://tools.ietf.org/html/rfc7515#section-4.1.10
-	JWScritical               []string               `json:"crit,omitempty"`     // https://tools.ietf.org/html/rfc7515#section-4.1.11
-	JWSjwk                    *jwk.Set               `json:"jwk,omitempty"`      // https://tools.ietf.org/html/rfc7515#section-4.1.3
-	JWSjwkSetURL              string                 `json:"jku,omitempty"`      // https://tools.ietf.org/html/rfc7515#section-4.1.2
-	JWSkeyID                  string                 `json:"kid,omitempty"`      // https://tools.ietf.org/html/rfc7515#section-4.1.4
-	JWStyp                    string                 `json:"typ,omitempty"`      // https://tools.ietf.org/html/rfc7515#section-4.1.9
-	JWSx509CertChain          []string               `json:"x5c,omitempty"`      // https://tools.ietf.org/html/rfc7515#section-4.1.6
-	JWSx509CertThumbprint     string                 `json:"x5t,omitempty"`      // https://tools.ietf.org/html/rfc7515#section-4.1.7
-	JWSx509CertThumbprintS256 string                 `json:"x5t#S256,omitempty"` // https://tools.ietf.org/html/rfc7515#section-4.1.8
-	JWSx509URL                string                 `json:"x5u,omitempty"`      // https://tools.ietf.org/html/rfc7515#section-4.1.5
-	privateParams             map[string]interface{}
+func (h *stdHeaders) Walk(ctx context.Context, visitor Visitor) error {
+	return iter.WalkMap(ctx, h, visitor)
 }
 
-func (h *StandardHeaders) Algorithm() jwa.SignatureAlgorithm {
-	return h.JWSalgorithm
+func (h *stdHeaders) AsMap(ctx context.Context) (map[string]interface{}, error) {
+	return iter.AsMap(ctx, h)
 }
 
-func (h *StandardHeaders) Get(name string) (interface{}, bool) {
-	switch name {
-	case AlgorithmKey:
-		v := h.JWSalgorithm
-		if v == "" {
-			return nil, false
+func (h *stdHeaders) Copy(ctx context.Context, dst Headers) error {
+	for iter := h.Iterate(ctx); iter.Next(ctx); {
+		pair := iter.Pair()
+		if err := dst.Set(pair.Key.(string), pair.Value); err != nil {
+			return errors.Wrapf(err, `failed to set header`)
 		}
-		return v, true
-	case ContentTypeKey:
-		v := h.JWScontentType
-		if v == "" {
-			return nil, false
-		}
-		return v, true
-	case CriticalKey:
-		v := h.JWScritical
-		if len(v) == 0 {
-			return nil, false
-		}
-		return v, true
-	case JWKKey:
-		v := h.JWSjwk
-		if v == nil {
-			return nil, false
-		}
-		return v, true
-	case JWKSetURLKey:
-		v := h.JWSjwkSetURL
-		if v == "" {
-			return nil, false
-		}
-		return v, true
-	case KeyIDKey:
-		v := h.JWSkeyID
-		if v == "" {
-			return nil, false
-		}
-		return v, true
-	case TypeKey:
-		v := h.JWStyp
-		if v == "" {
-			return nil, false
-		}
-		return v, true
-	case X509CertChainKey:
-		v := h.JWSx509CertChain
-		if len(v) == 0 {
-			return nil, false
-		}
-		return v, true
-	case X509CertThumbprintKey:
-		v := h.JWSx509CertThumbprint
-		if v == "" {
-			return nil, false
-		}
-		return v, true
-	case X509CertThumbprintS256Key:
-		v := h.JWSx509CertThumbprintS256
-		if v == "" {
-			return nil, false
-		}
-		return v, true
-	case X509URLKey:
-		v := h.JWSx509URL
-		if v == "" {
-			return nil, false
-		}
-		return v, true
-	default:
-		v, ok := h.privateParams[name]
-		return v, ok
-	}
-}
-
-func (h *StandardHeaders) Set(name string, value interface{}) error {
-	switch name {
-	case AlgorithmKey:
-		if err := h.JWSalgorithm.Accept(value); err != nil {
-			return errors.Wrapf(err, `invalid value for %s key`, AlgorithmKey)
-		}
-		return nil
-	case ContentTypeKey:
-		if v, ok := value.(string); ok {
-			h.JWScontentType = v
-			return nil
-		}
-		return errors.Errorf(`invalid value for %s key: %T`, ContentTypeKey, value)
-	case CriticalKey:
-		if v, ok := value.([]string); ok {
-			h.JWScritical = v
-			return nil
-		}
-		return errors.Errorf(`invalid value for %s key: %T`, CriticalKey, value)
-	case JWKKey:
-		v, ok := value.(*jwk.Set)
-		if ok {
-			h.JWSjwk = v
-			return nil
-		}
-		return errors.Errorf(`invalid value for %s key: %T`, JWKKey, value)
-	case JWKSetURLKey:
-		if v, ok := value.(string); ok {
-			h.JWSjwkSetURL = v
-			return nil
-		}
-		return errors.Errorf(`invalid value for %s key: %T`, JWKSetURLKey, value)
-	case KeyIDKey:
-		if v, ok := value.(string); ok {
-			h.JWSkeyID = v
-			return nil
-		}
-		return errors.Errorf(`invalid value for %s key: %T`, KeyIDKey, value)
-	case TypeKey:
-		if v, ok := value.(string); ok {
-			h.JWStyp = v
-			return nil
-		}
-		return errors.Errorf(`invalid value for %s key: %T`, TypeKey, value)
-	case X509CertChainKey:
-		if v, ok := value.([]string); ok {
-			h.JWSx509CertChain = v
-			return nil
-		}
-		return errors.Errorf(`invalid value for %s key: %T`, X509CertChainKey, value)
-	case X509CertThumbprintKey:
-		if v, ok := value.(string); ok {
-			h.JWSx509CertThumbprint = v
-			return nil
-		}
-		return errors.Errorf(`invalid value for %s key: %T`, X509CertThumbprintKey, value)
-	case X509CertThumbprintS256Key:
-		if v, ok := value.(string); ok {
-			h.JWSx509CertThumbprintS256 = v
-			return nil
-		}
-		return errors.Errorf(`invalid value for %s key: %T`, X509CertThumbprintS256Key, value)
-	case X509URLKey:
-		if v, ok := value.(string); ok {
-			h.JWSx509URL = v
-			return nil
-		}
-		return errors.Errorf(`invalid value for %s key: %T`, X509URLKey, value)
-	default:
-		if h.privateParams == nil {
-			h.privateParams = map[string]interface{}{}
-		}
-		h.privateParams[name] = value
 	}
 	return nil
+}
+
+// mergeHeaders merges two headers, and works even if the first Header
+// object is nil. This is not exported because ATM it felt like this
+// function is not frequently used, and MergeHeaders seemed a clunky name
+func mergeHeaders(ctx context.Context, h1, h2 Headers) (Headers, error) {
+	h3 := NewHeaders()
+
+	if h1 != nil {
+		if err := h1.Copy(ctx, h3); err != nil {
+			return nil, errors.Wrap(err, `failed to copy headers from first Header`)
+		}
+	}
+
+	if h2 != nil {
+		if err := h2.Copy(ctx, h3); err != nil {
+			return nil, errors.Wrap(err, `failed to copy headers from second Header`)
+		}
+	}
+
+	return h3, nil
+}
+
+func (h *stdHeaders) Merge(ctx context.Context, h2 Headers) (Headers, error) {
+	return mergeHeaders(ctx, h, h2)
 }

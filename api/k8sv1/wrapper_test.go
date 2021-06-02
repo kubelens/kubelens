@@ -25,11 +25,6 @@ type mockWrapper struct {
 	innerFail bool
 }
 
-const (
-	FriendlyAppName string = "some-friendly-app-name"
-	AppNameLabel    string = "name"
-)
-
 func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error) {
 	if m.fail {
 		return nil, errors.New("GetClientSet Test Error")
@@ -51,7 +46,6 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 
 	lbl := make(map[string]string)
 	lbl["app"] = name
-	lbl[AppNameLabel] = FriendlyAppName
 
 	// We will create an informer that writes added pods to a channel.
 	pods := make(chan *v1.Pod, 1)
@@ -63,6 +57,28 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 			pod.SetNamespace(namespace)
 			pod.SetLabels(lbl)
 			pod.SetName(name)
+			pod.Spec.Containers = []v1.Container{
+				{
+					Env: []v1.EnvVar{
+						{
+							Name:  "testPassword",
+							Value: "password",
+						},
+						{
+							Name:  "testKey",
+							Value: "key",
+						},
+						{
+							Name:  "testSecret",
+							Value: "secret",
+						},
+						{
+							Name:  "regular_entry",
+							Value: "not so sensitive",
+						},
+					},
+				},
+			}
 			fmt.Printf("pod added: %s/%s\n", pod.Namespace, pod.Name)
 			pods <- pod
 			cancel()
@@ -212,20 +228,20 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		}
 
 		a := &v1.Service{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace}}
-		_, err = client.CoreV1().Services(namespace).Create(a)
+		_, err = client.CoreV1().Services(namespace).Create(ctx, a, metav1.CreateOptions{})
 		if err != nil {
 			return nil, err
 		}
 
 		x := &v1.Namespace{ObjectMeta: metav1.ObjectMeta{Name: namespace}}
-		_, err = client.CoreV1().Namespaces().Create(x)
+		_, err = client.CoreV1().Namespaces().Create(ctx, x, metav1.CreateOptions{})
 		if err != nil {
 			return nil, err
 		}
 
 		// Inject an event into the fake client.
 		p := &v1.Pod{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: lbl}}
-		_, err = client.CoreV1().Pods(namespace).Create(p)
+		_, err = client.CoreV1().Pods(namespace).Create(ctx, p, metav1.CreateOptions{})
 		if err != nil {
 			return nil, err
 		}
@@ -234,35 +250,35 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		cmlbl["cmtest"] = "cmvalue"
 		// Inject an event into the fake client.
 		c1 := &v1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: cmlbl}}
-		_, err = client.CoreV1().ConfigMaps(namespace).Create(c1)
+		_, err = client.CoreV1().ConfigMaps(namespace).Create(ctx, c1, metav1.CreateOptions{})
 		if err != nil {
 			return nil, err
 		}
 
 		// Inject an event into the fake client.
 		c2 := &v1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: (name + "-notmatch"), Namespace: namespace, Labels: map[string]string{"asdf": "yep"}}}
-		_, err = client.CoreV1().ConfigMaps(namespace).Create(c2)
+		_, err = client.CoreV1().ConfigMaps(namespace).Create(ctx, c2, metav1.CreateOptions{})
 		if err != nil {
 			return nil, err
 		}
 
 		// Inject an event into the fake client.
 		d := &appsv1.Deployment{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: cmlbl}}
-		_, err = client.AppsV1().Deployments(namespace).Create(d)
+		_, err = client.AppsV1().Deployments(namespace).Create(ctx, d, metav1.CreateOptions{})
 		if err != nil {
 			return nil, err
 		}
 
 		// Inject an event into the fake client.
 		ds := &appsv1.DaemonSet{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: lbl}}
-		_, err = client.AppsV1().DaemonSets(namespace).Create(ds)
+		_, err = client.AppsV1().DaemonSets(namespace).Create(ctx, ds, metav1.CreateOptions{})
 		if err != nil {
 			return nil, err
 		}
 
 		// Inject an event into the fake client.
 		j := &batchv1.Job{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: lbl}}
-		_, err = client.BatchV1().Jobs(namespace).Create(j)
+		_, err = client.BatchV1().Jobs(namespace).Create(ctx, j, metav1.CreateOptions{})
 		if err != nil {
 			return nil, err
 		}
@@ -271,7 +287,7 @@ func (m *mockWrapper) GetClientSet() (clientset kubernetes.Interface, err error)
 		rs := &appsv1.ReplicaSet{ObjectMeta: metav1.ObjectMeta{Name: name, Namespace: namespace, Labels: lbl}}
 		specReplicas := int32(1)
 		rs.Spec.Replicas = &specReplicas
-		_, err = client.AppsV1().ReplicaSets(namespace).Create(rs)
+		_, err = client.AppsV1().ReplicaSets(namespace).Create(ctx, rs, metav1.CreateOptions{})
 		if err != nil {
 			return nil, err
 		}

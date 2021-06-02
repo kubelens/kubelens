@@ -26,73 +26,28 @@ package k8sv1
 
 import (
 	"fmt"
-	"reflect"
-	"regexp"
 	"strings"
 
 	"github.com/kubelens/kubelens/api/config"
 )
 
-func getProjectSlug(value string) string {
-	if len(config.C.ProjectSlugRegex) > 0 {
-		// Example value name: some-pod-name-slug-1234-6fd8676889-xsksc
-		// the "slug-1234" piece is the slug mapping to the the id of the deploy template.
-		// Using this could allow building of a link to the deployment.
-		regex := regexp.MustCompile(config.C.ProjectSlugRegex)
-		return regex.FindString(value)
-	}
-	return ""
+func getLinkedName(labels map[string]string) string {
+	return labels[config.C.LabelKeyLink]
 }
 
-func getFriendlyAppName(labels map[string]string, defaultName string) (name string) {
-	if labels != nil {
-		// if no app label
-		for _, search := range config.C.AppNameLabelKeys {
-			if len(labels[search]) > 0 {
-				return labels[search]
-			}
-		}
-	}
-
-	return defaultName
+func generateLabelSelector(value string) string {
+	return fmt.Sprintf("%s=%s", config.C.LabelKeyLink, value)
 }
 
-// getDeployerLink tries to build a link to the tool that deploys the application. See doc.go for more info.
-func getDeployerLink(value string) string {
-	slug := getProjectSlug(value)
-	if len(slug) > 0 {
-		return fmt.Sprintf("%s%s", config.C.DeployerLink, slug)
-	}
-
-	return ""
-}
-
-func toLabelSelectorString(labelSelector map[string]string) (labelSelectorString string) {
-	for k, v := range labelSelector {
-		labelSelectorString += fmt.Sprintf("%s=%s,", k, v)
-	}
-	return strings.TrimSuffix(labelSelectorString, ",")
-}
-
-func labelsContainSelector(selector map[string]string, labels map[string]string) bool {
-	if len(labels) == 0 {
-		return false
-	}
-
-	// shortcut if exact
-	if reflect.DeepEqual(selector, labels) {
+// Hard coded check for now, but there really shouldn't be any
+// secrets exposed unless the application has them stored in an
+// insecure way such as a configMap or through environment variables.
+func stringContainsSensitiveInfo(toCheck string) bool {
+	l := strings.ToLower(toCheck)
+	if strings.Contains(l, "pass") ||
+		strings.Contains(l, "key") ||
+		strings.Contains(l, "secret") {
 		return true
 	}
-
-	if len(selector) > 0 {
-		for labelKey, labelValue := range labels {
-			if len(selector[labelKey]) > 0 && strings.EqualFold(selector[labelKey], labelValue) {
-				return true
-			}
-		}
-		return false
-	}
-	
-	// default to true if no labels are provided to allow all
-	return true
+	return false
 }

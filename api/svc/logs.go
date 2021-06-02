@@ -32,8 +32,6 @@ import (
 	"github.com/kubelens/kubelens/api/errs"
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 
-	"github.com/kubelens/kubelens/api/auth/rbac"
-
 	"github.com/creack/httpreq"
 	klog "github.com/kubelens/kubelens/api/log"
 )
@@ -41,7 +39,6 @@ import (
 // Logs Retrieves logs for a pod.
 func (h request) Logs(w http.ResponseWriter, r *http.Request) {
 	l := klog.MustFromContext(r.Context())
-	ra := rbac.MustFromContext(r.Context())
 
 	// "/v1/logs/{pod}" = []string{"", apps", "name"}
 	podname := strings.Split(r.URL.Path, "/")[2]
@@ -65,13 +62,13 @@ func (h request) Logs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logs, apiErr := h.k8Client.Logs(k8sv1.LogOptions{
-		UserRole:      ra,
 		Logger:        l,
 		Namespace:     data.Namespace,
 		PodName:       podname,
 		ContainerName: data.ContainerName,
 		Tail:          tl,
 		Follow:        false,
+		Context:       r.Context(),
 	})
 
 	if apiErr != nil {

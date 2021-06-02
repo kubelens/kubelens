@@ -37,37 +37,39 @@ type Clienter interface {
 	// SanityCheck tries to list pods. if it can't, return will be error, else nil.
 	// really only used for a sanity/health check.
 	SanityCheck() (apiErr *errs.APIError)
-	// Apps returns a list of apps running in kubernetes, determined by searching deployments for each namespace.
+	// Overview returns a list of things running in kubernetes, determined by searching deployments for each namespace.
 	// For each namespace, Kubernetes Kinds are searched for the type of application, e.g. Service, DaemonSet, etc.
-	Apps(options AppOptions) (apps []App, apiErr *errs.APIError)
-	// AppOverview returns an list of application overviews with high level info such as pods, services, deployments, etc.
-	AppOverview(options AppOverviewOptions) (ao *AppOverview, apiErr *errs.APIError)
-	// PodDetail returns details for a pod
-	PodDetail(options PodDetailOptions) (po *PodDetail, apiErr *errs.APIError)
-	// PodOverview returns a list of application overview which is a high level detail of an application.
-	PodOverview(options PodOverviewOptions) (po *PodOverview, apiErr *errs.APIError)
+	Overview(options OverviewOptions) (overviews *Overview, apiErr *errs.APIError)
+	// Overviews returns an list of application overviews with high level info such as name & namespace
+	Overviews(options OverviewOptions) (overviews []Overview, apiErr *errs.APIError)
+	// Pod returns the pod found by name or labels.
+	Pod(options PodOptions) (overview *PodOverview, apiErr *errs.APIError)
+	// Pods returns a list of pods given filter options
+	Pods(options PodOptions) (overviews []PodOverview, apiErr *errs.APIError)
+	// Service returns the service found by name or labels.
+	Service(options ServiceOptions) (overview *ServiceOverview, apiErr *errs.APIError)
+	// Services returns a list of services given filter options
+	Services(options ServiceOptions) (overviews []ServiceOverview, apiErr *errs.APIError)
+	// Deployment returns the deployment found by name or labels.
+	Deployment(options DeploymentOptions) (overview *DeploymentOverview, apiErr *errs.APIError)
+	// Deployments returns a list of deployments given filter options
+	Deployments(options DeploymentOptions) (overviews []DeploymentOverview, apiErr *errs.APIError)
+	// DaemonSet returns the daemonset found by name or labels.
+	DaemonSet(options DaemonSetOptions) (overview *DaemonSetOverview, apiErr *errs.APIError)
+	// DaemonSets returns a list of daemonsets given filter options
+	DaemonSets(options DaemonSetOptions) (overviews []DaemonSetOverview, apiErr *errs.APIError)
+	// Job returns the job found by name or labels.
+	Job(options JobOptions) (overview *JobOverview, apiErr *errs.APIError)
+	// Jobs returns a list of jobs given filter options
+	Jobs(options JobOptions) (overviews []JobOverview, apiErr *errs.APIError)
+	// ReplicaSet returns the replicaset found by name or labels.
+	ReplicaSet(options ReplicaSetOptions) (overview *ReplicaSetOverview, apiErr *errs.APIError)
+	// ReplicaSets returns a list of replicasets given filter options
+	ReplicaSets(options ReplicaSetOptions) (overviews []ReplicaSetOverview, apiErr *errs.APIError)
 	// Logs returns a list of all logs for pods
 	Logs(options LogOptions) (logs Log, apiErr *errs.APIError)
 	// ReadLogs returns an io.ReadCloser to live stream logs for a pod
 	ReadLogs(options LogOptions) (rc io.ReadCloser, apiErr *errs.APIError)
-	// ServiceOverviews returns a list of services given filter options
-	ServiceOverviews(options ServiceOptions) (svco []ServiceOverview, apiErr *errs.APIError)
-	// DeploymentOverviews returns a list of deployments given filter options
-	DeploymentOverviews(options DeploymentOptions) (deployments []DeploymentOverview, apiErr *errs.APIError)
-	// ServiceAppInfos returns basic info for all services found for a given namespace.
-	ServiceAppInfos(options ServiceOptions) (info []AppInfo, apiErr *errs.APIError)
-	// DaemonSetOverviews returns a list of daemon sets given filter options
-	DaemonSetOverviews(options DaemonSetOptions) (daemonsets []DaemonSetOverview, apiErr *errs.APIError)
-	// DaemonSetAppInfos returns basic info for all daemon sets found for a given namespace.
-	DaemonSetAppInfos(options DaemonSetOptions) (info []AppInfo, apiErr *errs.APIError)
-	// JobOverviews returns a list of jobs given filter options
-	JobOverviews(options JobOptions) (jobs []JobOverview, apiErr *errs.APIError)
-	// JobAppInfos returns basic info for all jobs found for a given namespace.
-	JobAppInfos(options JobOptions) (info []AppInfo, apiErr *errs.APIError)
-	// ReplicaSetOverviews returns a list of replica sets given filter options
-	ReplicaSetOverviews(options ReplicaSetOptions) (replicasets []ReplicaSetOverview, apiErr *errs.APIError)
-	// ReplicaSetAppInfos returns basic info for all replica sets found for a given namespace.
-	ReplicaSetAppInfos(options ReplicaSetOptions) (info []AppInfo, apiErr *errs.APIError)
 }
 
 // Client is the wrapper for kubernetes go client commands

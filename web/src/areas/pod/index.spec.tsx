@@ -50,10 +50,10 @@ const setup = () => {
     envBody: {
       key: 'value'
     },
-    selectedAppName: 'appname',
+    selectedOverview: 'appname',
     hasLogAccess: true,
     authClient: jest.fn(),
-    setSelectedAppName: jest.fn(),
+    setselectedOverview: jest.fn(),
     getPod: jest.fn(),
     getLogs: jest.fn(),
     toggleLogStream: jest.fn(),

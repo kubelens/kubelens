@@ -54,7 +54,7 @@ jobs:
     docker: 
       - image: circleci/golang:latest
     environment:
-      VERSION: "2.0"
+      VERSION: "3.1"
       GOBIN: /go/bin
     working_directory: /go/src/github.com/kubelens/kubelens
     steps:
@@ -112,7 +112,7 @@ jobs:
     docker: 
       - image: circleci/node:latest
     environment:
-      VERSION: "2.0"
+      VERSION: "3.1"
     steps:
       - checkout
       - setup_remote_docker:

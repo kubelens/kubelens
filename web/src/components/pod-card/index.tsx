@@ -26,7 +26,7 @@ import { Row, Col, Card, CardHeader, CardBody, CardFooter } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import CopyClipboard from '../copy-clipboard';
 import CardText from '../text';
-import { PodInfo } from '../../types/index';
+import { Pod } from '../../types';
 import PodConditions from '../pod-conditions';
 import { PodPhaseStyle } from './util';
 import moment from 'moment';
@@ -34,19 +34,19 @@ import _ from 'lodash';
 import './styles.css';
 
 export type PodCardProps = {
-  name: string,
-  pod: PodInfo
+  podName: string,
+  overview: Pod
 };
 
 const PodCard = (props: PodCardProps) => {
-  const { name, pod } = props;
+  const { podName, overview } = props;
 
   return (
     <Card>
       <CardHeader className="link-card-title text-center">
         <Link
-          to={{ pathname: `/${name}/pods/${pod.name}?namespace=${pod.namespace}` }}>
-          <strong>{pod.name}</strong>
+          to={{ pathname: `/${overview.linkedName}/pods/${podName}?namespace=${overview.namespace}` }}>
+          <strong>{podName}</strong>
         </Link>
       </CardHeader>
 
@@ -55,20 +55,20 @@ const PodCard = (props: PodCardProps) => {
         <small>
           <Row>
             <Col sm={4}>
-              <CardText label="Namespace" value={pod.namespace} />
+              <CardText label="Namespace" value={overview.namespace} />
             </Col>
             <Col sm={4}>
-              <CardText label="Start Time" value={moment(pod.startTime).format('l LTS')} />
+              <CardText label="Start Time" value={moment(overview.pod.startTime).format('l LTS')} />
             </Col>
             <Col sm={4}>
-              <CardText label="Status" value={<img style={{ marginTop: '5px' }} height={25} src={PodPhaseStyle(pod.phase).img} alt="Status" />} />
+              <CardText label="Status" value={<img style={{ marginTop: '5px' }} height={25} src={PodPhaseStyle(overview.pod.status.phase).img} alt="Status" />} />
             </Col>
           </Row>
           <Row >
             <Col sm={12}>
-              <CardText label={pod.images.length > 1 ? "Images" : "Image"} />
-              {pod.images.map(image => {
-                return(<CopyClipboard key={image.containerName} labelText={`${image.name}`} value={image.name} size={16} />)
+              <CardText label={overview.pod.spec.containers.length > 1 ? "Images" : "Image"} />
+              {overview.pod.spec.containers.map(image => {
+                return(<CopyClipboard key={image.image} labelText={`${image.name}`} value={image.name} size={16} />)
               })}
             </Col>
           </Row>
@@ -76,9 +76,9 @@ const PodCard = (props: PodCardProps) => {
       </CardBody>
 
       {/* footer */}
-      {(!_.isEmpty(pod.conditions)) ?
+      {(!_.isEmpty(overview.pod.status.conditions)) ?
         <CardFooter>
-          <PodConditions items={pod.conditions} keyPrefix={pod.name} />
+          <PodConditions items={overview.pod.status.conditions} keyPrefix={overview.name} />
         </CardFooter>
         : null
       }

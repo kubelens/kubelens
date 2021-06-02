@@ -28,13 +28,13 @@ import CopyClipboard from '../../components/copy-clipboard';
 import CardText from '../../components/text';
 import { Button } from 'reactstrap';
 import PodConditions from '../../components/pod-conditions';
-import { PodDetail, Log, Image } from '../../types';
+import { Pod, Log } from '../../types';
 import moment from 'moment';
 import _ from 'lodash';
 import './styles.css';
 
 export type PodPageProps = {
-  podDetail: PodDetail,
+  podDetail: Pod,
   showEnvModal: boolean,
   showSpecModal: boolean,
   showStatusModal: boolean,
@@ -73,13 +73,13 @@ const PodPage = ({
   // is this right? not sure if there would ever be more than 1 container status
   let ready: boolean = false;
   let restartCount: number = 0;
-  let images: Image[] = [];
+  let images: any[] = [];
 
-  if (!_.isEmpty(podDetail) && podDetail.status && !_.isEmpty(podDetail.status.containerStatuses)) {
-    const podDetailStatus = podDetail.status.containerStatuses[0];
+  if (!_.isEmpty(podDetail) && podDetail.pod.status && !_.isEmpty(podDetail.pod.status.containerStatuses)) {
+    const podDetailStatus = podDetail.pod.status.containerStatuses[0];
     ready = podDetailStatus.ready;
     restartCount = podDetailStatus.restartCount;
-    _.forEach(podDetail.status.containerStatuses, cs => {
+    _.forEach(podDetail.pod.spec.containers, cs => {
       images.push({
         name: cs.image,
         containerName: cs.name
@@ -94,7 +94,7 @@ const PodPage = ({
           <Card className="mb-4">
             <CardHeader className="kind-detail-title text-center">
               {podDetail.name}
-              {!_.isEmpty(podDetail.containerNames)
+              {!_.isEmpty(podDetail.pod.spec.containers)
                 ? <span style={{float:'right'}}>Select Container:<Dropdown size="sm" isOpen={containerNameSelectOpen} toggle={toggleContainerNameSelect} className="toggle-container-name-dropdown">
                     <DropdownToggle
                       caret
@@ -108,8 +108,8 @@ const PodPage = ({
                     <DropdownMenu right
                       className="toglge-container-name-menu">
                       {
-                        podDetail.containerNames.map(c => {
-                          return <DropdownItem key={c} onClick={() => setSelectedContainerName(c)}>{c}</DropdownItem>
+                        podDetail.pod.spec.containers.map(c => {
+                          return <DropdownItem key={c.name} onClick={() => setSelectedContainerName(c.name)}>{c.name}</DropdownItem>
                         })
                       }
                     </DropdownMenu>
@@ -124,17 +124,17 @@ const PodPage = ({
                   <Col xs={12} md={9}>
                     <Row>
                       <Col sm={6}>
-                        <CardText label="Start Time:" value={podDetail.status && moment(podDetail.status.startTime).format('ll LTS')} />
+                        <CardText label="Start Time:" value={podDetail.pod.status && moment(podDetail.pod.status.startTime).format('ll LTS')} />
                         <br />
                         <CardText label="Namespace:" value={podDetail.namespace} />
                       </Col>
                       <Col sm={6}>
                         <div className="row">
                           <div className="col-sm-6">
-                            <CardText label="HostIP:" value={podDetail.hostIP} />
+                            <CardText label="HostIP:" value={podDetail.pod.status.hostIP} />
                           </div>
                           <div className="col-sm-6">
-                            <CardText label="PodIP:" value={podDetail.podIP} />
+                            <CardText label="PodIP:" value={podDetail.pod.status.podIP} />
                           </div>
                         </div>
                         <br />
@@ -162,8 +162,7 @@ const PodPage = ({
                     }
                     <br />
                     {envBody && <Button outline color="info" onClick={() => toggleModalType('env')} block>Environment Variables</Button>}
-                    <Button outline color="info" onClick={() => toggleModalType('spec')} block>Pod Spec</Button>
-                    <Button outline color="info" onClick={() => toggleModalType('status')} block>Pod Status</Button>
+                    <Button outline color="info" onClick={() => toggleModalType('spec')} block>Pod Detail</Button>
                   </Col>
                 </Row>
                 <br />
@@ -187,9 +186,9 @@ const PodPage = ({
             </CardBody>
 
             {/* footer */}
-            {(podDetail.status && !_.isEmpty(podDetail.status.conditions)) ?
+            {(podDetail.pod.status && !_.isEmpty(podDetail.pod.status.conditions)) ?
               <CardFooter className="kind-detail-footer text-center">
-                <PodConditions items={podDetail.status && podDetail.status.conditions} keyPrefix={podDetail.name} />
+                <PodConditions items={podDetail.pod.status && podDetail.pod.status.conditions} keyPrefix={podDetail.name} />
               </CardFooter>
               : null
             }
@@ -204,19 +203,11 @@ const PodPage = ({
             }} />
 
           <JsonViewModal
-            title="Pod Spec"
+            title="Pod Detail"
             show={showSpecModal}
-            body={podDetail.spec}
+            body={podDetail.pod}
             handleClose={() => {
               toggleModalType('spec');
-            }} />
-
-          <JsonViewModal
-            title="Pod Status"
-            show={showStatusModal}
-            body={podDetail.status}
-            handleClose={() => {
-              toggleModalType('status');
             }} />
         </div>
         : null

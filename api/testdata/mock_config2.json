@@ -22,23 +22,7 @@
   "oAuthJwtIssuer": "",
   "oAuthAudience": "",
   "enableAuth": true,
-  "enableRBAC": true,
-  "rbacClaim": "",
-  "projectSlugRegex": "",
-  "deployerLink": "https://test-deployer.com",
-  "appNameLabelKeys": [
-    "app",
-    "name"
-  ],
-  "viewerLabelInclusions": [
-    "app"
-  ],
-  "viewerLabelExclusions": [
-    "k8s-app",
-    "component",
-    "run"
-  ],
-  "adminEmails": [],
+  "labelKeyLink": "app",
   "contentSecurityPolicy": "",
   "enableTLS": false,
   "tlsCert": "",

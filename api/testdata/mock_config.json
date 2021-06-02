@@ -23,25 +23,7 @@
   "oAuthAudience": "",
   "oAuthClientID": "",
   "enableAuth": true,
-  "enableRBAC": true,
-  "rbacClaim": "",
-  "projectSlugRegex": "projects-[0-9]+",
-  "deployerLink": "https://test-deployer.com/",
-  "appNameLabelKeys": [
-    "app",
-    "name"
-  ],
-  "viewerLabelInclusions": [
-    "app"
-  ],
-  "viewerLabelExclusions": [
-    "k8s-app",
-    "component",
-    "run"
-  ],
-  "adminEmails": [
-    "test-admin@domain.com"
-  ],
+  "labelKeyLink": "app",
   "contentSecurityPolicy": "",
   "enableTLS": false,
   "tlsCert": "",

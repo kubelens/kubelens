@@ -24,34 +24,38 @@ SOFTWARE.
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter, RouteComponentProps } from 'react-router';
-import { Dropdown, DropdownMenu, DropdownToggle, DropdownItem } from 'reactstrap';
+import { Button } from 'reactstrap';
 import LogoSpinner from '../logo-spinner';
 import logo from '../../assets/kubelens-logo-inverse.png';
 import { IGlobalState } from 'store';
 import config from '../../config';
 import { setSelectedCluster } from '../../actions/cluster';
-import { getApps } from '../../actions/apps';
+import { getOverviews } from '../../actions/overviews';
+import ClusterModal  from '../cluster-modal';
 import _ from 'lodash';
 import './styles.css';
+import { AvailableCluster } from 'types';
 
 export type NavBarState = {
   clusterSelectOpen: boolean,
-  availableClusters: any[]
+  availableClusters: AvailableCluster[],
+  filteredClusters: AvailableCluster[]
 };
 
 export interface NavBarProps extends
   RouteComponentProps {
   isLoading: boolean,
-  selectedCluster: string,
+  selectedCluster: AvailableCluster,
   identityToken: string,
-  setSelectedCluster(cluster: string): void,
-  getApps(cluster: string, jwt: string): void
+  setSelectedCluster(cluster: AvailableCluster): void,
+  getGetOverviews(cluster: string, jwt: string): void
 }
 
 export class NavBar extends Component<NavBarProps, NavBarState> {
   public state: NavBarState = {
     clusterSelectOpen: false,
-    availableClusters: []
+    availableClusters: [],
+    filteredClusters: []
   };
 
   constructor(props) {
@@ -59,14 +63,16 @@ export class NavBar extends Component<NavBarProps, NavBarState> {
 
     this.toggleClusterSelect = this.toggleClusterSelect.bind(this);
     this.setSelectedCluster = this.setSelectedCluster.bind(this);
+    this.onFilterChanged = this.onFilterChanged.bind(this);
   }
 
   async componentDidMount() {
     const cfg = await config();
     this.setState({ availableClusters: cfg.availableClusters });
+    this.setState({ filteredClusters: cfg.availableClusters });
 
     if (!this.props.selectedCluster) {
-      this.props.setSelectedCluster(_.keys(cfg.availableClusters[0])[0]);
+      this.props.setSelectedCluster(cfg.availableClusters[0]);
     }
   }
 
@@ -74,10 +80,19 @@ export class NavBar extends Component<NavBarProps, NavBarState> {
     this.setState({ clusterSelectOpen: !this.state.clusterSelectOpen });
   }
 
-  private async setSelectedCluster(cluster) {
+  private async setSelectedCluster(cluster: AvailableCluster) {
     this.props.setSelectedCluster(cluster);
-    this.props.getApps(cluster, this.props.identityToken);
+    this.props.getGetOverviews(cluster.url, this.props.identityToken);
     this.toggleClusterSelect();
+  }
+
+  private onFilterChanged(event) {
+    const filtered = _.filter(this.state.availableClusters, (cluster: AvailableCluster) => {
+      return cluster.cluster.includes(event.target.value)
+        || cluster.name.includes(event.target.value)
+        || cluster.url.includes(event.target.value);
+    });
+    this.setState({ filteredClusters: filtered });
   }
 
   public render() {
@@ -90,27 +105,15 @@ export class NavBar extends Component<NavBarProps, NavBarState> {
           }
         </a>
         <div id="navbar-right">
-          <Dropdown isOpen={this.state.clusterSelectOpen} toggle={this.toggleClusterSelect} className="toggle-cluster-dropdown">
-            <DropdownToggle
-              caret
-              tag="span"
-              onClick={this.toggleClusterSelect}
-              data-toggle="dropdown"
-              aria-expanded={this.state.clusterSelectOpen}
-              className="toggle-cluster" >
-              {this.props.selectedCluster}
-            </DropdownToggle>
-            <DropdownMenu
-              className="toglge-cluster-menu">
-              {
-                this.state.availableClusters.map(c => {
-                  let info = _.keys(c)
-                  return <DropdownItem key={info[0]} onClick={() => this.setSelectedCluster(info[0])}>{info[0]}</DropdownItem>
-                })
-              }
-            </DropdownMenu>
-          </Dropdown>
+          <Button style={{marginTop: "10px"}} color="info" onClick={() => this.toggleClusterSelect()} block>{this.props.selectedCluster && this.props.selectedCluster.name || 'Select Cluster'}</Button>
         </div>
+
+        <ClusterModal
+          handleClose={this.toggleClusterSelect}
+          onSelect={this.setSelectedCluster}
+          onFilterChanged={this.onFilterChanged}
+          open={this.state.clusterSelectOpen}
+          availableClusters={this.state.filteredClusters} />
       </div>
     );
   }
@@ -126,8 +129,8 @@ export const mapStateToProps = ({ loadingState, clustersState, authState }: IGlo
 
 export const mapActionsToProps = (dispatch) => {
   return {
-    setSelectedCluster: (cluster: string) => dispatch(setSelectedCluster(cluster)),
-    getApps: (cluster: string, jwt: string) => dispatch(getApps(cluster, jwt))
+    setSelectedCluster: (cluster: AvailableCluster) => dispatch(setSelectedCluster(cluster)),
+    getGetOverviews: (cluster: string, jwt: string) => dispatch(getOverviews(cluster, jwt))
   };
 };
 

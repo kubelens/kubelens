@@ -9,12 +9,12 @@ const setup = () => {
   const props = {
     cluster: 'minikube',
     identityToken: 'token',
-    selectedAppName: 'appname',
+    selectedOverview: 'appname',
     filteredApps: [{name: 'appname'}],
     apps: [{name: 'appname'}],
     getApps: jest.fn(),
     getAppOverview: jest.fn(),
-    setSelectedAppName: jest.fn(),
+    setselectedOverview: jest.fn(),
     filterApps: jest.fn(),
     error: {
       apiOpen: false

@@ -1,11 +1,11 @@
 package k8sv1
 
 import (
+	"context"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetLogsDefault(t *testing.T) {
@@ -14,18 +14,17 @@ func TestGetLogsDefault(t *testing.T) {
 
 	c := setupClient(ns, n, false, false)
 
-	p := func() {
-		c.Logs(LogOptions{
-			UserRole:  &rbacfakes.RoleAssignment{},
-			Logger:    &logfakes.Logger{},
-			Namespace: ns,
-			PodName:   n,
-			Tail:      100,
-			Follow:    false,
-		})
-	}
+	lgs, err := c.Logs(LogOptions{
+		Logger:    &logfakes.Logger{},
+		Namespace: ns,
+		PodName:   n,
+		Tail:      100,
+		Follow:    false,
+		Context:   context.Background(),
+	})
 
-	assert.Panics(t, p)
+	assert.Nil(t, err)
+	assert.NotNil(t, lgs)
 }
 
 func TestGetLogsMissingName(t *testing.T) {
@@ -35,12 +34,12 @@ func TestGetLogsMissingName(t *testing.T) {
 	c := setupClient(ns, n, false, false)
 
 	_, err := c.Logs(LogOptions{
-		UserRole:  &rbacfakes.RoleAssignment{},
 		Logger:    &logfakes.Logger{},
 		Namespace: ns,
 		PodName:   "",
 		Tail:      100,
 		Follow:    false,
+		Context:   context.Background(),
 	})
 
 	assert.Equal(t, "\nBad Request: podname must be provided when getting logs\n", err.Message)
@@ -54,12 +53,12 @@ func TestGetLogsMissingNamespace(t *testing.T) {
 	c := setupClient(ns, n, false, false)
 
 	_, err := c.Logs(LogOptions{
-		UserRole:  &rbacfakes.RoleAssignment{},
 		Logger:    &logfakes.Logger{},
 		Namespace: "",
 		PodName:   n,
 		Tail:      100,
 		Follow:    false,
+		Context:   context.Background(),
 	})
 
 	assert.Equal(t, "\nBad Request: namespace must be provided when getting logs\n", err.Message)
@@ -73,33 +72,14 @@ func TestGetLogsClientError(t *testing.T) {
 	c := setupClient(ns, n, true, false)
 
 	_, err := c.Logs(LogOptions{
-		UserRole:  &rbacfakes.RoleAssignment{},
 		Logger:    &logfakes.Logger{},
 		Namespace: ns,
 		PodName:   "test-123",
 		Tail:      100,
 		Follow:    false,
+		Context:   context.Background(),
 	})
 
 	assert.Equal(t, "\nInternal Server Error: GetClientSet Test Error\n", err.Message)
 	assert.Equal(t, 500, err.Code)
 }
-
-// func TestGetLogsGetListError(t *testing.T) {
-// 	ns := "fake"
-// 	n := "test"
-
-// 	c := setupClient(ns, n, false, true)
-
-// 	_, err := c.Logs(LogOptions{
-// 		UserRole:  &rbacfakes.RoleAssignment{},
-// 		Logger:    &logfakes.Logger{},
-// 		Namespace: ns,
-// 		PodName:   "test-123",
-// 		Tail:      100,
-// 		Follow:    false,
-// 	})
-
-// 	assert.Equal(t, "\nInternal Server Error: GetClientSet Test Error\n", err.Message)
-// 	assert.Equal(t, 500, err.Code)
-// }

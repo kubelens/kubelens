@@ -6,8 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	rbacfakes "github.com/kubelens/kubelens/api/auth/fakes"
-	"github.com/kubelens/kubelens/api/auth/rbac"
 	k8sv1 "github.com/kubelens/kubelens/api/k8sv1"
 	klog "github.com/kubelens/kubelens/api/log"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"
@@ -21,9 +19,6 @@ func TestGetServicesDefault(t *testing.T) {
 
 	dctx := klog.NewContext(req.Context(), "", &logfakes.Logger{})
 	req = req.WithContext(dctx)
-
-	ctx := rbac.NewContext(req.Context(), rbacfakes.RoleAssignment{})
-	req = req.WithContext(ctx)
 
 	h.Services(w, req)
 
@@ -41,7 +36,7 @@ func TestGetServicesDefault(t *testing.T) {
 		return
 	}
 	assert.Equal(t, 200, resp.StatusCode)
-	assert.Equal(t, "service-name", b[0].Name)
+	assert.Equal(t, "-service", b[0].Name)
 }
 
 func TestGetServicesError(t *testing.T) {
@@ -51,9 +46,6 @@ func TestGetServicesError(t *testing.T) {
 
 	dctx := klog.NewContext(req.Context(), "", &logfakes.Logger{})
 	req = req.WithContext(dctx)
-
-	ctx := rbac.NewContext(req.Context(), rbacfakes.RoleAssignment{})
-	req = req.WithContext(ctx)
 
 	h.Services(w, req)
 

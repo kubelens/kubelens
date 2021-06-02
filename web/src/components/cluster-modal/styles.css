@@ -1,0 +1,16 @@
+.link-card-contianer {
+  border: 1px solid #3e3e3e;
+  color: #3e3e3e;
+  /* background-color: '#FCFCFC'; */
+}
+
+.link-card-title,
+.link-card-title > a {
+  /* background-color: #EAEBE1; */
+  background-color: #3498DB;
+  color: white;
+}
+
+.cluster-modal-backdrop {
+  background-color: #f0f0f0;
+}

@@ -5,7 +5,7 @@
 Giving software engineers a quick view into applications running within [Kubernetes](https://kubernetes.io/).
 
 - Fully functional and has been running in multiple K8s clusters in an enterprise production environment since mid-spring 2019.
-- Security focused. Authentication & Authorization flows can easily be configured at different levels if desired. See the [Configuration](https://github.com/kubelens/kubelens/blob/staging/.github/README.md#configuration) setion for options.
+- Security focused. Authentication flow can easily be configured if desired. See the [Configuration](https://github.com/kubelens/kubelens/blob/staging/.github/README.md#configuration) setion for options.
 - Intended to be generic and highly configurable to fit any organizations needs. If you find something isn't flexible enough, let's fix it for everyone. 
 
 [API Docker Images](https://hub.docker.com/repository/docker/kubelens/kubelens-api)
@@ -38,7 +38,9 @@ More features to come. Any help/contributions/feedback is very much appreciated!
 
 ## Screenshots
 
-![Selected Application](application-detail.png)
+![Select Cluster](cluster-select.png)
+
+![Selected Overview](overview.png)
 
 ![Pod Detail & Logs](pod-detail.png)
 
@@ -64,17 +66,7 @@ __NOTE:__ Any new clusters will need to be added to the `allowedOrigins` & `allo
 
 - `allowedHeaders` - (Required) The allowed list of headers from a client. Defaults are commonly used headers and those sent from the UI.
 
-- `appNameLabelKeys` (Optional) This will allow generation of "friendly" application names based on the label key(s) provided. Examples: Given a value of \["app"\], the name of the object will be the value of the label "app" the vs the actual name of the object. This can be useful for applications that have auto-generated names for length requirements.
-
-- `viewerLabelInclusions` (Optional) __Used when `enableRBAC` is true__ The allowed list of labels to match on K8s objects. Examples: Given a value of "app=team-unique-app1" will only return objects matching exact. This also supports "like" values, e.g. given 2 values "team-unique-app1", "team-unique-app2", a value of "app=team*" will return a match for both. If this is empty, all objects will be returned.
-
-- `viewerLabelExclusions` (Optional) __Used when `enableRBAC` is true__ The list of labels to always exclude when matching labels on K8s objects.
-
-- `adminEmails` (Optional) __Used when `enableRBAC` is true__ The list of administator/operators emails. When present, the `viewerLabelInclusions` & `viewerLabelExclusions` are ignored. This can change in the future as RBAC is simplified.
-
-- `projectSlugRegex` - (Optional) This can be used to add the project URI stem for `deployerLink` URL.
-
-- `deployerLink` - (Optional) This can be set to the link to the application that deploys applications to K8s. If `projectSlugRegx` is set, it will be appened to the end of the `deployerLink`.
+- `labelKeyLink` (Required) This is a required label for any object to be returned. A value of "app" would indicate that all related objects would have the label "app=SOME_NAME", which allows the API to find any related object.
 
 - `contentSecurityPolicy` - (Optional) See https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP for details.
 
@@ -88,10 +80,6 @@ __NOTE:__ Any new clusters will need to be added to the `allowedOrigins` & `allo
 
 - `enableAuth` - (Optional) Enables authentication of requests, basically just validation of the JWT presented.
 
-- `enableRBAC` - (Optional) Enables the Role-Based Access Control for the API. With this enabled, requests will be authorized based on rules set by `rbacClaim`, `defaultSearchLabels`, `viewerLabelInclusions`, `viewerLabelExclusions`, & `adminEmails`.
-
-- `rbacClaim` - (Optional) The name of the JWT claim to use for authorization if used. This would be set within the authorization server for custom claims.
-
 - `oAuthJwk` - (Optional) The .well-known URL of the OAuth authorization server to validate a JSON Web Key. Used with "generic" OAuth validation.
 
 - `oAuthJwtIssuer` - (Optional) __Required If `enableAuth` is true__. The URL of the OAuth server. If "okta" is in the URL, the [Okta Golang JWT Verifier](https://github.com/okta/okta-jwt-verifier-golang) is used. Example: `"https://YOUR_DOMAIN.oktapreview.com/oauth2/YOUR_TENANT"`
@@ -103,8 +91,6 @@ __NOTE:__ Any new clusters will need to be added to the `allowedOrigins` & `allo
 ### Web/UI config.json
 
 - `availableClusters` - (Required) These are the allowed FQDNs for all API instances that are displayed in a dropdown within the UI. The object key is the display name, and the value is the server it will connect to. These will typically be the Ingress hosts for all instances configured to be connected to. Format: `[{ "Display Name": "Cluster specific kubelens-api instance" }]`
-
-- `deployerLinkName` - (Optional) - The friendly name to display if the deployer link is returned from the API.
 
 #### Auth Settings
 

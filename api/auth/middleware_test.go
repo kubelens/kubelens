@@ -273,27 +273,3 @@ func TestOktaAuthorization(t *testing.T) {
 
 	assert.NotNil(t, err)
 }
-
-func TestGetOktaRolesViewers(t *testing.T) {
-	a0Reset()
-
-	r := getOktaRoles("random@domain.com")
-
-	assert.True(t, r.Viewers)
-	assert.False(t, r.Operators)
-
-	assert.EqualValues(t, r.MatchLabels, config.C.ViewerLabelInclusions)
-	assert.EqualValues(t, r.Exclusions, config.C.ViewerLabelExclusions)
-}
-
-func TestGetOktaRolesOperators(t *testing.T) {
-	a0Reset()
-
-	r := getOktaRoles("test-admin@domain.com")
-
-	assert.True(t, r.Viewers)
-	assert.True(t, r.Operators)
-
-	assert.Empty(t, r.Exclusions)
-	assert.Empty(t, r.MatchLabels)
-}
