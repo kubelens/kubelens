@@ -8,7 +8,7 @@
     "@types/node": "^12.12.34",
     "@types/react": "16.8.23",
     "@types/react-dom": "16.8.4",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "connected-react-router": "^6.8.0",
     "history": "^4.10.1",
     "jwt-decode": "^2.2.0",
