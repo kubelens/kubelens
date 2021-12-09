@@ -31,7 +31,7 @@ import (
 	"strings"
 	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	jwt "github.com/golang-jwt/jwt/v4"
 	jwtverifier "github.com/okta/okta-jwt-verifier-golang"
 
 	"github.com/kubelens/kubelens/api/config"
