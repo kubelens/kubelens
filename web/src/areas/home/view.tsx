@@ -39,7 +39,7 @@ export type HomeViewProps =
     appName?: string
   }>> & {
     onFilterChanged: Function,
-    onViewApp(appname: string, namespace: string, labelSelector: string),
+    onViewApp(appname: string, namespace: string),
     filteredOverviews: Overview[],
     selectedOverview: SelectedOverview
   }
@@ -69,7 +69,6 @@ const HomePage = (props: HomeViewProps) => {
                   itemRenderer={(index, key) => {
                     return (
                       <OverviewCard 
-                        key={key}
                         overview={filteredOverviews[index]}
                         index={index}
                         selectedOverview={selectedOverview}

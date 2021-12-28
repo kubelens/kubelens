@@ -27,7 +27,8 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "useUnknownInCatchVariables": false,
   },
   "exclude": [
     "node_modules",
