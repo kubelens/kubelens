@@ -21,7 +21,7 @@ WORKDIR $GOPATH/src/github.com/kubelens/kubelens/api
 COPY . .
 # Fetch dependencies.
 # Using go get.
-RUN go get -d -v
+# RUN go get -d -v
 
 # Build the binary.
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o /go/bin/kubelens-api
