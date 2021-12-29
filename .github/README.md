@@ -1,6 +1,8 @@
 # Kubelens
 
-[![CircleCI](https://circleci.com/gh/kubelens/kubelens/tree/master.svg?style=svg)](https://circleci.com/gh/kubelens/kubelens/tree/master)
+[![api](https://github.com/kubelens/kubelens/actions/workflows/api.yml/badge.svg)](https://github.com/kubelens/kubelens/actions/workflows/api.yml)
+
+[![web](https://github.com/kubelens/kubelens/actions/workflows/web.yml/badge.svg)](https://github.com/kubelens/kubelens/actions/workflows/web.yml)
 
 Giving software engineers a quick view into applications running within [Kubernetes](https://kubernetes.io/).
 

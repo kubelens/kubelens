@@ -7,19 +7,20 @@ Enzyme.configure({ adapter: new Adapter() })
 
 const setup = () => {
   const props = {
-    podOverview: {
+    podOverviews: [{
       name: 'name',
+      linkedName: 'name',
       namespace: 'namespace',
-      clusterName: 'clustername',
-      deployerLink: 'link',
-      pods: [{
+      pod: {
         name: 'podname',
         namespace: 'namespace',
         hostIP: 'hostip',
         podIP: 'podip',
         startTime: '2020-04-18T13:52:39Z',
-        phase: 'running',
-        phaseMessage: 'started',
+        status: {
+          phase: 'running',
+          phaseMessage: 'started'
+        },
         images: [{
           name: 'imgname',
           containerName: 'container'
@@ -27,8 +28,8 @@ const setup = () => {
         conditions: [{
           name: 'testcondition'
         }]
-      }]
-    }
+      }
+    }]
   }
 
   const wrapper = shallow(<PodViewPage {...props} />)

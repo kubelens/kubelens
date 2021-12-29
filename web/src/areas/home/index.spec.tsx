@@ -10,7 +10,7 @@ const setup = () => {
     cluster: 'minikube',
     identityToken: 'token',
     selectedOverview: 'appname',
-    filteredApps: [{name: 'appname'}],
+    filteredOverviews: [{name: 'appname'}],
     apps: [{name: 'appname'}],
     getApps: jest.fn(),
     getAppOverview: jest.fn(),
@@ -24,7 +24,11 @@ const setup = () => {
       params: {
         appName: 'appname'
       }
-    }
+    },
+    location: {
+      search: ''
+    },
+    getOverviews: () => {}
   }
 
   const wrapper = shallow(<Home {...props} />)

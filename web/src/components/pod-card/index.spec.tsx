@@ -7,22 +7,47 @@ Enzyme.configure({ adapter: new Adapter() })
 
 const setup = () => {
   const props = {
-    name: 'name',
-    pod: {
-      name: 'podname',
+    podName: 'podname',
+    overview: {
+      name: 'name',
+      linkedName: 'name',
       namespace: 'namespace',
-      hostIP: 'hostip',
-      podIP: 'podip',
-      startTime: '2020-04-18T13:52:39Z',
-      phase: 'running',
-      phaseMessage: 'started',
-      images: [{
-        name: 'imgname',
-        containerName: 'container'
-      }],
-      conditions: [{
-        name: 'testcondition'
-      }]
+      pod: {
+        name: 'podname',
+        namespace: 'namespace',
+        hostIP: 'hostip',
+        podIP: 'podip',
+        startTime: '2020-04-18T13:52:39Z',
+        phase: 'running',
+        phaseMessage: 'started',
+        containerStatus: [{
+          image: 'image',
+          name: 'name',
+          restartCount: 0,
+          ready: true
+        }],
+        status: {
+          containerStatuses: [],
+          conditions: [{
+            type: 'PENDING',
+            status: 'pending',
+            lastTransitionTime: '2020-04-18T13:52:39Z'
+          }],
+          startTime: '2020-04-18T13:52:39Z',
+          phase: 'running'
+        },
+        spec: {
+          containers: [{
+            env: {
+              key: 'value'
+            }
+          }]
+        },
+        containerNames: [
+          "container1",
+          "container2"
+        ]
+      }
     }
   }
 

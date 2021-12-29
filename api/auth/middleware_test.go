@@ -9,7 +9,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	jwt "github.com/golang-jwt/jwt/v4"
 	"github.com/kubelens/kubelens/api/config"
 	klog "github.com/kubelens/kubelens/api/log"
 	logfakes "github.com/kubelens/kubelens/api/log/fakes"

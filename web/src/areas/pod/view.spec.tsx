@@ -8,42 +8,48 @@ Enzyme.configure({ adapter: new Adapter() })
 const setup = () => {
   const props = {
     podDetail: {
-      name: 'podname',
+      name: 'name',
+      linkedName: 'name',
       namespace: 'namespace',
-      hostIP: 'hostip',
-      podIP: 'podip',
-      startTime: '2020-04-18T13:52:39Z',
-      phase: 'running',
-      phaseMessage: 'started',
-      containerStatus: [{
-        image: 'image',
-        name: 'name',
-        restartCount: 0,
-        ready: true
-      }],
-      status: {
-        containerStatuses: [],
-        conditions: [{
-          name: 'somecondition'
-        }],
+      pod: {
+        name: 'podname',
+        namespace: 'namespace',
+        hostIP: 'hostip',
+        podIP: 'podip',
         startTime: '2020-04-18T13:52:39Z',
-        phase: 'running'
-      },
-      spec: {
-        containers: [{
-          env: {
-            key: 'value'
-          }
-        }]
-      },
-      containerNames: [
-        "container1",
-        "container2"
-      ]
+        phase: 'running',
+        phaseMessage: 'started',
+        containerStatus: [{
+          image: 'image',
+          name: 'name',
+          restartCount: 0,
+          ready: true
+        }],
+        status: {
+          containerStatuses: [],
+          conditions: [{
+            type: 'PENDING',
+            status: 'pending',
+            lastTransitionTime: '2020-04-18T13:52:39Z'
+          }],
+          startTime: '2020-04-18T13:52:39Z',
+          phase: 'running'
+        },
+        spec: {
+          containers: [{
+            env: {
+              key: 'value'
+            }
+          }]
+        },
+        containerNames: [
+          "container1",
+          "container2"
+        ]
+      }
     },
-    showEnvModal: false,
-    showSpecModal: false,
-    showStatusModal: false,
+    showEnvModal: true,
+    showSpecModal: true,
     toggleModalType: jest.fn(),
     logs: {
       pod: 'podname',
@@ -102,22 +108,10 @@ describe('pod view should', () => {
     expect(wrapper.findWhere(n => n.prop('label') === 'Image').length).toBe(1);
   })
 
-  test('have Environment Variables button displayed', () => {
+  test('have Pod Detail button displayed', () => {
     const { wrapper } = setup();
 
-    expect(wrapper.find('Button').findWhere(n => n.text() === 'Environment Variables').length).toBe(1);
-  })
-
-  test('have Pod Spec button displayed', () => {
-    const { wrapper } = setup();
-
-    expect(wrapper.find('Button').findWhere(n => n.text() === 'Pod Spec').length).toBe(1);
-  })
-
-  test('have Pod Status button displayed', () => {
-    const { wrapper } = setup();
-
-    expect(wrapper.find('Button').findWhere(n => n.text() === 'Pod Status').length).toBe(1);
+    expect(wrapper.find('Button').findWhere(n => n.text() === 'Pod Detail').length).toBe(1);
   })
 
   test('have Stream Logs button displayed when "streamEnabled" is false', () => {
@@ -135,6 +129,6 @@ describe('pod view should', () => {
   test('have JsonViewModals defined', () => {
     const { wrapper } = setup();
 
-    expect(wrapper.find('JsonViewModal').length).toBe(3);
+    expect(wrapper.find('JsonViewModal').length).toBe(2);
   })
 })

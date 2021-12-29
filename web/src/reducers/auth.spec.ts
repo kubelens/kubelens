@@ -21,4 +21,4 @@ describe('auth reducer', () => {
       identityToken: 'new token'
     })
   })
-})
+}) 

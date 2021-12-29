@@ -1,6 +1,13 @@
 import { reducer, INITIAL_STATE } from './pods';
 import { PodActionTypes } from '../actions/pods';
 
+const pod = {
+  name: 'name',
+  linkedName: 'name',
+  namespace: 'namespace',
+  pod: {}
+};
+
 describe('pods reducer', () => {
   it('should return the initial state', () => {
     expect(reducer(INITIAL_STATE, {
@@ -12,86 +19,23 @@ describe('pods reducer', () => {
     expect(
       reducer(INITIAL_STATE, {
         type: PodActionTypes.GET_POD,
-        pod: {
-          name: "name",
-          namespace: "namespace",
-          hostIP: "hostip",
-          podIP: "podip",
-          startTime: "starttime",
-          phase: {},
-          phaseMessage: 'phasemessage',
-          containerStatus: [],
-          status: {
-            containerStatuses: [],
-            conditions: [],
-            startTime: "",
-            phase: ""
-          },
-          spec: {
-            containers: [{
-              env: {}
-            }]
-          },
-          containerNames: []
-        }
+        podOverview: pod
       })
     ).toEqual({
-      pod: {
-        name: "name",
-        namespace: "namespace",
-        hostIP: "hostip",
-        podIP: "podip",
-        startTime: "starttime",
-        phase: {},
-        phaseMessage: 'phasemessage',
-        containerStatus: [],
-        status: {
-          containerStatuses: [],
-          conditions: [],
-          startTime: "",
-          phase: ""
-        },
-        spec: {
-          containers: [{
-            env: {}
-          }]
-        },
-        containerNames: []
-      }
+      podOverview: pod
     })
   })
 
   it('should handle CLEAR_POD', () => {
     expect(
       reducer({
-        pod: {
-          name: "name",
-          namespace: "namespace",
-          hostIP: "hostip",
-          podIP: "podip",
-          startTime: "starttime",
-          phase: {},
-          phaseMessage: 'phasemessage',
-          containerStatus: [],
-          status: {
-            containerStatuses: [],
-            conditions: [],
-            startTime: "",
-            phase: ""
-          },
-          spec: {
-            containers: [{
-              env: {}
-            }]
-          },
-          containerNames: []
-        }
+        podOverview: pod
       }, {
         type: PodActionTypes.CLEAR_POD,
-        pod: null
+        podOverview: pod
       })
     ).toEqual({
-      pod: null
+      podOverview: pod
     })
   })
 

@@ -1,5 +1,5 @@
 import { queryStringify, setStateSession, getStateSession, removeStateSession, parseState, getRedirectUri } from './utils';
-jest.mock('uuid/v4', () => () => '3f56b96a-46e9-4d3a-9b15-898b04350a29');
+jest.mock('uuid', () => { return { v4: () => '3f56b96a-46e9-4d3a-9b15-898b04350a29'}});
 
 describe('utils', () => {
   beforeEach(() => {
@@ -53,7 +53,7 @@ describe('utils', () => {
   });
   describe('setStateSession', () => {
     it('sets session and returns key', () => {
-      const uuid = require('uuid/v4');
+      const { v4: uuid } = require('uuid');
       const path = '/path/12345';
       expect(setStateSession(path)).toBe(uuid());
     })

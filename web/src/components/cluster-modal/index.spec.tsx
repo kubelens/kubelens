@@ -11,7 +11,8 @@ const setup = () => {
     open: true,
     status: 401,
     statusText: 'unauthorized',
-    message: 'another message'
+    message: 'another message',
+    availableClusters: [{name:'name',cluster:'cluster'}]
   }
 
   const wrapper = shallow(<ErrorModal {...props} />)
