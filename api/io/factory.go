@@ -2,7 +2,6 @@ package io
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -83,8 +82,6 @@ func (f *Factory) Register(k8Client k8sv1.Clienter, w http.ResponseWriter, r *ht
 	// "/io/{pod}/logs?namespace=ns" = []string{"", "io", "pod", "logs"}
 	p := strings.Split(r.URL.Path, "/")
 	ns := r.URL.Query().Get("namespace")
-
-	fmt.Printf("\nLOG STREAM:\nURL: %s\n\n", r.URL)
 
 	if len(ns) == 0 {
 		l.Error(`WebSocket Validation Error : Query string param "namespace" must be provided.`)
