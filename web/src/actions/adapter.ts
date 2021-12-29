@@ -23,7 +23,6 @@ SOFTWARE.
 */
 import axios, { AxiosResponse } from 'axios';
 import config from '../config';
-import _ from 'lodash';
 
 interface RequestConfig {
   headers: {}
@@ -50,7 +49,7 @@ const get = async (path: string, cluster: string, jwt: string): Promise<AxiosRes
     const rc = buildRequestConfig(cfg.oAuthRequestType, jwt, {});
 
     // add trailing slash if missing
-    if (cluster.charAt(cluster.length - 1) != '/') {
+    if (cluster.charAt(cluster.length - 1) !== '/') {
       cluster += '/';
     }
 
@@ -60,6 +59,8 @@ const get = async (path: string, cluster: string, jwt: string): Promise<AxiosRes
   }
 };
 
-export default {
+const adapter = {
   get
 }
+
+export default adapter;

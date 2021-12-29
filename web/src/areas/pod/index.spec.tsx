@@ -1,7 +1,7 @@
 import React from 'react'
 import Enzyme, { shallow } from 'enzyme'
 import Adapter from 'enzyme-adapter-react-16'
-import { Pod } from '.'
+import { PodView } from '.'
 
 Enzyme.configure({ adapter: new Adapter() })
 
@@ -70,7 +70,7 @@ const setup = () => {
     }
   }
 
-  const wrapper = shallow(<Pod {...props} />)
+  const wrapper = shallow(<PodView {...props} />)
 
   return {
     props,
@@ -78,7 +78,7 @@ const setup = () => {
   }
 }
 
-describe('overview should', () => {
+describe('pod overview should', () => {
   test('render', () => {
     const { wrapper } = setup();
 

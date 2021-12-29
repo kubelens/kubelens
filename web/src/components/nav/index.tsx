@@ -105,7 +105,7 @@ export class NavBar extends Component<NavBarProps, NavBarState> {
           }
         </a>
         <div id="navbar-right">
-          <Button style={{marginTop: "10px"}} color="info" onClick={() => this.toggleClusterSelect()} block>{this.props.selectedCluster && this.props.selectedCluster.name || 'Select Cluster'}</Button>
+          <Button style={{marginTop: "10px"}} color="info" onClick={() => this.toggleClusterSelect()} block>{this.props.selectedCluster ? this.props.selectedCluster.name : 'Select Cluster'}</Button>
         </div>
 
         <ClusterModal

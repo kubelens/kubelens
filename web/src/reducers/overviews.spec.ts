@@ -1,106 +1,87 @@
-import { reducer, INITIAL_STATE } from './apps';
-import { AppsActionTypes } from '../actions/apps';
+import { reducer, INITIAL_STATE } from './overviews';
+import { OverviewActionTypes } from '../actions/overviews';
 
-describe('apps reducer', () => {
+const ov = {
+  linkedName: 'name',
+  namespace: 'namespace',
+  pods: [],
+  services: [],
+  daemonSets: [],
+  jobs: [],
+  deployments: [],
+  configMaps: [],
+  replicaSets: []
+};
+
+const sn = {
+  linkedName: 'name',
+  namespace: 'namespace'
+};
+
+describe('overviews reducer', () => {
   it('should return the initial state', () => {
     expect(reducer(INITIAL_STATE, {type: undefined})).toEqual({})
   })
 
-  it('should handle GET_APP_OVERVIEW with default initial state', () => {
+  it('should handle GET_OVERVIEW with default initial state', () => {
     expect(
       reducer(INITIAL_STATE, {
-        type: AppsActionTypes.GET_APP_OVERVIEW,
-        appOverview: [{
-          podOverviews: [],
-          serviceOvervies: [],
-          daemonSetOverviews: []
-        }]
+        type: OverviewActionTypes.GET_OVERVIEW,
+        overview: ov
       })
     ).toEqual({
-      appOverview: [{
-        podOverviews: [],
-        serviceOvervies: [],
-        daemonSetOverviews: []
-      }]
+      overview: ov
     })
   })
 
-  it('should handle GET_APP_OVERVIEW with initial state poplulated', () => {
+  it('should handle GET_OVERVIEWS with initial state poplulated', () => {
     expect(
       reducer({
-        selectedOverview: 'appname',
-        filteredApps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}],
-        apps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}]
+        overviews: [ov]
       }, {
-        type: AppsActionTypes.GET_APP_OVERVIEW,
-        appOverview: [{
-          podOverviews: [],
-          serviceOvervies: [],
-          daemonSetOverviews: []
-        }]
+        type: OverviewActionTypes.GET_OVERVIEWS,
+        overviews: [ov]
       })
     ).toEqual({
-      selectedOverview: 'appname',
-      filteredApps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}],
-      apps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}],
-      appOverview: [{
-        podOverviews: [],
-        serviceOvervies: [],
-        daemonSetOverviews: []
-      }]
+      filteredOverviews: [ov],
+      overviews: [ov]
     })
   })
 
-  it('should handle GET_APPS with default initial state', () => {
+  it('should handle GET_OVERVIEWS with default initial state', () => {
     expect(
       reducer(INITIAL_STATE, {
-        type: AppsActionTypes.GET_APPS,
-        apps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}]
+        type: OverviewActionTypes.GET_OVERVIEWS,
+        overviews: [ov]
       })
     ).toEqual({
-      apps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}],
-      filteredApps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}]
+      overviews: [ov],
+      filteredOverviews: [ov]
     })
   })
 
-  it('should handle GET_APPS with initial state poplulated', () => {
-    expect(
-      reducer({
-        selectedOverview: 'appname',
-        filteredApps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}]
-      }, {
-        type: AppsActionTypes.GET_APPS,
-        apps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}]
-      })
-    ).toEqual({
-      selectedOverview: 'appname',
-      filteredApps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}],
-      apps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}]
-    })
-  })
-
-  it('should handle FILTER_APPS with default initial state', () => {
+  it('should handle FILTER_OVERVIEWS with default initial state', () => {
     expect(
       reducer(INITIAL_STATE, {
-        type: AppsActionTypes.FILTER_APPS,
-        filteredApps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}]
+        type: OverviewActionTypes.FILTER_OVERVIEWS,
+        filteredOverviews: [ov]
       })
     ).toEqual({
-      filteredApps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}]
+      filteredOverviews: [ov]
     })
   })
 
-  it('should handle FILTER_APPS with initial state poplulated', () => {
+  it('should handle FILTER_OVERVIEWS with initial state poplulated', () => {
     expect(
       reducer({
-        selectedOverview: 'appname'
+        selectedOverview: sn
       }, {
-        type: AppsActionTypes.FILTER_APPS,
-        filteredApps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}]
+        type: OverviewActionTypes.FILTER_OVERVIEWS,
+        filteredOverviews: [ov]
       })
     ).toEqual({
-      selectedOverview: 'appname',
-      filteredApps: [{name: 'name', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}]
+      selectedOverview: sn,
+      filteredOverviews: [ov]
     })
   })
 })

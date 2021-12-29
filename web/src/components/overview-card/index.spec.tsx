@@ -1,7 +1,7 @@
 import React from 'react'
 import Enzyme, { shallow } from 'enzyme'
 import Adapter from 'enzyme-adapter-react-16'
-import AppCard from './'
+import OverviewCard from './'
 
 Enzyme.configure({ adapter: new Adapter() })
 
@@ -13,11 +13,11 @@ const setup = () => {
       }
     },
     onViewApp: jest.fn(),
-    app: {name: 'name1', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'},
+    overview: {linkedName: 'name1', namespace: 'namespace'},
     selectedOverview: 'appname'
   }
 
-  const wrapper = shallow(<AppCard {...props} />)
+  const wrapper = shallow(<OverviewCard {...props} />)
 
   return {
     props,

@@ -14,7 +14,7 @@ const setup = () => {
     },
     onFilterChanged: jest.fn(),
     onViewApp: jest.fn(),
-    filteredApps: [
+    filteredOverviews: [
       {name: 'name1', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'},
       {name: 'name2', namespace: 'namespace', labelSelector: 'labelSelector', kind: 'kind'}
     ],

@@ -1,7 +1,7 @@
 import moxios from 'moxios';
 import sinon from 'sinon';
 import adapter from './adapter';
-import { equal } from 'assert';
+import { deepEqual, fail } from 'assert';
 
 beforeEach(function () {
   // import and pass your custom axios instance to this method
@@ -13,11 +13,11 @@ afterEach(function () {
   moxios.uninstall()
 })
 
-describe('apps should', () => { 
-  test('getAppOverview', async (done) => {
+describe('overviews should', () => { 
+  test('getOverview', async () => {
     moxios.withMock(function () {
       let onFulfilled = sinon.spy()
-      adapter.get("apps", "minikube", "").then(onFulfilled);
+      adapter.get("overviews", "minikube", "").then(onFulfilled);
 
       moxios.wait(function () { 
         let request = moxios.requests.mostRecent()
@@ -27,9 +27,10 @@ describe('apps should', () => {
             name: 'app1'
           }]
         }).then(function () {
-          equal(onFulfilled.called, true)
-          equal(onFulfilled.getCall(0).args[0].data[0].name, "app1")
-          done()
+          deepEqual(onFulfilled.called, true)
+          deepEqual(onFulfilled.getCall(0).args[0].data[0].name, "app1")
+        }).catch(function (err) {
+          fail(err)
         });
       });
     });

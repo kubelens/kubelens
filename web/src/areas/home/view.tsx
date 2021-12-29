@@ -69,7 +69,6 @@ const HomePage = (props: HomeViewProps) => {
                   itemRenderer={(index, key) => {
                     return (
                       <OverviewCard 
-                        key={key}
                         overview={filteredOverviews[index]}
                         index={index}
                         selectedOverview={selectedOverview}
