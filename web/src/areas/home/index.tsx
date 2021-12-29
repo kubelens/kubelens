@@ -41,7 +41,7 @@ export type HomeProps = {
   cluster: string,
   identityToken?: string,
   selectedOverview: string,
-  filteredApps: Overview[],
+  filteredOverviews: Overview[],
   overviews: Overview[],
   getOverviews(cluster: string, jwt: string): void,
   getOverview(appname: string, namespace: string, cluster: string, jwt: string): void,
@@ -78,7 +78,7 @@ export class Home extends Component<HomeProps, initialState> {
     if (!this.props.selectedOverview
       || nextProps.selectedOverview !== this.props.selectedOverview
       || nextProps.isLoading !== this.props.isLoading
-      || !_.isEqual(nextProps.filteredApps, this.props.filteredApps)) {
+      || !_.isEqual(nextProps.filteredOverviews, this.props.filteredOverviews)) {
       return true;
     }
     return false;

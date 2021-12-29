@@ -39,7 +39,7 @@ export type HomeViewProps =
     appName?: string
   }>> & {
     onFilterChanged: Function,
-    onViewApp(appname: string, namespace: string),
+    onViewApp(appname: string, namespace: string, labelSelector: string),
     filteredOverviews: Overview[],
     selectedOverview: SelectedOverview
   }

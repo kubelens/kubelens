@@ -19,4 +19,4 @@ describe('cluster reducer', () => {
       cluster: 'clustername'
     })
   })
-})
+}) 

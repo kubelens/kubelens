@@ -3,7 +3,7 @@ import sinon from 'sinon';
 import { deepEqual, fail } from 'assert';
 
 import adapter from './adapter';
-import { AppsActionTypes, getApps, getAppOverview, setselectedOverview, filterApps } from './apps';
+import { OverviewActionTypes, getOverviews, getOverview, setSelectedOverview, filterOverviews } from './overviews';
 
 import configureMockStore from "redux-mock-store";
 import thunk from "redux-thunk";
@@ -32,12 +32,12 @@ describe('getApps should', () => {
     const store = mockStore(res);
     const expectedActions = [ 
         LoadingActionTypes.LOADING,
-        AppsActionTypes.GET_APPS,
+        OverviewActionTypes.GET_OVERVIEWS,
         LoadingActionTypes.LOADING
     ];
     sinon.stub(adapter, 'get').resolves({data: res});
   
-    return store.dispatch(getApps("appname", encodeURIComponent('{"key":"value"}'), "minikube", ""))
+    return store.dispatch(getOverviews("appname", encodeURIComponent('{"key":"value"}'), "minikube", ""))
       .then(() => {
         deepEqual(store.getActions().map(action => action.type), expectedActions);
         deepEqual(store.getState(), res) 
@@ -56,7 +56,7 @@ describe('getApps should', () => {
     ];
     sinon.stub(adapter, 'get').throws(errResponse);
   
-    return store.dispatch(getApps("appname", encodeURIComponent('{"key":"value"}'), "minikube", ""))
+    return store.dispatch(getOverviews("appname", encodeURIComponent('{"key":"value"}'), "minikube", ""))
       .then(() => {
         fail("should not be successful.");
       })
@@ -74,7 +74,7 @@ describe('getApps should', () => {
     ];
     sinon.stub(adapter, 'get').throws('unexpected');
   
-    return store.dispatch(getApps("appname", encodeURIComponent('{"key":"value"}'), "minikube", ""))
+    return store.dispatch(getOverviews("appname", encodeURIComponent('{"key":"value"}'), "minikube", ""))
       .then(() => {
         fail("should not be successful.");
       })
@@ -84,17 +84,17 @@ describe('getApps should', () => {
   });
 });
 
-describe('getAppOverviews should', () => {
+describe('getOverview should', () => {
   test('succeed', () => {
     const store = mockStore();
     const expectedActions = [ 
         LoadingActionTypes.LOADING,
-        AppsActionTypes.GET_APP_OVERVIEW,
+        OverviewActionTypes.GET_OVERVIEW,
         LoadingActionTypes.LOADING
     ];
     sinon.stub(adapter, 'get').resolves(successResponse);
   
-    return store.dispatch(getAppOverview("appname", encodeURIComponent('{"key":"value"}'), "minikube", ""))
+    return store.dispatch(getOverview("appname", encodeURIComponent('{"key":"value"}'), "minikube", ""))
       .then(() => {
         deepEqual(store.getActions().map(action => action.type), expectedActions);
       })
@@ -112,7 +112,7 @@ describe('getAppOverviews should', () => {
     ];
     sinon.stub(adapter, 'get').rejects(errResponse);
   
-    return store.dispatch(getAppOverview("appname", encodeURIComponent('{"key":"value"}'), "minikube", ""))
+    return store.dispatch(getOverview("appname", encodeURIComponent('{"key":"value"}'), "minikube", ""))
       .then(() => {
         fail("should not succeed.");
       })
@@ -130,7 +130,7 @@ describe('getAppOverviews should', () => {
     ];
     sinon.stub(adapter, 'get').rejects('unexpected');
   
-    return store.dispatch(getAppOverview("appname", encodeURIComponent('{"key":"value"}'), "minikube", ""))
+    return store.dispatch(getOverview("appname", encodeURIComponent('{"key":"value"}'), "minikube", ""))
       .then(() => {
         fail("should not succeed.");
       })
@@ -144,9 +144,9 @@ describe('non-api calls actions should', () => {
   test('setselectedOverview', async () => {
     const store = mockStore();
     const expectedActions = [ 
-      AppsActionTypes.SET_SELECTED_APP_NAME
+      OverviewActionTypes.SET_SELECTED_OVERVIEW
     ];
-    return store.dispatch(setselectedOverview('testapp'))
+    return store.dispatch(setSelectedOverview('testapp'))
       .then(() => {
         deepEqual(store.getActions().map(action => action.type), expectedActions);
       })
@@ -155,12 +155,12 @@ describe('non-api calls actions should', () => {
       })
   });
 
-  test('filterApps', async () => {
+  test('filterOverviews', async () => {
     const store = mockStore();
     const expectedActions = [ 
-      AppsActionTypes.FILTER_APPS
+      OverviewActionTypes.FILTER_OVERVIEWS
     ];
-    return store.dispatch(filterApps('appname', [{name: 'appname'}]))
+    return store.dispatch(filterOverviews('appname', [{linkedName: 'appname',namespace:'default'}]))
       .then(() => {
         deepEqual(store.getActions().map(action => action.type), expectedActions);
       })
