@@ -1,5 +1,9 @@
 # Kubelens
 
+[![api](https://github.com/kubelens/kubelens/actions/workflows/api.yml/badge.svg)](https://github.com/kubelens/kubelens/actions/workflows/api.yml)
+
+[![web](https://github.com/kubelens/kubelens/actions/workflows/web.yml/badge.svg)](https://github.com/kubelens/kubelens/actions/workflows/web.yml)
+
 Giving software engineers a quick view into applications running within [Kubernetes](https://kubernetes.io/).
 
 - Fully functional and has been running in multiple K8s clusters in an enterprise production environment since mid-spring 2019.
