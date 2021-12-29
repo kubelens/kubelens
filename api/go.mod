@@ -18,4 +18,4 @@ require (
 	k8s.io/client-go v0.21.2
 )
 
-replace github.com/google/gnostic => github.com/googleapis/gnostic v0.5.7
+replace github.com/googleapis/gnostic => github.com/google/gnostic v0.5.7
