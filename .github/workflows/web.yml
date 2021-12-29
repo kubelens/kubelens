@@ -39,7 +39,7 @@ jobs:
       - 
         name: npm test
         shell: bash
-        run: npm test:ci
+        run: npm run test:ci
 
   push_to_registry:
     name: Push Docker image to Docker Hub
