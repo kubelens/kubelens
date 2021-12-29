@@ -1,0 +1,104 @@
+name: api
+
+on:
+  push:
+    branches:
+      - staging
+      - master
+    tags:
+      - 'v*'
+    paths-ignore:
+      - ".helm-charts"
+      - "web"
+      - "Makefile"
+      - "**.md"
+  pull_request:
+    branches:
+      - 'staging'
+      - 'master'
+    paths-ignore:
+      - ".helm-charts"
+      - "web"
+      - "Makefile"
+      - "**.md"
+
+env:
+  IMAGE_BASE_VERSION: "3.2"
+
+defaults:
+  run:
+    working-directory: api
+  
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v2
+        
+      - 
+        name: make test
+        shell: bash
+        run: make -s test
+
+  push_to_registry:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Check out the repo
+        uses: actions/checkout@v2
+        
+      - 
+        name: ENV Setup
+        shell: bash
+        run: |
+          if [ "${GITHUB_REF##*/}" == "master" ]; then
+            echo "IMAGE_VERSION=${{env.IMAGE_BASE_VERSION}}.${{github.run_number}}" >> $GITHUB_ENV
+          else
+            echo "IMAGE_VERSION=${{env.IMAGE_BASE_VERSION}}.${{github.run_number}}-staging" >> $GITHUB_ENV
+          fi
+          
+      -
+        name: Docker Build
+        run: |
+          docker build . \
+            --output type=docker \
+            --label org.opencontainers.image.title=kubelens-api \
+            --label org.opencontainers.image.description='A lightweight lens for applications running in Kubernetes.' \
+            --label org.opencontainers.image.url=https://github.com/kubelens/kubelens \
+            --label org.opencontainers.image.source=https://github.com/kubelens/kubelens \
+            --label org.opencontainers.image.version=$IMAGE_VERSION \
+            --label org.opencontainers.image.created=$(date +%v) \
+            --label org.opencontainers.image.revision=$GITHUB_SHA \
+            --label org.opencontainers.image.licenses=MIT \
+            -t kubelens/kubelens-api:$IMAGE_VERSION
+          
+      - 
+        name: Docker Security Scan
+        uses: Azure/container-scan@v0
+        with:
+          image-name: kubelens/kubelens-api:${{ env.IMAGE_VERSION }}
+
+      -
+        name: Login to DockerHub
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      -
+        name: Docker Push
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          docker push kubelens/kubelens-api:$IMAGE_VERSION
+          
+      -
+        name: Docker Push Latest
+        if: ${{ github.ref_name == 'master' }}
+        run: |
+            docker tag kubelens/kubelens-api:$IMAGE_VERSION kubelens/kubelens-api:latest
+            docker push kubelens/kubelens-api:latest

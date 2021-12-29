@@ -5,7 +5,21 @@ depends:
 
 .PHONY: test
 test:
-	bash ../_scripts/go-test-cover.sh
+	go version
+
+	echo "mode: count" > coverage-all.out
+	
+	$(foreach pkg,$(shell go list ./... | grep -v -e /vendor/ -e "fakes"), \
+		go test -p=1 -cover -covermode=count -coverprofile=coverage.out ${pkg} || exit 1; \
+		tail -n +2 coverage.out >> coverage-all.out;)
+
+	COVERAGE=$$(go tool cover -func=coverage-all.out | tail -1 | tr -d '[:space:]' | tr -d '()' | tr -d '%' | tr -d ':' | sed -e 's/total//g' | sed -e 's/statements//g'); \
+	if [ $$(echo "$${COVERAGE} < 65" | bc) -eq 1 ]; then \
+		echo "Insufficient Test Coverage: $${COVERAGE}"; \
+		exit 1; \
+	else \
+		echo "Total Coverage: $${COVERAGE}"; \
+	fi
 
 .PHONY: docker-build-push
 docker-build-push:
