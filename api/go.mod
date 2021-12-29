@@ -17,3 +17,5 @@ require (
 	k8s.io/apimachinery v0.21.2
 	k8s.io/client-go v0.21.2
 )
+
+replace github.com/google/gnostic => github.com/googleapis/gnostic v0.5.7
