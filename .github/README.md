@@ -1,5 +1,7 @@
 # Kubelens
 
+## Due to many great observability products available for Kubernetes, this project is now archived.
+
 [![api](https://github.com/kubelens/kubelens/actions/workflows/api.yml/badge.svg)](https://github.com/kubelens/kubelens/actions/workflows/api.yml)
 
 [![web](https://github.com/kubelens/kubelens/actions/workflows/web.yml/badge.svg)](https://github.com/kubelens/kubelens/actions/workflows/web.yml)
