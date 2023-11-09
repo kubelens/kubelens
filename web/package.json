@@ -13,7 +13,7 @@
     "history": "^4.10.1",
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.15",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "qs": "^6.10.1",
     "react": "^16.13.1",
     "react-clipboard.js": "^2.0.16",
